@@ -18,7 +18,6 @@ The architecture is built on a decoupled client-server model, separating the cor
 *   **Historical Data Logging:** Every 10-second reading is permanently stored for historical analysis.
 *   **History Viewer:** A dedicated page in the web interface to browse, paginate, and download historical data logs.
 *   **Error Monitoring:** Integrated remote error logging to proactively identify and diagnose issues.
-*   **Easy Deployment:** The entire application stack is containerized for a simple, one-command setup.
 
 ## Technology & Architecture
 
@@ -46,15 +45,6 @@ The user interface is a modern single-page application (SPA) built with **React*
 Instead of fragile text files, all historical readings are stored in a robust **PostgreSQL** database.
 
 *   **Why PostgreSQL?** It is a powerful, open-source, and reliable relational database perfect for storing structured time-series data. It provides the ability to easily query, index, and manage vast amounts of historical information. The database will run in its own dedicated container for isolation and easy management.
-
-### Containerization & Deployment (Docker)
-
-The entire application—backend, frontend, and database—is containerized using **Docker**.
-
-*   **Simplicity and Consistency:** Docker ensures that the application runs the same way everywhere, from the developer's machine to the end-user's server. It packages the application and all its dependencies into isolated containers.
-*   **One-Command Setup (Docker Compose):** The entire multi-container stack is defined in a `docker-compose.yml` file. This allows the user to set up and run the entire system (backend, frontend, and database) with a single command: `docker-compose up`.
-*   **Hardware Access:** The Docker configuration will map the host machine's physical serial port directly into the backend container, granting it the necessary access to communicate with the RS-485 sensor.
-*   **Resilience:** The containers are configured with a restart policy (`unless-stopped`) to ensure that if the application or server reboots, the monitoring service automatically comes back online.
 
 ### Logging & Error Monitoring (Sentry)
 

@@ -4,11 +4,7 @@
 - Do we need to support multiple units?
 - What happens when the program starts? Does it read the last known values from a persistent store or start fresh?
 - How much historical data should be kept? Is there a retention policy?
-
-# Technical Questions
-
 - How should the application handle the case where the RS-485 sensor is not available or fails to respond?
-- How should migrations be handled? 
 
 
 **Additional Questions to Consider (Self-Hosted Docker Focus):**
