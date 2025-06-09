@@ -1,0 +1,1 @@
+- What is the default unit for temperature readings? Do we need to support multiple units?
