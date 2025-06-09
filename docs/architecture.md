@@ -91,6 +91,7 @@ This service acts as a fast, in-memory cache and calculator for the real-time da
 - Cache the last pushed reading for quick access if the client disconnects and reconnects. (`LatestUpdate` property)
 - Maintain a private, in memory state for daily extremes (min/max) for temperature, humidity, and dew point.
 - Hydrate the latest reading and calculate the latest 1-minute rolling averages for temperature, humidity, and dew point.
+- Maintain a 12-hour rolling average for temperature, humidity, and dew point.
 - Maintain a private `DateTime? _currentDay` to track the current day for resetting daily extremes.
     - When the day changes, reset the min/max values for temperature, humidity, and dew point.
     - If a day changes the `_currentDay` is updated to the new day.
@@ -155,6 +156,12 @@ This is the real-time communication endpoint for the application. The React fron
 - `double Humidity`
 - `double DewPoint`
 
+**TwelveHourAverageDto:**
+- `DateTime Timestamp`
+- `double? Temperature`
+- `double? Humidity`
+- `double? DewPoint`
+
 **UpdateDto:**
 
 - `ReadingDto LatestReading`
@@ -164,6 +171,7 @@ This is the real-time communication endpoint for the application. The React fron
 - `MinMaxDto TemperatureMinMax`
 - `MinMaxDto HumidityMinMax`
 - `MinMaxDto DewPointMinMax`
+- `TwelveHourAverageDto TwelveHourAverage`
 
 ## Web API
 

@@ -1,7 +1,8 @@
 # Use Cases
 
-- Which unit should be the source of truth in the database?
+- Which unit should be the source of truth?
 - Do we need to support multiple units?
+- What do you use the log files for?
 - What happens when the program starts? Does it read the last known values from a persistent store or start fresh?
 - How much historical data should be kept? Is there a retention policy?
 - How should the application handle the case where the RS-485 sensor is not available or fails to respond?
