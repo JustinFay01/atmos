@@ -61,12 +61,8 @@
     *   Setup `Atmos.Tests` project (xUnit/NUnit/MSTest).
     *   Write initial unit tests for `Aggregator` logic (e.g., average calculations, extreme updates).
     *   Write unit tests for `MockSensorClient`.
-2.  **Backend Dockerization & Real Sensor Integration:**
-    *   Create `Dockerfile` for `Atmos.Presentation`.
-    *   Update `docker-compose.yml` to build and run the backend container.
-    *   **Crucial:** Configure Docker to map the host's serial port to the backend container.
+2.  **Real Sensor Integration:**
     *   Implement `Rs485SensorClient` (actual serial port communication logic).
-    *   **Thoroughly test** serial port communication *through the Docker container*. This is a high-risk area.
     *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` easily (e.g., via environment variable in `docker-compose.yml`).
 3.  **Database Migrations in Docker:**
     *   Research and implement a strategy for applying EF Core migrations automatically when the backend container starts (e.g., in `Program.cs` or an entrypoint script). Test this thoroughly.
