@@ -2,6 +2,19 @@
 
 ### High Level Flow
 
+- Repeated loop is numbered while unique startup and shutdown (or other) are _italicized_.
+
+_Backend Core Functionality Startup_: The Orchestrator service startups up and does the following:
+    - Based on a configuration setting, it initializes the `ISensorClient` (either `Rs485SensorClient` or `MockSensorClient`).
+    - Initializes the `IAggregator` service, and decides to hydrate based on the last n readings. Where n is defined by the configuration by a least 1 minute and at maximum 1 day.
+        - If there is not enough data to hydrate based on the configuration, a warning will be logged and the aggregator will start with an empty state. 
+
+_React Frontend Startup (this would take place on refresh or new opening of the window)_: The React frontend connects to the SignalR hub and starts listening for updates.
+    - The frontend will, by default, request the latest data from the server to populate the UI.
+    - This will include the 12 hour table average, the latest reading, and any other relevant data.
+
+### Sensor Polling Loop
+
 1. **Awaken**: The `SensorPollingWorker` awakes from sleep every 10 seconds.
 2. **Read Sensor**: It calls the `ISensorClient` to read data from the RS-485 sensor.
 3. **Transform Data**: The raw sensor data is transformed into a `Reading` entity.
@@ -15,6 +28,11 @@
 7. **UI Handles update**: The React frontend receives the `UpdateDto` and updates the UI in real-time.
 8. **Sleep**: The `SensorPollingWorker` goes back to sleep for 10 seconds before repeating the cycle.
 
+
+_React triggered restart_: If the user decides to restart the polling service (for example, after a configuration change), the React frontend can send a request to the backend to stop and restart the `SensorPollingWorker`. This will gracefully shut down the current polling loop and start a new one with the updated configuration.
+
+
+_React triggered dehydrate_: If the user wants to clear the in-memory cache of the `IAggregator`, they can send a request to the backend to dehydrate the aggregator. This will clear the in-memory state, allowing it to start fresh with new readings.
 
 ## Data & Infrastructure
 
