@@ -1,9 +1,87 @@
 # 🏗️ Atmos Architecture
 
-## Data & Service Layer
+### High Level Flow
 
-The backend consists of three primary logical components that work together: the Orchestrator, the Hardware Client, and the Data Repository.
+1. **Awaken**: The `SensorPollingWorker` awakes from sleep every 10 seconds.
+2. **Read Sensor**: It calls the `ISensorClient` to read data from the RS-485 sensor.
+3. **Transform Data**: The raw sensor data is transformed into a `Reading` entity.
+4. **Persist & Delegate**: The `Reading` entity is saved to the database and passed to the `IAggregator` in parallel using a fire and forget approach for the database operation.
+5. **Calculate and Aggregate**: The `IAggregator` executes the core logic:
+    - Cache: Adds the reading to an in-memory cache.
+    - Updates Extremes: Updates the daily extremes for temperature, humidity, and dew point.
+    - Calculates Averages: Computes the latest 1-minute rolling averages for temperature, humidity, and dew point.
+    - Construct payload: Constructs an `UpdateDto` containing the latest statistics.
+6. **Broadcast Update**: The `IAggregator` uses the `IHubContext` to broadcast the `UpdateDto` to all connected clients via SignalR.
+7. **UI Handles update**: The React frontend receives the `UpdateDto` and updates the UI in real-time.
+8. **Sleep**: The `SensorPollingWorker` goes back to sleep for 10 seconds before repeating the cycle.
 
+
+## Data & Infrastructure
+
+### Data Models and Schema
+
+**Reading Entity:**
+- `UUID Id`
+- `DateTime Timestamp`: Server-side timestamp of when the reading was taken. Will be indexed for fast querying.
+- `double Temperature`: Temperature reading from the sensor.
+- `double Humidity`: Humidity reading from the sensor.
+- `double DewPoint`: Dew point calculated from the temperature and humidity.
+
+**SensorData DTO:**
+- `double Temperature`
+- `double Humidity`
+- `double DewPoint`
+
+
+### Hardware Client
+
+**Purpose:**
+- Interface with the RS-485 sensor over a Serial Port connection.
+**Implementation:**
+- An interface `ISensorClient` that defines methods for reading data from the sensor.
+- A concrete implementation `Rs485SensorClient` that uses the .NET `System.IO.Ports.SerialPort` class to manage the connection and communication. As well as a `MockSensorClient` for testing purposes.
+
+**Responsibilities:**
+- Manage the Serial Port connection.
+- Sending the correct command bytes to the RS-485 sensor.
+Reading and parsing the response from the sensor.
+- Translating the raw response into the DTO (Data Transfer Object) format.
+- Throwing custom, well-defined exceptions for any errors encountered during communication.
+
+
+## Service
+
+- Interfaces for `ISensorClient` belongs here. 
+
+### Aggregator (Sensor Data Processing)
+
+This service acts as a fast, in-memory cache and calculator for the real-time dashboard metrics. It holds a "hot" window of the most recent data to generate averages and other statistics without needing to query the database for every update.
+
+**Purpose:**
+- Aggregate and process sensor data for real-time metrics.
+- Maintain short-term, in-memory storage of recent sensor readings.
+- Trigger real-time updates to connected clients via SignalR.
+
+**Implementation:**
+- A singleton service that implements `IAggregator`.
+- It must be a singleton to maintain state across requests.
+- Uses a `ConcurrentQueue<SensorData>` to store the most recent readings.
+
+**Responsibilities:**
+- Maintain a thread-safe collection of recent sensor readings from the last ~5-10 minutes. This will be pruned periodically to keep the collection size manageable.
+- Exposes a processing method that calculates averages, min/max, and other statistics from the recent readings.
+- Cache the last pushed reading for quick access if the client disconnects and reconnects. (`LatestUpdate` property)
+- Maintain a private, in memory state for daily extremes (min/max) for temperature, humidity, and dew point.
+- Hydrate the latest reading and calculate the latest 1-minute rolling averages for temperature, humidity, and dew point.
+- Maintain a private `DateTime? _currentDay` to track the current day for resetting daily extremes.
+    - When the day changes, reset the min/max values for temperature, humidity, and dew point.
+    - If a day changes the `_currentDay` is updated to the new day.
+- Upon receiving new data, it will:
+    1. Add the new reading to the internal cache
+    2. Calculate the latest 1 minute rolling average for temperature, humidity, and dew point.
+    2. Update the running min/max values of the day if required.
+    4. Construct the `UpdateDto` (to be named later) which will house the latest statistics.
+    5. Use the injected `IHubContext` to send the `UpdateDto` to all connected clients.
 
 ### Orchestrator (Sensor Polling Worker)
 
@@ -25,49 +103,50 @@ This is the main engine of the application. It is a long-running background serv
 - `ILogger<Orchestrator>`: For logging errors and important events during the polling process.
 
 
-### Hardware Client
+## SignalR Hub
+
+This is the real-time communication endpoint for the application. The React frontend will connect to this hub to receive live updates without needing to poll the server.
 
 **Purpose:**
-- Interface with the RS-485 sensor over a Serial Port connection.
-**Implementation:**
-- An interface `ISensorClient` that defines methods for reading data from the sensor.
-- A concrete implementation `Rs485SensorClient` that uses the .NET `System.IO.Ports.SerialPort` class to manage the connection and communication. As well as a `MockSensorClient` for testing purposes.
+- Provide a real-time communication channel for the frontend to receive updates.
+- Send updates to connected clients whenever new sensor data is processed.
+
+**Implementation**:
+- A class AtmosHub that inherits from Microsoft.AspNetCore.SignalR.Hub.
+- It will be largely passive; its primary role is to be the target for the AggregatorService. The hub itself won't contain significant logic.
+- It can contain OnConnectedAsync and OnDisconnectedAsync overrides to log client connections and disconnections, which is useful for debugging.
 
 **Responsibilities:**
-- Manage the Serial Port connection.
-- Sending the correct command bytes to the RS-485 sensor.
-Reading and parsing the response from the sensor.
-- Translating the raw response into the DTO (Data Transfer Object) format.
-- Throwing custom, well-defined exceptions for any errors encountered during communication.
+- Receive `UpdateDto` from the AggregatorService and broadcast it to all connected clients.
+- Maintain a list of connected clients for debugging purposes.
+- Manage the lifecycle of client connections, including logging when clients connect or disconnect.
 
+#### DTOs
 
-### Data Repository
+**AverageDto:**
+- `double? OneMinute`
+- `double? FiveMinute`
 
-**Purpose:**
-- Provide a clean interface for storing and retrieving sensor readings.
-**Implementation:**
-- An interface `IReadingRepository` that defines methods for saving and querying readings. 
+**MinMaxDto:**
+- `double Min`
+- `double Max`
 
-
-### Data Models and Schema
-
-**Reading Entity:**
-- `UUID Id`
-- `DateTime Timestamp`: Server-side timestamp of when the reading was taken. Will be indexed for fast querying.
-- `double Temperature`: Temperature reading from the sensor.
-- `double Humidity`: Humidity reading from the sensor.
-- `double DewPoint`: Dew point calculated from the temperature and humidity.
-
-**SensorData DTO:**
+**ReadingDto:**
+- `DateTime Timestamp`
 - `double Temperature`
 - `double Humidity`
 - `double DewPoint`
 
-### High Level Flow
+**UpdateDto:**
 
-1. The `SensorPollingWorker` main loop awakens every 10 seconds.
-2. The worker class calls the `ISensorClient` to read data from the RS-485 sensor.
-3. The `Rs485SensorClient` sends a command, awaits a response, parses the data, and returns a `SensorData` DTO.
-4. The worker transforms the `SensorData` into a `Reading` entity via `AutoMapper`.
-5. The worker calls the `IReadingRepository` to save the `Reading` entity to the database and adds the server-side timestamp.
-6. The worker loops completes and calls `Tas.Delay()` to wait for the next cycle. 
+- `ReadingDto LatestReading`
+- `AverageDto TemperatureAverage`
+- `AverageDto HumidityAverage`
+- `AverageDto DewPointAverage`
+- `MinMaxDto TemperatureMinMax`
+- `MinMaxDto HumidityMinMax`
+- `MinMaxDto DewPointMinMax`
+
+## Web API
+
+This is the RESTful API that the React frontend will use to fetch historical data and other information. It will also provide endpoints for administrative tasks like resetting the daily extremes.
