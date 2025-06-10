@@ -13,3 +13,6 @@ C:\Users\justi\code\atmos\Atmos\Infrastructure\obj\Debug\net9.0\Infrastructure.p
 C:\Users\justi\code\atmos\Atmos\Infrastructure\obj\Debug\net9.0\ref\Infrastructure.dll
 C:\Users\justi\code\atmos\Atmos\Infrastructure\bin\Debug\net9.0\Infrastructure.runtimeconfig.json
 C:\Users\justi\code\atmos\Atmos\Infrastructure\obj\Debug\net9.0\Infrastructure.genruntimeconfig.cache
+C:\Users\justi\code\atmos\Atmos\Infrastructure\bin\Debug\net9.0\Domain.dll
+C:\Users\justi\code\atmos\Atmos\Infrastructure\bin\Debug\net9.0\Domain.pdb
+C:\Users\justi\code\atmos\Atmos\Infrastructure\obj\Debug\net9.0\Infrastr.15EFFBFE.Up2Date

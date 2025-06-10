@@ -1,0 +1,12 @@
+C:\Users\justi\code\atmos\Atmos\Domain\bin\Debug\net9.0\Domain.deps.json
+C:\Users\justi\code\atmos\Atmos\Domain\bin\Debug\net9.0\Domain.dll
+C:\Users\justi\code\atmos\Atmos\Domain\bin\Debug\net9.0\Domain.pdb
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\Domain.AssemblyInfoInputs.cache
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\Domain.AssemblyInfo.cs
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\Domain.csproj.CoreCompileInputs.cache
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\Domain.sourcelink.json
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\Domain.dll
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\refint\Domain.dll
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\Domain.pdb
+C:\Users\justi\code\atmos\Atmos\Domain\obj\Debug\net9.0\ref\Domain.dll

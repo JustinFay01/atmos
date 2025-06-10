@@ -1,17 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Entities;
-
-public interface IBaseEntity<T>
-{
-    T Id { get; set; }
-}
-
-public abstract class BaseEntity : IBaseEntity<Guid>
-{
-    public Guid Id { get; set; }
-}
+namespace Infrastructure.Configuration;
 
 public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
     where TEntity : BaseEntity
