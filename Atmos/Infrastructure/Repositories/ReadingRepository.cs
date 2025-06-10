@@ -12,14 +12,9 @@ public class ReadingRepository : IReadingRepository
         _context = context;
     }
 
-    public Task CreateAsync(Reading reading, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(Reading reading, CancellationToken cancellationToken = default)
     {
-        if (reading == null)
-        {
-            throw new ArgumentNullException(nameof(reading), "Reading cannot be null");
-        }
-
-        _context.Readings.Add(reading);
-        return _context.SaveChangesAsync(cancellationToken);
+        await _context.Readings.AddAsync(reading, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

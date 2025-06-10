@@ -1,10 +1,10 @@
 namespace Application;
 
-public class Worker : BackgroundService
+public class SensorPollingWorker : BackgroundService
 {
-    private readonly ILogger<Worker> _logger;
+    private readonly ILogger<SensorPollingWorker> _logger;
 
-    public Worker(ILogger<Worker> logger)
+    public SensorPollingWorker(ILogger<SensorPollingWorker> logger)
     {
         _logger = logger;
     }
