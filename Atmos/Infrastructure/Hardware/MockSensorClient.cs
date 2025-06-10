@@ -1,6 +1,6 @@
-﻿namespace Infrastructure.Hardware;
+namespace Infrastructure.Hardware;
 
 public class MockSensorClient
 {
-    
+
 }

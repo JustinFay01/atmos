@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities;
+namespace Domain.Entities;
 public interface IBaseEntity<T>
 {
     T Id { get; set; }

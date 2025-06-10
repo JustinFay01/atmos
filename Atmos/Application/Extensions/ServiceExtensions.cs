@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Application.Services;
 
 namespace Application.Extensions;
@@ -11,7 +11,7 @@ public static class ServiceExtensions
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddSingleton<IAggregator, AggregatorService>();
-        
+
         return services;
     }
 }

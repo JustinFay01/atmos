@@ -1,0 +1,9 @@
+repos:
+  -   repo: local
+      hooks:
+        -   id: dotnet-format-backend
+            name: Format .NET Backend Code (C#)
+            entry: dotnet format Atmos/Atmos.sln --no-restore --verbosity detailed --include
+            verbose: true
+            language: system
+            files: \.(cs|csproj|props|targets)$

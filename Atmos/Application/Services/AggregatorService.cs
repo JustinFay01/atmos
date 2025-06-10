@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
+
 using Domain.Entities;
 
 namespace Application.Services;
@@ -6,7 +7,7 @@ namespace Application.Services;
 public class AggregatorService : IAggregator
 {
     private readonly ILogger<AggregatorService> _logger;
-    
+
     public AggregatorService(ILogger<AggregatorService> logger)
     {
         _logger = logger;

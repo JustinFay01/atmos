@@ -1,5 +1,7 @@
 using Application.Interfaces;
+
 using AutoMapper;
+
 using Domain.Entities;
 using Domain.Interfaces;
 
@@ -25,21 +27,21 @@ public class SensorPollingWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogDebug("SensorPollingWorker is starting.");
-        
+
         // TODO: Add error handling
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-           
+
             var latestReadingDto = await _sensorClient.GetReadingAsync(stoppingToken);
             _logger.LogDebug("Latest reading received: {reading}", latestReadingDto);
-            
+
             var readingEntity = _mapper.Map<Reading>(latestReadingDto);
-            
+
             var saveTask = _readingRepository.CreateAsync(readingEntity, stoppingToken);
             var processTask = _aggregator.ProcessReadingAsync(readingEntity);
-            await Task.WhenAll(saveTask, processTask);    
-            
+            await Task.WhenAll(saveTask, processTask);
+
             await Task.Delay(1000, stoppingToken);
         }
     }

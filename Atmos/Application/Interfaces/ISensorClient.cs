@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 
 namespace Application.Interfaces;
 
@@ -8,5 +8,5 @@ public interface ISensorClient
     public Task ConnectAsync(CancellationToken cancellationToken);
     public Task DisconnectAsync(CancellationToken cancellationToken);
     public Task<ReadingDto> GetReadingAsync(CancellationToken cancellationToken);
-    
+
 }
