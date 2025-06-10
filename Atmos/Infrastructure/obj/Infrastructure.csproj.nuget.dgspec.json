@@ -1,32 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\justi\\code\\atmos\\Atmos\\Infrastructure\\Infrastructure.csproj": {}
+    "/Users/justin.fay/code/personal/atmos/Atmos/Infrastructure/Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Users\\justi\\code\\atmos\\Atmos\\Domain\\Domain.csproj": {
+    "/Users/justin.fay/code/personal/atmos/Atmos/Domain/Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\justi\\code\\atmos\\Atmos\\Domain\\Domain.csproj",
+        "projectUniqueName": "/Users/justin.fay/code/personal/atmos/Atmos/Domain/Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "C:\\Users\\justi\\code\\atmos\\Atmos\\Domain\\Domain.csproj",
-        "packagesPath": "C:\\Users\\justi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\justi\\code\\atmos\\Atmos\\Domain\\obj\\",
+        "projectPath": "/Users/justin.fay/code/personal/atmos/Atmos/Domain/Domain.csproj",
+        "packagesPath": "/Users/justin.fay/.nuget/packages/",
+        "outputPath": "/Users/justin.fay/code/personal/atmos/Atmos/Domain/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\justi\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/justin.fay/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "/usr/local/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -43,9 +37,9 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "direct"
+          "auditMode": "all"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -66,41 +60,35 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\justi\\code\\atmos\\Atmos\\Infrastructure\\Infrastructure.csproj": {
+    "/Users/justin.fay/code/personal/atmos/Atmos/Infrastructure/Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\justi\\code\\atmos\\Atmos\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "/Users/justin.fay/code/personal/atmos/Atmos/Infrastructure/Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "C:\\Users\\justi\\code\\atmos\\Atmos\\Infrastructure\\Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\justi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\justi\\code\\atmos\\Atmos\\Infrastructure\\obj\\",
+        "projectPath": "/Users/justin.fay/code/personal/atmos/Atmos/Infrastructure/Infrastructure.csproj",
+        "packagesPath": "/Users/justin.fay/.nuget/packages/",
+        "outputPath": "/Users/justin.fay/code/personal/atmos/Atmos/Infrastructure/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\justi\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/justin.fay/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "/usr/local/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\justi\\code\\atmos\\Atmos\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\justi\\code\\atmos\\Atmos\\Domain\\Domain.csproj"
+              "/Users/justin.fay/code/personal/atmos/Atmos/Domain/Domain.csproj": {
+                "projectPath": "/Users/justin.fay/code/personal/atmos/Atmos/Domain/Domain.csproj"
               }
             }
           }
@@ -113,9 +101,9 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "direct"
+          "auditMode": "all"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -152,7 +140,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

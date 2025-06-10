@@ -1,6 +1,8 @@
-﻿namespace Application.Services;
+﻿using Application.Interfaces;
 
-public class AggregatorService
+namespace Application.Services;
+
+public class AggregatorService : IAggregator
 {
     
 }
