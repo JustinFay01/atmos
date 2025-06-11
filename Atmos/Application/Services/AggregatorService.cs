@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 using Application.Interfaces;
 
 using Domain.Entities;
@@ -15,9 +17,9 @@ public class AggregatorService : IAggregator
         _logger = logger;
     }
 
-    public IReadOnlyCollection<Reading> TenSecondReadings { get; }
-    public IReadOnlyCollection<Reading> OneMinuteRollingAverage { get; }
-    public IReadOnlyCollection<Reading> FiveMinuteRollingAverage { get; }
+    public ConcurrentQueue<Reading> TenSecondReadings { get; } = [];
+    public ConcurrentQueue<Reading> OneMinuteRollingAverage { get; } = [];
+    public ConcurrentQueue<Reading> FiveMinuteRollingAverage { get; } = [];
 
     public Task ProcessReadingAsync(Reading reading)
     {

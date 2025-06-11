@@ -55,7 +55,7 @@
             },
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
-              "version": "[9.0.3, )"
+              "version": "[9.0.6, )"
             }
           },
           "imports": [
@@ -163,9 +163,6 @@
             "projectReferences": {
               "/Users/justin.fay/code/personal/atmos/Atmos/Application/Application.csproj": {
                 "projectPath": "/Users/justin.fay/code/personal/atmos/Atmos/Application/Application.csproj"
-              },
-              "/Users/justin.fay/code/personal/atmos/Atmos/Domain/Domain.csproj": {
-                "projectPath": "/Users/justin.fay/code/personal/atmos/Atmos/Domain/Domain.csproj"
               }
             }
           }
@@ -188,13 +185,13 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.5, )"
+              "version": "[9.0.6, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.5, )"
+              "version": "[9.0.6, )"
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",

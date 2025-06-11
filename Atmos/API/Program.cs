@@ -15,7 +15,7 @@ public class Program
 
         builder.Services.AddSignalR();
         builder.Services.UseAtmosInfrastructure(builder.Configuration);
-        builder.Services.UseApplicationServices();
+        builder.Services.UseAtmosApplicationServices();
         builder.Services.AddHostedService<SensorPollingWorker>();
 
         var app = builder.Build();
