@@ -44,7 +44,7 @@ public class SensorPollingWorker : BackgroundService
                 _logger.LogDebug("Latest reading received: {reading}", sensorData);
 
                 var reading = _mapper.Map<Reading>(sensorData);
-                _ = readingRepository.CreateAsync(reading, stoppingToken);
+                await readingRepository.CreateAsync(reading, stoppingToken);
                 await _aggregator.ProcessReadingAsync(reading);
             }
             catch (Exception ex)
