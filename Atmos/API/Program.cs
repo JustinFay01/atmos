@@ -15,7 +15,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddSignalR();
-        builder.Services.AddSingleton<IRealtimeUpdateNotifier, DashboardHub>();
+        builder.Services.AddSingleton<IRealtimeUpdateNotifier, RealTimeUpdateNotifier>();
         builder.Services.UseAtmosInfrastructure(builder.Configuration);
         builder.Services.UseAtmosApplicationServices();
         builder.Services.AddHostedService<SensorPollingWorker>();

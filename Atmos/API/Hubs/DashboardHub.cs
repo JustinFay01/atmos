@@ -5,10 +5,24 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace API.Hubs;
 
-public class DashboardHub : Hub, IRealtimeUpdateNotifier
+public class DashboardHub : Hub
 {
-    public async Task SendDashboardUpdate(ReadingDto reading)
+    private readonly ILogger<DashboardHub> _logger;
+
+    public DashboardHub(ILogger<DashboardHub> logger)
     {
-        await Clients.All.SendAsync("ReceiveDashboardUpdate", reading);
+        _logger = logger;
+    }
+
+    public override async Task OnConnectedAsync()
+    {
+        await base.OnConnectedAsync();
+        _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        await base.OnDisconnectedAsync(exception);
+        _logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
     }
 }
