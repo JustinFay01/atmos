@@ -2,6 +2,8 @@ using Application.Interfaces;
 
 using Domain.Entities;
 
+using Microsoft.Extensions.Logging;
+
 namespace Application.Services;
 
 public class AggregatorService : IAggregator

@@ -5,6 +5,9 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
 
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
 namespace Application;
 
 public class SensorPollingWorker : BackgroundService
