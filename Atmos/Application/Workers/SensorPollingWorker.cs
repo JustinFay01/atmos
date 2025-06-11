@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,37 +16,43 @@ public class SensorPollingWorker : BackgroundService
     private readonly ILogger<SensorPollingWorker> _logger;
     private readonly ISensorClient _sensorClient;
     private readonly IAggregator _aggregator;
-    private readonly IReadingRepository _readingRepository;
     private readonly IMapper _mapper;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public SensorPollingWorker(ILogger<SensorPollingWorker> logger, IAggregator aggregator, ISensorClient sensorClient, IMapper mapper, IReadingRepository readingRepository)
+    public SensorPollingWorker(ILogger<SensorPollingWorker> logger, IAggregator aggregator, ISensorClient sensorClient, IMapper mapper, IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
         _aggregator = aggregator;
         _sensorClient = sensorClient;
         _mapper = mapper;
-        _readingRepository = readingRepository;
+        _scopeFactory = scopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogDebug("SensorPollingWorker is starting.");
 
-        // TODO: Add error handling
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var readingRepository = scope.ServiceProvider.GetRequiredService<IReadingRepository>();
+                var sensorData = await _sensorClient.GetReadingAsync(stoppingToken);
 
-            var latestReadingDto = await _sensorClient.GetReadingAsync(stoppingToken);
-            _logger.LogDebug("Latest reading received: {reading}", latestReadingDto);
+                _logger.LogDebug("Latest reading received: {reading}", sensorData);
 
-            var readingEntity = _mapper.Map<Reading>(latestReadingDto);
+                var reading = _mapper.Map<Reading>(sensorData);
+                _ = readingRepository.CreateAsync(reading, stoppingToken);
+                await _aggregator.ProcessReadingAsync(reading);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the sensor reading.");
+            }
 
-            var saveTask = _readingRepository.CreateAsync(readingEntity, stoppingToken);
-            var processTask = _aggregator.ProcessReadingAsync(readingEntity);
-            await Task.WhenAll(saveTask, processTask);
-
-            await Task.Delay(1000, stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
 }

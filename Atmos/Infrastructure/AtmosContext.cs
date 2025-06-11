@@ -18,7 +18,7 @@ public class AtmosContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReadingConfiguration).Assembly);
+        modelBuilder.ApplyConfiguration(new ReadingConfiguration());
     }
 
 

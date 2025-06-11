@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "+zlPAyapxR4=",
+  "dgSpecHash": "kCfdlJdOtSA=",
   "success": true,
   "projectFilePath": "/Users/justin.fay/code/personal/atmos/Atmos/API/API.csproj",
   "expectedPackageFiles": [
@@ -9,7 +9,7 @@
     "/Users/justin.fay/.nuget/packages/microsoft.entityframeworkcore/9.0.6/microsoft.entityframeworkcore.9.0.6.nupkg.sha512",
     "/Users/justin.fay/.nuget/packages/microsoft.entityframeworkcore.abstractions/9.0.6/microsoft.entityframeworkcore.abstractions.9.0.6.nupkg.sha512",
     "/Users/justin.fay/.nuget/packages/microsoft.entityframeworkcore.analyzers/9.0.6/microsoft.entityframeworkcore.analyzers.9.0.6.nupkg.sha512",
-    "/Users/justin.fay/.nuget/packages/microsoft.entityframeworkcore.relational/9.0.1/microsoft.entityframeworkcore.relational.9.0.1.nupkg.sha512",
+    "/Users/justin.fay/.nuget/packages/microsoft.entityframeworkcore.relational/9.0.6/microsoft.entityframeworkcore.relational.9.0.6.nupkg.sha512",
     "/Users/justin.fay/.nuget/packages/microsoft.extensions.caching.abstractions/9.0.6/microsoft.extensions.caching.abstractions.9.0.6.nupkg.sha512",
     "/Users/justin.fay/.nuget/packages/microsoft.extensions.caching.memory/9.0.6/microsoft.extensions.caching.memory.9.0.6.nupkg.sha512",
     "/Users/justin.fay/.nuget/packages/microsoft.extensions.configuration/9.0.6/microsoft.extensions.configuration.9.0.6.nupkg.sha512",

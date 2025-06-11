@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using Application.DTOs;
 using Application.Interfaces;
 
 using Domain.Entities;
@@ -11,10 +12,12 @@ namespace Application.Services;
 public class AggregatorService : IAggregator
 {
     private readonly ILogger<AggregatorService> _logger;
+    private readonly IRealtimeUpdateNotifier _notifier;
 
-    public AggregatorService(ILogger<AggregatorService> logger)
+    public AggregatorService(ILogger<AggregatorService> logger, IRealtimeUpdateNotifier notifier)
     {
         _logger = logger;
+        _notifier = notifier;
     }
 
     public ConcurrentQueue<Reading> TenSecondReadings { get; } = [];
@@ -23,6 +26,15 @@ public class AggregatorService : IAggregator
 
     public Task ProcessReadingAsync(Reading reading)
     {
-        throw new NotImplementedException();
+        _logger.LogDebug("Processing reading: {reading}", reading);
+
+        _notifier.SendDashboardUpdate(new ReadingDto
+        {
+            Temperature = Random.Shared.Next(20, 30),
+            Humidity = Random.Shared.Next(30, 60),
+            DewPoint = Random.Shared.Next(1000, 1020),
+        });
+
+        return Task.CompletedTask;
     }
 }
