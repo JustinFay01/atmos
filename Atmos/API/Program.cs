@@ -3,6 +3,7 @@ using API.Hubs;
 using Application;
 using Application.Extensions;
 using Application.Interfaces;
+using Application.Workers;
 
 using Infrastructure.Extensions;
 

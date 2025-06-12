@@ -24,7 +24,7 @@ public class AggregatorService : IAggregator
     public ConcurrentQueue<Reading> OneMinuteRollingAverage { get; } = [];
     public ConcurrentQueue<Reading> FiveMinuteRollingAverage { get; } = [];
 
-    public Task ProcessReadingAsync(Reading reading)
+    public Task ProcessReadingAsync(Reading reading, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Processing reading: {reading}", reading);
 
@@ -33,7 +33,7 @@ public class AggregatorService : IAggregator
             Temperature = Random.Shared.Next(20, 30),
             Humidity = Random.Shared.Next(30, 60),
             DewPoint = Random.Shared.Next(1000, 1020),
-        });
+        }, cancellationToken);
 
         return Task.CompletedTask;
     }

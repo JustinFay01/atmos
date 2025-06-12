@@ -8,7 +8,7 @@ const connection = new HubConnectionBuilder()
 
 // Subscribe to server-pushed method
 connection.on("ReceiveDashboardUpdate", (reading: any) => {
-  console.log("📡 Received Dashboard Update:");
+  console.log("📡 Received Dashboard Update at " + new Date().toISOString());
   console.log(JSON.stringify(reading, null, 2));
 });
 

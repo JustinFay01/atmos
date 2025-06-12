@@ -15,9 +15,9 @@ public class RealTimeUpdateNotifier : IRealtimeUpdateNotifier
         _logger = logger;
         _hubContext = hubContext;
     }
-    public Task SendDashboardUpdate(ReadingDto reading)
+    public Task SendDashboardUpdate(ReadingDto reading, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Sending dashboard update: {reading}", reading);
-        return _hubContext.Clients.All.SendAsync("ReceiveDashboardUpdate", reading);
+        return _hubContext.Clients.All.SendAsync("ReceiveDashboardUpdate", reading, cancellationToken);
     }
 }

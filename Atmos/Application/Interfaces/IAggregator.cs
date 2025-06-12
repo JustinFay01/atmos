@@ -12,5 +12,5 @@ public interface IAggregator
 
     public ConcurrentQueue<Reading> FiveMinuteRollingAverage { get; }
 
-    public Task ProcessReadingAsync(Reading reading);
+    public Task ProcessReadingAsync(Reading reading, CancellationToken cancellationToken = default);
 }

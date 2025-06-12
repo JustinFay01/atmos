@@ -4,5 +4,5 @@ namespace Application.Interfaces;
 
 public interface IRealtimeUpdateNotifier
 {
-    public Task SendDashboardUpdate(ReadingDto reading);
+    public Task SendDashboardUpdate(ReadingDto reading, CancellationToken cancellationToken = default);
 }
