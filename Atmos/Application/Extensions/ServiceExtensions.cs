@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Profiles;
+using Application.Rules;
 using Application.Services;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ public static class ServiceExtensions
     {
         services.AddAutoMapper(typeof(ReadingDtoProfile));
 
+        services.AddTransient<OneMinuteAverageRule>();
         services.AddSingleton<IAggregator, AggregatorService>();
 
         return services;

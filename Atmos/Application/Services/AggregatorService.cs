@@ -21,20 +21,21 @@ public class AggregatorService : IAggregator
     // The order of rules matters, as they will be applied sequentially
     // Specifically, the OneMinuteRollingAverageRule must take place before the FiveMinuteRollingAverageRule 
     // to ensure that the five-minute average is calculated correctly based on the one-minute averages.
-    private readonly List<IMetricUpdateRule> _rules =
-    [
-        new CurrentValueRule(),
-        new MaxRule(),
-        new MinRule(),
-        new RecentReadingsRule(),
-        new OneMinuteAverageRule(),
-    ];
+    private readonly List<IMetricUpdateRule> _rules;
 
-    public AggregatorService(ILogger<AggregatorService> logger, IRealtimeUpdateNotifier notifier)
+    public AggregatorService(ILogger<AggregatorService> logger, IRealtimeUpdateNotifier notifier, OneMinuteAverageRule oneMinuteAverageRule)
     {
         _logger = logger;
         _notifier = notifier;
 
+        _rules =
+        [
+            new CurrentValueRule(),
+            new MaxRule(),
+            new MinRule(),
+            new RecentReadingsRule(),
+            oneMinuteAverageRule,
+        ];
     }
 
     public MetricAggregate Temperature { get; private set; } = new();

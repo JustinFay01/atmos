@@ -1,6 +1,9 @@
 using System.Collections.Concurrent;
 
 using Application.Models;
+using Application.Services;
+
+using Microsoft.Extensions.Logging;
 
 namespace Application.Rules;
 
@@ -22,6 +25,13 @@ public class OneMinuteAverageRule : IMetricUpdateRule
 {
     private const int MaxReadings = 6; // Assuming six ten-second readings for one minute
     private const int ToleranceInSeconds = 4; // Allowable difference in seconds for the one-minute average
+
+    private readonly ILogger<OneMinuteAverageRule> _logger;
+
+    public OneMinuteAverageRule(ILogger<OneMinuteAverageRule> logger)
+    {
+        _logger = logger;
+    }
 
     public MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric)
     {
@@ -46,6 +56,7 @@ public class OneMinuteAverageRule : IMetricUpdateRule
 
         if (Math.Abs((firstReading.Timestamp - expectedFirstReadingTimestamp).TotalSeconds) > ToleranceInSeconds)
         {
+            _logger.LogError("First reading is not at the top of the minute. Expected: {expectedFirstReadingTimestamp}, Actual: {firstReadingTimestamp}", expectedFirstReadingTimestamp, firstReading.Timestamp);
             return aggregate;
         }
 
