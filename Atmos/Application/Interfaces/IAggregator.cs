@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using Application.Models;
 
 using Domain.Entities;
 
@@ -6,11 +6,8 @@ namespace Application.Interfaces;
 
 public interface IAggregator
 {
-    public IReadOnlyCollection<Reading> TenSecondReadings { get; }
-
-    public IReadOnlyCollection<Reading> OneMinuteRollingAverage { get; }
-
-    public IReadOnlyCollection<Reading> FiveMinuteRollingAverage { get; }
-
+    public MetricAggregate Temperature { get; }
+    public MetricAggregate Humidity { get; }
+    public MetricAggregate DewPoint { get; }
     public Task ProcessReadingAsync(Reading reading, CancellationToken cancellationToken = default);
 }
