@@ -1,14 +1,5 @@
 # 🚗 Atmos Roadmap
 
-### Questions to Answer First
-
-1.  **Configuration Management:**
-    *   How will the backend know whether to use `Rs485SensorClient` or `MockSensorClient`? (Likely `appsettings.json` or environment variables, which is good for Docker).
-    *   How will the serial port name/settings be configured?
-    *   How will the `IAggregator` hydration window (1 min to 1 day) be configured?
-    *   This isn't a new API endpoint, but something the backend needs to read at startup. Your `Orchestrator` startup mentions "based on a configuration setting."
-
-
 ### Phase 1: Core Backend POC & Data Flow
 
 **Goal:** Establish the fundamental data pipeline: mock sensor -> processing -> storage -> real-time push. Verify backend logic independently.
@@ -16,9 +7,8 @@
 1.  **Project Setup (.NET):**
     *   Create solution and projects:
         *   `Atmos.Domain`: Entities (`Reading`), Interfaces (`ISensorClient`, `IAggregator`, `IReadingRepository`), Core Services (Orchestrator, Aggregator).
-        *   `Atmos.Infrastructure`: EF Core (`AppDbContext`, `ReadingRepository` implementation, Migrations), `Rs485SensorClient`, `MockSensorClient`.
-        *   `Atmos.Presentation` (ASP.NET Core Web API/SignalR project): SignalR Hub (`AtmosHub`), DTOs, API Controllers (initially maybe just a placeholder).
-        *   `Atmos.Core` (optional, for shared constants, enums, etc. if needed across projects).
+        *   `Atmos.Infrastructure`: EF Core (`AppDbContext`, `ReadingRepository` implementation, Migrations), ~~`Rs485SensorClient`~~ **Moving to phase 2**, `MockSensorClient`.
+        *   `Atmos.Presentation` (SignalR project): SignalR Hub (`DashboardHub`) and DTOs
 2.  **Database Setup:**
     *   Define `Reading` entity.
     *   Implement `AppDbContext` with EF Core.
@@ -33,6 +23,7 @@
         *   Implement logic for 1-minute, 5-minute averages, and daily extremes (initially, can be simplified).
         *   Implement logic to construct `UpdateDto`.
         *   Integrate `IHubContext<AtmosHub>` for broadcasting.
+        *   Unit tests for calculation logic (e.g., average calculations, extreme updates).
     *   **`Orchestrator` (`BackgroundService`):**
         *   Implement polling loop (`Task.Delay`).
         *   Inject `ISensorClient` (configurable to use `MockSensorClient`).
@@ -46,7 +37,7 @@
     *   Define `ReadingDto`, `AverageDto`, `MinMaxDto`, `UpdateDto`.
 6.  **Testing & Verification (Phase 1):**
     *   Run the backend application.
-    *   **Postman (WebSocket Client):** Connect to the SignalR `AtmosHub` endpoint.
+    ~~*   **Postman (WebSocket Client):** Connect to the SignalR `AtmosHub` endpoint.~~ --> **Switched to client.ts because postman doesn't support SignalR.**
     *   Verify `UpdateDto` messages are received every 10 seconds.
     *   Check PostgreSQL database to confirm `Reading` entities are being saved.
     *   Manually inspect logs for any errors.
@@ -57,10 +48,10 @@
 
 **Goal:** Get data from a real (or robustly mocked) sensor, through a Dockerized backend, to a basic web UI. Solve key deployment challenges.
 
-1.  **Unit Testing Foundation:**
+~~1.  **Unit Testing Foundation:**
     *   Setup `Atmos.Tests` project (xUnit/NUnit/MSTest).
     *   Write initial unit tests for `Aggregator` logic (e.g., average calculations, extreme updates).
-    *   Write unit tests for `MockSensorClient`.
+    *   Write unit tests for `MockSensorClient`.~~ **Moved to Phase 1.**
 2.  **Real Sensor Integration:**
     *   Implement `Rs485SensorClient` (actual serial port communication logic).
     *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` easily (e.g., via environment variable in `docker-compose.yml`).

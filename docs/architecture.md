@@ -6,8 +6,6 @@
 
 _Backend Core Functionality Startup_: The Orchestrator service startups up and does the following:
     - Based on a configuration setting, it initializes the `ISensorClient` (either `Rs485SensorClient` or `MockSensorClient`).
-    - Initializes the `IAggregator` service, and decides to hydrate based on the last n readings. Where n is defined by the configuration by a least 1 minute and at maximum 1 day.
-        - If there is not enough data to hydrate based on the configuration, a warning will be logged and the aggregator will start with an empty state. 
 
 _React Frontend Startup (this would take place on refresh or new opening of the window)_: The React frontend connects to the SignalR hub and starts listening for updates.
     - The frontend will, by default, request the latest data from the server to populate the UI.
@@ -31,8 +29,6 @@ _React Frontend Startup (this would take place on refresh or new opening of the 
 
 _React triggered restart_: If the user decides to restart the polling service (for example, after a configuration change), the React frontend can send a request to the backend to stop and restart the `SensorPollingWorker`. This will gracefully shut down the current polling loop and start a new one with the updated configuration.
 
-
-_React triggered dehydrate_: If the user wants to clear the in-memory cache of the `IAggregator`, they can send a request to the backend to dehydrate the aggregator. This will clear the in-memory state, allowing it to start fresh with new readings.
 
 ## Data & Infrastructure
 
@@ -90,7 +86,6 @@ This service acts as a fast, in-memory cache and calculator for the real-time da
 - Exposes a processing method that calculates averages, min/max, and other statistics from the recent readings.
 - Cache the last pushed reading for quick access if the client disconnects and reconnects. (`LatestUpdate` property)
 - Maintain a private, in memory state for daily extremes (min/max) for temperature, humidity, and dew point.
-- Hydrate the latest reading and calculate the latest 1-minute rolling averages for temperature, humidity, and dew point.
 - Maintain a 12-hour rolling average for temperature, humidity, and dew point.
 - Maintain a private `DateTime? _currentDay` to track the current day for resetting daily extremes.
     - When the day changes, reset the min/max values for temperature, humidity, and dew point.
@@ -98,7 +93,7 @@ This service acts as a fast, in-memory cache and calculator for the real-time da
 - Upon receiving new data, it will:
     1. Add the new reading to the internal cache
     2. Calculate the latest 1 minute rolling average for temperature, humidity, and dew point.
-    2. Update the running min/max values of the day if required.
+    3. Update the running min/max values of the day if required.
     4. Construct the `UpdateDto` (to be named later) which will house the latest statistics.
     5. Use the injected `IHubContext` to send the `UpdateDto` to all connected clients.
 
