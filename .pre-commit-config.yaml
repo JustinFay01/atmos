@@ -3,7 +3,8 @@ repos:
       hooks:
         -   id: dotnet-format-backend
             name: Format .NET Backend Code (C#)
-            entry: ./scripts/dotnet_format.sh
+            entry: dotnet format Atmos/ --no-restore --verbosity detailed --include
             verbose: true
             language: system
             files: \.(cs|csproj|props|targets)$
+            pass_filenames: true

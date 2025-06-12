@@ -14,12 +14,12 @@ public class AggregatorService : IAggregator
 {
     private readonly ILogger<AggregatorService> _logger;
     private readonly IRealtimeUpdateNotifier _notifier;
-    
+
     // Concurrency control for each metric aggregate
     private readonly SemaphoreSlim _temperatureLock = new(1, 1);
     private readonly SemaphoreSlim _humidityLock = new(1, 1);
     private readonly SemaphoreSlim _dewPointLock = new(1, 1);
-    
+
     // The order of rules matters, as they will be applied sequentially
     // Specifically, the OneMinuteRollingAverageRule must take place before the FiveMinuteRollingAverageRule 
     // to ensure that the five-minute average is calculated correctly based on the one-minute averages.
@@ -28,8 +28,8 @@ public class AggregatorService : IAggregator
         new CurrentValueRule(),
         new MaxRule(),
         new MinRule(),
-        new OneMinuteRollingAverageRule(),
-        new FiveMinuteRollingAverageRule(),
+        new RecentReadingsRule(),
+        new OneMinuteAverageRule(),
     ];
 
     public AggregatorService(ILogger<AggregatorService> logger, IRealtimeUpdateNotifier notifier)
@@ -46,22 +46,22 @@ public class AggregatorService : IAggregator
     {
         _logger.LogDebug("Processing reading: {reading}", reading);
 
-        
+
         var tasks = new List<Task<MetricAggregate>>
         {
             ApplyRulesAsync(Temperature, reading.Temperature, _temperatureLock, nameof(Temperature),cancellationToken),
             ApplyRulesAsync(Humidity, reading.Humidity, _humidityLock, nameof(Humidity), cancellationToken),
             ApplyRulesAsync(DewPoint, reading.DewPoint, _dewPointLock, nameof(DewPoint), cancellationToken)
         };
-        
+
         var results = await Task.WhenAll(tasks);
         Temperature = results[0];
         Humidity = results[1];
         DewPoint = results[2];
-        
+
         _logger.LogDebug("Updated aggregates: Temperature={Temperature}, Humidity={Humidity}, DewPoint={DewPoint}",
             Temperature, Humidity, DewPoint);
-        
+
         // Notify subscribers about the updated aggregates
         await _notifier.SendDashboardUpdateAsync(new DashboardUpdate()
         {
@@ -70,7 +70,7 @@ public class AggregatorService : IAggregator
             DewPoint = DewPoint,
             LatestReading = reading,
         }, cancellationToken);
-        
+
     }
 
     private async Task<MetricAggregate> ApplyRulesAsync(MetricAggregate aggregate, double newValue, SemaphoreSlim locker, string metricName, CancellationToken cancellationToken = default)

@@ -8,5 +8,4 @@ public class DashboardUpdate
     public MetricAggregate Temperature { get; set; }
     public MetricAggregate Humidity { get; set; }
     public MetricAggregate DewPoint { get; set; }
-    public List<Reading> RecentHistory { get; set; }
 }
