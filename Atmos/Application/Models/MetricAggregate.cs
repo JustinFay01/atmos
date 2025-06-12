@@ -7,22 +7,22 @@ public class MetricAggregate
     /// <summary>
     ///  Current value of the metric. This is the latest reading or the last calculated value.
     /// </summary>
-    public double CurrentValue { get; init; } = double.MinValue;
+    public Metric CurrentValue { get; init; } = new();
 
     /// <summary>
     ///  The last six, ten-second readings. Used for calculating the one-minute rolling average.
     /// </summary>
-    public ConcurrentQueue<double> RecentReadings { get; init; } = [];
+    public ConcurrentQueue<Metric> RecentReadings { get; init; } = [];
 
     /// <summary>
     /// Daily minimum value. Resets at a configurable time each day (default is midnight UTC).
     /// </summary>
-    public double MinValue { get; init; } = double.MaxValue;
+    public Metric MinValue { get; init; } = new() { Value = double.MaxValue };
 
     /// <summary>
     ///  Daily maximum value. Resets at a configurable time each day (default is midnight UTC).
     /// </summary>
-    public double MaxValue { get; init; } = double.MinValue;
+    public Metric MaxValue { get; init; } = new() { Value = double.MinValue };
 
     /// <summary>
     /// Average of the last six ten-second readings, taken at :10, :20, :30, :40, :50, and :00 each minute.
@@ -34,27 +34,29 @@ public class MetricAggregate
     /// <summary>
     /// The last five, one-minute averages. Used for calculating the five-minute rolling average.
     /// </summary>
-    public ConcurrentQueue<double> OneMinuteAverages { get; init; } = [];
+    public ConcurrentQueue<Metric> OneMinuteAverages { get; init; } = [];
 
     /// <summary>
     /// Average of the last five, one-minute readings. Null until five readings are available.
     /// </summary>
     public double? FiveMinuteRollingAverage => OneMinuteAverages is { IsEmpty: false, Count: 5 }
-        ? OneMinuteAverages.Average()
+        ? OneMinuteAverages.Select(m => m.Value).Average()
         : null;
 
     public MetricAggregate CopyWith(
-        double? currentValue = null,
-        double? minValue = null,
-        double? maxValue = null,
-        ConcurrentQueue<double>? recentReadings = null,
-        ConcurrentQueue<double>? oneMinuteRollingAverages = null)
+        Metric? currentValue = null,
+        Metric? minValue = null,
+        Metric? maxValue = null,
+        double? oneMinuteAverage = null,
+        ConcurrentQueue<Metric>? recentReadings = null,
+        ConcurrentQueue<Metric>? oneMinuteRollingAverages = null)
     {
         return new MetricAggregate
         {
             CurrentValue = currentValue ?? CurrentValue,
             MinValue = minValue ?? MinValue,
             MaxValue = maxValue ?? MaxValue,
+            OneMinuteAverage = oneMinuteAverage ?? OneMinuteAverage,
             RecentReadings = recentReadings ?? RecentReadings,
             OneMinuteAverages = oneMinuteRollingAverages ?? OneMinuteAverages
         };

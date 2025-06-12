@@ -46,12 +46,26 @@ public class AggregatorService : IAggregator
     {
         _logger.LogDebug("Processing reading: {reading}", reading);
 
-
+        var newTemp = new Metric
+        {
+            Timestamp = reading.TimeStamp,
+            Value = reading.Temperature
+        };
+        var newHumidity = new Metric
+        {
+            Timestamp = reading.TimeStamp,
+            Value = reading.Humidity
+        };
+        var newDewPoint = new Metric
+        {
+            Timestamp = reading.TimeStamp,
+            Value = reading.DewPoint
+        };
         var tasks = new List<Task<MetricAggregate>>
         {
-            ApplyRulesAsync(Temperature, reading.Temperature, _temperatureLock, nameof(Temperature),cancellationToken),
-            ApplyRulesAsync(Humidity, reading.Humidity, _humidityLock, nameof(Humidity), cancellationToken),
-            ApplyRulesAsync(DewPoint, reading.DewPoint, _dewPointLock, nameof(DewPoint), cancellationToken)
+            ApplyRulesAsync(Temperature, newTemp, _temperatureLock, nameof(Temperature),cancellationToken),
+            ApplyRulesAsync(Humidity, newHumidity, _humidityLock, nameof(Humidity), cancellationToken),
+            ApplyRulesAsync(DewPoint, newDewPoint, _dewPointLock, nameof(DewPoint), cancellationToken)
         };
 
         var results = await Task.WhenAll(tasks);
@@ -73,7 +87,7 @@ public class AggregatorService : IAggregator
 
     }
 
-    private async Task<MetricAggregate> ApplyRulesAsync(MetricAggregate aggregate, double newValue, SemaphoreSlim locker, string metricName, CancellationToken cancellationToken = default)
+    private async Task<MetricAggregate> ApplyRulesAsync(MetricAggregate aggregate, Metric newValue, SemaphoreSlim locker, string metricName, CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Applying rules to {metricName}: {aggregate} with new value: {newValue}", metricName, aggregate, newValue);
         await locker.WaitAsync(cancellationToken);

@@ -11,10 +11,10 @@ public class RecentReadingsRule : IMetricUpdateRule
 {
     private const int MaxReadings = 6; // Assuming 10-second intervals for 1 minute
 
-    public MetricAggregate Apply(MetricAggregate aggregate, double newValue)
+    public MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric)
     {
-        var newQueue = new ConcurrentQueue<double>(aggregate.RecentReadings);
-        newQueue.Enqueue(newValue);
+        var newQueue = new ConcurrentQueue<Metric>(aggregate.RecentReadings);
+        newQueue.Enqueue(newMetric);
         while (newQueue.Count > MaxReadings)
         {
             newQueue.TryDequeue(out _);

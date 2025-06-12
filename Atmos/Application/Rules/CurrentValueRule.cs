@@ -4,10 +4,10 @@ namespace Application.Rules;
 
 public class CurrentValueRule : IMetricUpdateRule
 {
-    public MetricAggregate Apply(MetricAggregate aggregate, double newSensorValue)
+    public MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric)
     {
         var newAggregate = aggregate.CopyWith(
-            currentValue: newSensorValue
+            currentValue: newMetric
         );
         return newAggregate;
     }

@@ -8,18 +8,64 @@ namespace Application.Rules;
 /// Once a minute, at the top of the minute (:00), this rule updates the one-minute rolling average.
 /// The FiveMinuteRollingAverage is automatically calculated based on the last five one-minute averages.
 /// If there are fewer than five one-minute averages, the FiveMinuteRollingAverage will be null.
+///
+///
+/// To do so, we follow these steps:
+///     1. Ensure that the one-minute averages queue has at least five readings.
+///     2. Assert that the first reading is at :10 and the last reading is at :00 (+- 4 seconds).
+///     3. Calculate the one-minute average from the queue.
+///     4. Enqueue the new one-minute average into the one-minute averages queue.
+///     5. If the queue exceeds five averages, dequeue the oldest average.
+///     6. Create a new `MetricAggregate` with the updated one-minute average and the updated one-minute averages queue.
 /// </summary>
 public class OneMinuteAverageRule : IMetricUpdateRule
 {
-    private const int MaxReadings = 5; // Assuming 1-minute intervals for 5 minutes
+    private const int MaxReadings = 6; // Assuming six ten-second readings for one minute
+    private const int ToleranceInSeconds = 4; // Allowable difference in seconds for the one-minute average
 
-    public MetricAggregate Apply(MetricAggregate aggregate, double newValue)
+    public MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric)
     {
-        // Assert that our first reading beings at :10 and our most recent reading is at :00 (+- 200 ms to account for clock drift)
+        if (aggregate.RecentReadings.IsEmpty || aggregate.RecentReadings.Count < MaxReadings)
+        {
+            return aggregate;
+        }
 
+        // Needs to start at the top of the minute (:10)
+        // This corresponds to newMetric's time because the previous rule ensures that the last reading is the latest one.
+        var latestRecentReading = aggregate.RecentReadings.Last();
+        var isTopOfTheMinute = Math.Abs(latestRecentReading.Timestamp.Second) <= ToleranceInSeconds ||
+                                latestRecentReading.Timestamp.Second > 59 - ToleranceInSeconds;
 
+        if (!isTopOfTheMinute)
+        {
+            return aggregate;
+        }
 
+        var firstReading = aggregate.RecentReadings.First();
+        var expectedFirstReadingTimestamp = latestRecentReading.Timestamp.AddSeconds(-50);
 
-        return null!;
+        if (Math.Abs((firstReading.Timestamp - expectedFirstReadingTimestamp).TotalSeconds) > ToleranceInSeconds)
+        {
+            return aggregate;
+        }
+
+        var oneMinuteAverage = aggregate.RecentReadings.Average(m => m.Value);
+        var newOneMinuteAverageQueue = new ConcurrentQueue<Metric>(aggregate.OneMinuteAverages);
+        newOneMinuteAverageQueue.Enqueue(new Metric
+        {
+            Timestamp = latestRecentReading.Timestamp,
+            Value = oneMinuteAverage
+        });
+
+        while (newOneMinuteAverageQueue.Count > MaxReadings)
+        {
+            newOneMinuteAverageQueue.TryDequeue(out _);
+        }
+
+        var newAggregate = aggregate.CopyWith(
+            oneMinuteAverage: oneMinuteAverage,
+            oneMinuteRollingAverages: newOneMinuteAverageQueue
+        );
+        return newAggregate;
     }
 }

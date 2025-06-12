@@ -9,6 +9,6 @@ public interface IMetricUpdateRule
     /// </summary>
     /// <param name="aggregate">The metric aggregate to update.</param>
     /// <param name="newSensorValue">The new sensor value being processed.</param>
-    MetricAggregate Apply(MetricAggregate aggregate, double newSensorValue);
+    MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric);
 
 }
