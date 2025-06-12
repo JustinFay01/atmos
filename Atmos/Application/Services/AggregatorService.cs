@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 using Application.Interfaces;
 using Application.Models;
 using Application.Rules;
