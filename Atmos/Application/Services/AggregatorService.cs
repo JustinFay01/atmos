@@ -18,11 +18,15 @@ public class AggregatorService : IAggregator
     {
         _logger = logger;
         _notifier = notifier;
+        
+        TenSecondReadings = new ConcurrentQueue<Reading>();
+        OneMinuteRollingAverage = new ConcurrentQueue<Reading>();
+        FiveMinuteRollingAverage = new ConcurrentQueue<Reading>();
     }
 
-    public ConcurrentQueue<Reading> TenSecondReadings { get; } = [];
-    public ConcurrentQueue<Reading> OneMinuteRollingAverage { get; } = [];
-    public ConcurrentQueue<Reading> FiveMinuteRollingAverage { get; } = [];
+    public IReadOnlyCollection<Reading> TenSecondReadings { get; } 
+    public IReadOnlyCollection<Reading> OneMinuteRollingAverage { get; } 
+    public IReadOnlyCollection<Reading> FiveMinuteRollingAverage { get; } 
 
     public Task ProcessReadingAsync(Reading reading, CancellationToken cancellationToken = default)
     {
