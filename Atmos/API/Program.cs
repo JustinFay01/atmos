@@ -17,7 +17,7 @@ public class Program
 
         builder.Services.AddSignalR();
         builder.Services.AddSingleton<IRealtimeUpdateNotifier, RealTimeUpdateNotifier>();
-        builder.Services.UseAtmosInfrastructure(builder.Configuration);
+        builder.Services.UseAtmosInfrastructure();
         builder.Services.UseAtmosApplicationServices();
         builder.Services.AddHostedService<SensorPollingWorker>();
 
