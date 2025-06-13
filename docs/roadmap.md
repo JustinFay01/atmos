@@ -136,3 +136,5 @@
 1. **Timing and Performance:**
    * Handle computer sleep/wake events gracefully.
    * Implement a more robust retry mechanism for sensor reads.
+2. **Maintenance and Monitoring:**
+   * Monthly dependabot updates to check for outdated dependencies.

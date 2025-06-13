@@ -21,11 +21,13 @@ public class AggregatorTests : BaseTest<AggregatorService>
     public AggregatorTests()
     {
         _notifierMock = new Mock<IRealtimeUpdateNotifier>();
+        var oneMinuteRuleAverageLogger = new Mock<ILogger<OneMinuteAverageRule>>();
+        var ruleFactory = new MetricUpdateRuleFactory(oneMinuteRuleAverageLogger.Object);
 
         _aggregatorService = new AggregatorService(
             LoggerMock.Object,
             _notifierMock.Object,
-            new OneMinuteAverageRule(new Mock<ILogger<OneMinuteAverageRule>>().Object)
+            ruleFactory
         );
     }
 

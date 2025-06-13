@@ -1,8 +1,22 @@
 #!/bin/bash
+LC_ALL=C
 
-# Run dotnet format with passed arguments
-dotnet format --no-restore --verbosity detailed --include "$@"
+# Select files to format
+[ -f .git/index.lock ] && rm .git/index.lock
 
-# We can do git add . since pre-commit already stashed any thing that we 
-# don't want to commit
-git add .
+if [ "$#" -gt 0 ]; then
+  FILES="$@"
+  echo "Formatting files: $FILES"
+else
+  FILES=$(git diff --cached --name-only --diff-filter=ACM "*.cs" | sed 's| |\\ |g')
+fi
+
+[ -z "$FILES" ] && exit 0
+
+# Format all selected files
+echo "$FILES" | cat | xargs | sed -e 's/ /,/g' | xargs dotnet format Atmos/ --include
+
+# Add back the modified files to staging
+echo "$FILES" | xargs git add
+
+exit 0
