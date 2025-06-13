@@ -1,4 +1,5 @@
 using Application.Extensions;
+using Application.Helper;
 using Application.Interfaces;
 
 using AutoMapper;
@@ -37,7 +38,7 @@ public class SensorPollingWorker : BackgroundService
     {
         _logger.LogDebug("SensorPollingWorker has been requested to start. Waiting until the nearest 10 second mark.");
 
-        var delay = DateTime.Now.MillisecondsTillTenSeconds();
+        var delay = DateTimeProvider.Instance.MillisecondsTillTenSeconds();
         if (delay == 0)
         {
             _logger.LogDebug("No delay needed, starting immediately.");
@@ -59,7 +60,7 @@ public class SensorPollingWorker : BackgroundService
         {
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                _logger.LogInformation("Worker tick at: {Time}", DateTimeOffset.Now);
+                _logger.LogInformation("Worker tick at: {Time}", DateTimeProvider.Instance.Now);
 
                 if (_orchestrationTask is { IsCompleted: false })
                 {
