@@ -40,11 +40,17 @@ The user interface is a modern single-page application (SPA) built with **React*
 *   **Live Dashboard:** This page establishes a connection to the backend's SignalR hub. It listens for new data pushes and dynamically updates all relevant components—gauges, charts, and numerical readouts—without requiring a page refresh.
 *   **History Page:** This page interacts with the backend's Web API. It allows the user to browse through all historical sensor readings, with pagination to handle large datasets efficiently. It will also include functionality to request and download logs for specific date ranges.
 
-### Data Storage (PostgreSQL)
+### Data Storage ~~(PostgreSQL)~~
 
-Instead of fragile text files, all historical readings are stored in a robust **PostgreSQL** database.
+~~Instead of fragile text files, all historical readings are stored in a robust **PostgreSQL** database.~~
 
-*   **Why PostgreSQL?** It is a powerful, open-source, and reliable relational database perfect for storing structured time-series data. It provides the ability to easily query, index, and manage vast amounts of historical information. The database will run in its own dedicated container for isolation and easy management.
+~~*   **Why PostgreSQL?** It is a powerful, open-source, and reliable relational database perfect for storing structured time-series data. It provides the ability to easily query, index, and manage vast amounts of historical information. The database will run in its own dedicated container for isolation and easy management.~~~~
+
+Switching to SQLite. 
+
+Since this will be a desktop application, the database will be stored locally on the user's machine. This simplifies deployment and ensures that all data is accessible without needing a separate database server.
+
+Following [Getting Started with EF Core](https://learn.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli)
 
 ### Logging & Error Monitoring (Sentry)
 

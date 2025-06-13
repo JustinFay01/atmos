@@ -23,8 +23,9 @@
     *   Define `Reading` entity.
     *   Implement `AppDbContext` with EF Core.
     *   Create initial EF Core migration.
-    *   **Docker:** Setup `docker-compose.yml` for a PostgreSQL container.
-    *   Configure connection string in `Atmos.Presentation` (`appsettings.json`).
+    ~~*   **Docker:** Setup `docker-compose.yml` for a PostgreSQL container.~~
+    ~~*   Configure connection string in `Atmos.Presentation` (`appsettings.json`).~~
+    * Set up SQLite database for local storage.
 3.  **Core Logic Implementation:**
     *   **`MockSensorClient`:** Implement `ISensorClient` to return mock `SensorData` DTOs on a timer or on demand.
     *   **`IReadingRepository`:** Implement saving `Reading` entities using EF Core.
@@ -64,14 +65,17 @@
 2.  **Real Sensor Integration:**
     *   Implement `Rs485SensorClient` (actual serial port communication logic).
     *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` easily (e.g., via environment variable in `docker-compose.yml`).
-3.  **Database Migrations in Docker:**
-    *   Research and implement a strategy for applying EF Core migrations automatically when the backend container starts (e.g., in `Program.cs` or an entrypoint script). Test this thoroughly.
-4.  **React Frontend POC:**
+~~3.  **Database Migrations in Docker:**~~
+    ~~*   Research and implement a strategy for applying EF Core migrations automatically when the backend container starts (e.g., in `Program.cs` or an entrypoint script). Test this thoroughly.~~
+3. **SQLite Database**
+    *   Implement routine backups of the SQLite database.
+    *   Define strategy for handling database migrations in SQLite.
+5. **React Frontend POC:**
     *   Create a basic React application (e.g., using `create-react-app`).
     *   Install SignalR client library (`@microsoft/signalr`).
     *   Implement basic connection to the backend's `AtmosHub`.
     *   Display the raw `UpdateDto` data received via SignalR (no styling needed, just verify data flow).
-    *   If running React dev server and backend in Docker, configure CORS on the backend.
+    ~~*   If running React dev server and backend in Docker, configure CORS on the backend.~~
 5.  **REST Endpoint: Initial Dashboard State:**
     *   **Implement `GET /api/dashboard/state` in `Atmos.Presentation`.**
         *   This controller will need access to the `IAggregator` (for `latestUpdate`) and `IReadingRepository` (or a new service) to calculate `hourlyAveragesLast12Hours`.
@@ -80,8 +84,8 @@
     *   Integrate Sentry SDK into `Atmos.Presentation` for backend error logging.
     *   Integrate Sentry SDK into the React POC for frontend error logging.
     *   Test by intentionally throwing an error in both backend and frontend.
-7.  **Refine `docker-compose.yml`:**
-    *   Ensure backend, database (and potentially a basic Nginx for React static files if not using dev server) can be brought up with `docker-compose up`.
+~~7.  **Refine `docker-compose.yml`:**~~
+    ~~*   Ensure backend, database (and potentially a basic Nginx for React static files if not using dev server) can be brought up with `docker-compose up`.~~
 
 ---
 

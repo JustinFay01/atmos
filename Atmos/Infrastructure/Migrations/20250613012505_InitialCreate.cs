@@ -1,5 +1,4 @@
 using System;
-
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,10 +16,10 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TimeStamp = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()"),
-                    Temperature = table.Column<double>(type: "double precision", nullable: false),
-                    DewPoint = table.Column<double>(type: "double precision", nullable: false),
-                    Humidity = table.Column<double>(type: "double precision", nullable: false)
+                    TimeStamp = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    Temperature = table.Column<double>(type: "REAL", nullable: false),
+                    DewPoint = table.Column<double>(type: "REAL", nullable: false),
+                    Humidity = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>
                 {
