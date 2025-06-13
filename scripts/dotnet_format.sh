@@ -1,22 +1,24 @@
-#!/bin/bash
+#!/bin/sh
+set -e
 LC_ALL=C
 
-# Select files to format
-[ -f .git/index.lock ] && rm .git/index.lock
+echo "🚀 Running pre-commit dotnet format"
 
-if [ "$#" -gt 0 ]; then
-  FILES="$@"
-  echo "Formatting files: $FILES"
-else
-  FILES=$(git diff --cached --name-only --diff-filter=ACM "*.cs" | sed 's| |\\ |g')
+# Get the list of staged MAUI-related files
+FILES=$(git diff --cached --name-only --diff-filter=ACM "*.cs" | sed 's| |\\ |g')
+
+if [ -z "$files" ]; then
+  echo "🤖 No staged C#, XAML, or Razor files to format. Committing Changes."
+  exit 0
 fi
 
-[ -z "$FILES" ] && exit 0
+# Run dotnet format
+echo "🔍 Running dotnet format..."
+echo "$FILES" | cat | xargs | sed -e 's/ /,/g' | xargs dotnet format src/StrideStudio --no-restore --include
 
-# Format all selected files
-echo "$FILES" | cat | xargs | sed -e 's/ /,/g' | xargs dotnet format Atmos/ --include
+# Re-add potentially modified files
+echo "$files" | while read -r line; do
+    git add "$line"
+done
 
-# Add back the modified files to staging
-echo "$FILES" | xargs git add
-
-exit 0
+echo "✅ dotnet format done. Committing changes."

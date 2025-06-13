@@ -5,5 +5,6 @@ repos:
             name: Format .NET Backend Code (C#)
             entry: ./scripts/dotnet_format.sh
             verbose: true
+            pass_filenames: false
             language: system
             types: ["c#"] 
