@@ -12,8 +12,6 @@ public abstract class DateTimeProvider
         get => _instance ??= new DefaultDateTimeProvider();
         set => _instance = value;
     }
-
-    public abstract double MillisecondsTillTenSeconds();
 }
 
 public class DefaultDateTimeProvider : DateTimeProvider
@@ -22,9 +20,13 @@ public class DefaultDateTimeProvider : DateTimeProvider
 
     public override DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
 
-    public override double MillisecondsTillTenSeconds()
+}
+
+public static class TimeProviderExtensions
+{
+    public static double MillisecondsTillTenSeconds(this DateTimeProvider provider)
     {
-        var secondsElapsed = Now.Second + Now.Millisecond / 1000.0;
+        var secondsElapsed = provider.Now.Second + provider.Now.Millisecond / 1000.0;
         var remainder = secondsElapsed % 10;
         var millisecondsTillNextTen = (10 - remainder) * 1000;
         var rounded = Math.Round(millisecondsTillNextTen, 0);

@@ -130,6 +130,7 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
         await Assert.That(result.OneMinuteAverages.First().Value).IsEqualTo(35); // Average of the values
     }
 
+    [Test]
     public async Task OneMinuteAverageRule_Decimal_CalculatesCorrectOneMinuteAverage()
     {
         // Arrange
