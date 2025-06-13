@@ -1,3 +1,4 @@
+using Application.Extensions;
 using Application.Interfaces;
 
 using AutoMapper;
@@ -36,8 +37,16 @@ public class SensorPollingWorker : BackgroundService
     {
         _logger.LogDebug("SensorPollingWorker has been requested to start. Waiting until the nearest 10 second mark.");
 
-        var delay = (((60 - DateTime.Now.Second) % _pollingInterval.Seconds) * 1000) - DateTime.Now.Millisecond;
-        await Task.Delay(delay, cancellationToken);
+        var delay = DateTime.Now.MillisecondsTillTenSeconds();
+        if (delay == 0)
+        {
+            _logger.LogDebug("No delay needed, starting immediately.");
+        }
+        else
+        {
+            _logger.LogDebug("Delaying start by {Delay} milliseconds.", delay);
+            await Task.Delay((int)delay, cancellationToken);
+        }
         await base.StartAsync(cancellationToken);
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
