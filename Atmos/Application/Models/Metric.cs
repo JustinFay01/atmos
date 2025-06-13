@@ -2,8 +2,7 @@ namespace Application.Models;
 
 public class Metric
 {
-    public DateTimeOffset Timestamp { get; init; } = DateTimeOffset.MinValue;
+    public DateTime Timestamp { get; init; } = DateTime.MinValue;
     public double Value { get; init; } = double.MinValue;
-
     public override string ToString() => $"{Timestamp} - {Value}";
 }

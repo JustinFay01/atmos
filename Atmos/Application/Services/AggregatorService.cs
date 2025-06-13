@@ -1,8 +1,7 @@
+using Application.DTOs;
 using Application.Interfaces;
 using Application.Models;
 using Application.Rules;
-
-using Domain.Entities;
 
 using Microsoft.Extensions.Logging;
 
@@ -27,23 +26,23 @@ public class AggregatorService(
     public MetricAggregate Temperature { get; private set; } = new();
     public MetricAggregate Humidity { get; private set; } = new();
     public MetricAggregate DewPoint { get; private set; } = new();
-    public async Task ProcessReadingAsync(Reading reading, CancellationToken cancellationToken = default)
+    public async Task ProcessReadingAsync(ReadingDto reading, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Processing reading: {reading}", reading);
-
+        
         var newTemp = new Metric
         {
-            Timestamp = reading.TimeStamp,
+            Timestamp = reading.Timestamp,
             Value = reading.Temperature
         };
         var newHumidity = new Metric
         {
-            Timestamp = reading.TimeStamp,
+            Timestamp = reading.Timestamp,
             Value = reading.Humidity
         };
         var newDewPoint = new Metric
         {
-            Timestamp = reading.TimeStamp,
+            Timestamp = reading.Timestamp,
             Value = reading.DewPoint
         };
         var tasks = new List<Task<MetricAggregate>>

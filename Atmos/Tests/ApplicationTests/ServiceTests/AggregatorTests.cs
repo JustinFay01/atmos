@@ -1,11 +1,10 @@
+using Application.DTOs;
 using Application.Interfaces;
 using Application.Models;
 using Application.Rules;
 using Application.Services;
 
 using AutoFixture;
-
-using Domain.Entities;
 
 using Microsoft.Extensions.Logging;
 
@@ -34,7 +33,7 @@ public class AggregatorTests : BaseTest<AggregatorService>
     [Test]
     public async Task AggregatorService_UpdateAggregates()
     {
-        var reading = Fixture.Create<Reading>();
+        var reading = Fixture.Create<ReadingDto>();
 
         await _aggregatorService.ProcessReadingAsync(reading);
 
@@ -46,7 +45,7 @@ public class AggregatorTests : BaseTest<AggregatorService>
     [Test]
     public async Task AggregatorService_NotifySubscribers()
     {
-        var reading = Fixture.Create<Reading>();
+        var reading = Fixture.Create<ReadingDto>();
 
         await _aggregatorService.ProcessReadingAsync(reading);
 

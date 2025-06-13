@@ -106,7 +106,7 @@ public class SensorPollingWorker : BackgroundService
 
             var reading = _mapper.Map<Reading>(sensorData);
             await readingRepository.CreateAsync(reading, workCts.Token);
-            await _aggregator.ProcessReadingAsync(reading, workCts.Token);
+            await _aggregator.ProcessReadingAsync(sensorData, workCts.Token);
 
             _logger.LogInformation("Sensor data processed successfully.");
         }

@@ -13,7 +13,7 @@ public static class ServiceExtensions
     {
         services.AddAutoMapper(typeof(ReadingDtoProfile));
 
-        services.AddScoped<IMetricUpdateRuleFactory, MetricUpdateRuleFactory>();
+        services.AddSingleton<IMetricUpdateRuleFactory, MetricUpdateRuleFactory>();
         services.AddSingleton<IAggregator, AggregatorService>();
 
         return services;

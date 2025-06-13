@@ -26,7 +26,6 @@
         *   Integrate `IHubContext<AtmosHub>` for broadcasting.
         *   Unit tests for calculation logic (e.g., average calculations, extreme updates).
         *   MinMax Reset rule at midnight in a given timezone. 
-        *   What should happen to the current MetricAggregates at midnight? Should they be reset or should we keep them?
     *   **`Orchestrator` (`BackgroundService`):**
         *   Implement polling loop (`Task.Delay`).
         *   Inject `ISensorClient` (configurable to use `MockSensorClient`).
@@ -38,7 +37,7 @@
     *   Implement `OnConnectedAsync` / `OnDisconnectedAsync` for logging (optional but useful).
 5.  **Initial DTOs:**
     ~~*   Define `ReadingDto`, `AverageDto`, `MinMaxDto`, `UpdateDto`.~~
-    * Map MetricAggregates (and their Metric) to value types for simplified interface with frontend.
+    ~~* Map MetricAggregates (and their Metric) to value types for simplified interface with frontend.~~
 6.  **Testing & Verification (Phase 1):**
     *   Run the backend application.
     ~~*   **Postman (WebSocket Client):** Connect to the SignalR `AtmosHub` endpoint.~~ --> **Switched to client.ts because postman doesn't support SignalR.**

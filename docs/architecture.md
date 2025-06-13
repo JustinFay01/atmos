@@ -135,8 +135,9 @@ This is the real-time communication endpoint for the application. The React fron
 - Maintain a list of connected clients for debugging purposes.
 - Manage the lifecycle of client connections, including logging when clients connect or disconnect.
 
-#### DTOs
+#### ~~DTOs~~ Models
 
+##### V1
 **AverageDto:**
 - `double? OneMinute`
 - `double? FiveMinute`
@@ -167,6 +168,11 @@ This is the real-time communication endpoint for the application. The React fron
 - `MinMaxDto HumidityMinMax`
 - `MinMaxDto DewPointMinMax`
 - `TwelveHourAverageDto TwelveHourAverage`
+
+##### V2
+
+**Metric:**
+- `DateTimeO'
 
 ## Web API
 
