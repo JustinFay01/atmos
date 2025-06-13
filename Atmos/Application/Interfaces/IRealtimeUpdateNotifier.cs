@@ -1,8 +1,8 @@
-using Application.DTOs;
+using Application.Models;
 
 namespace Application.Interfaces;
 
 public interface IRealtimeUpdateNotifier
 {
-    public Task SendDashboardUpdate(ReadingDto reading, CancellationToken cancellationToken = default);
+    public Task SendDashboardUpdateAsync(DashboardUpdate update, CancellationToken cancellationToken = default);
 }

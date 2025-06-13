@@ -6,6 +6,8 @@ namespace Infrastructure.Hardware;
 public class MockSensorClient : ISensorClient
 {
     public bool IsConnected { get; } = true;
+
+    private int _iterationCount = 0;
     public Task ConnectAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
@@ -18,12 +20,12 @@ public class MockSensorClient : ISensorClient
 
     public Task<ReadingDto> GetReadingAsync(CancellationToken cancellationToken)
     {
-        // Simulate a sensor reading
+        _iterationCount++;
         var reading = new ReadingDto
         {
-            Temperature = 22.5f,
-            Humidity = 45.0f,
-            DewPoint = 18.0f,
+            Temperature = _iterationCount,
+            Humidity = _iterationCount * 2,
+            DewPoint = _iterationCount * 3,
         };
 
         return Task.FromResult(reading);

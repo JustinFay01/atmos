@@ -12,7 +12,7 @@ public interface IReadingRepository
     /// Persists a new Reading entity to the data store.
     /// </summary>
     /// <param name="reading">The Reading entity to save. Note this is the domain entity, not a DTO.</param>
-    /// <param name="cancellationToken">A token to allow the operation to be cancelled.</param>
+    /// <param name="cancellationToken">A token to allow the operation to be canceled.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     Task CreateAsync(Reading reading, CancellationToken cancellationToken = default);
 }

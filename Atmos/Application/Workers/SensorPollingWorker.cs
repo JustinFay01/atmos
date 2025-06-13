@@ -1,3 +1,5 @@
+using Application.Extensions;
+using Application.Helper;
 using Application.Interfaces;
 
 using AutoMapper;
@@ -36,8 +38,16 @@ public class SensorPollingWorker : BackgroundService
     {
         _logger.LogDebug("SensorPollingWorker has been requested to start. Waiting until the nearest 10 second mark.");
 
-        var delay = (((60 - DateTime.Now.Second) % _pollingInterval.Seconds) * 1000) - DateTime.Now.Millisecond;
-        await Task.Delay(delay, cancellationToken);
+        var delay = DateTimeProvider.Instance.MillisecondsTillTenSeconds();
+        if (delay == 0)
+        {
+            _logger.LogDebug("No delay needed, starting immediately.");
+        }
+        else
+        {
+            _logger.LogDebug("Delaying start by {Delay} milliseconds.", delay);
+            await Task.Delay((int)delay, cancellationToken);
+        }
         await base.StartAsync(cancellationToken);
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -50,7 +60,7 @@ public class SensorPollingWorker : BackgroundService
         {
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                _logger.LogInformation("Worker tick at: {Time}", DateTimeOffset.Now);
+                _logger.LogInformation("Worker tick at: {Time}", DateTimeProvider.Instance.Now);
 
                 if (_orchestrationTask is { IsCompleted: false })
                 {
@@ -96,7 +106,7 @@ public class SensorPollingWorker : BackgroundService
 
             var reading = _mapper.Map<Reading>(sensorData);
             await readingRepository.CreateAsync(reading, workCts.Token);
-            await _aggregator.ProcessReadingAsync(reading, workCts.Token);
+            await _aggregator.ProcessReadingAsync(sensorData, workCts.Token);
 
             _logger.LogInformation("Sensor data processed successfully.");
         }
