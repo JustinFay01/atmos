@@ -1,8 +1,11 @@
+import { useSubscribeToDashboardUpdates } from "@/api/get-dashboard-update";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow } from "@/ui/layout/flexbox";
 import { Card, Typography } from "@mui/material";
 
 export const Dashboard = () => {
+  const liveUpdate = useSubscribeToDashboardUpdates();
+
   return (
     <BaseLayout>
       <FlexColumn alignItems="center" sx={{ padding: 2 }}>
