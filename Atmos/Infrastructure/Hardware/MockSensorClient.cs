@@ -6,7 +6,7 @@ namespace Infrastructure.Hardware;
 public class MockSensorClient : ISensorClient
 {
     public bool IsConnected { get; } = true;
-    
+
     private int _iterationCount = 0;
     public Task ConnectAsync(CancellationToken cancellationToken)
     {

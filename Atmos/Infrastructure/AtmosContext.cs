@@ -10,7 +10,7 @@ namespace Infrastructure;
 public class AtmosContext : DbContext
 {
     public DbSet<Reading> Readings { get; set; }
-    
+
     public string DbPath { get; }
 
     public AtmosContext(DbContextOptions<AtmosContext> options) : base(options)
@@ -19,7 +19,7 @@ public class AtmosContext : DbContext
         var path = Environment.GetFolderPath(folder);
         DbPath = Path.Combine(path, "atmos.db");
     }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
