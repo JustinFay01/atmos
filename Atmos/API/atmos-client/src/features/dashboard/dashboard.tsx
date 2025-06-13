@@ -1,10 +1,28 @@
-import { useSubscribeToDashboardUpdates } from "@/api/get-dashboard-update";
+import {
+  useLatestDashboardReading,
+  useSubscribeToDashboardUpdates,
+} from "@/api/get-dashboard-update";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow } from "@/ui/layout/flexbox";
 import { Card, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 
 export const Dashboard = () => {
-  const liveUpdate = useSubscribeToDashboardUpdates();
+  useSubscribeToDashboardUpdates();
+  const data = useLatestDashboardReading();
+  const [temperature, setTemperature] = useState(
+    data?.latestReading.temperature || 0
+  );
+  const [humidity, setHumidity] = useState(data?.latestReading.humidity || 0);
+  const [dewPoint, setDewPoint] = useState(data?.latestReading.dewPoint || 0);
+
+  useEffect(() => {
+    if (data) {
+      setTemperature(data.latestReading.temperature);
+      setHumidity(data.latestReading.humidity);
+      setDewPoint(data.latestReading.dewPoint);
+    }
+  }, [data, data?.latestReading]);
 
   return (
     <BaseLayout>
@@ -20,7 +38,7 @@ export const Dashboard = () => {
                 Temp
               </Typography>
               <Typography variant="body1" component="p">
-                22°C
+                {temperature}°C
               </Typography>
             </FlexColumn>
           </Card>
@@ -30,7 +48,7 @@ export const Dashboard = () => {
                 Humidity
               </Typography>
               <Typography variant="body1" component="p">
-                60%
+                {humidity}%
               </Typography>
             </FlexColumn>
           </Card>
@@ -40,7 +58,7 @@ export const Dashboard = () => {
                 Dew Point
               </Typography>
               <Typography variant="body1" component="p">
-                15°C
+                {dewPoint}°C
               </Typography>
             </FlexColumn>
           </Card>

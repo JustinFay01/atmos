@@ -18,6 +18,20 @@ public class Program
 
         builder.UseAtmosIssueTracker();
 
+        // Allow cors
+        var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(myAllowSpecificOrigins,
+                corsPolicyBuilder =>
+                {
+                    corsPolicyBuilder.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+        });
+
         builder.Services.AddSignalR();
         builder.Services.AddSingleton<IRealtimeUpdateNotifier, RealTimeUpdateNotifier>();
         builder.Services.UseAtmosInfrastructure();
@@ -26,6 +40,8 @@ public class Program
         builder.Services.AddControllers();
 
         var app = builder.Build();
+        app.UseCors(myAllowSpecificOrigins);
+
         app.UseStaticFiles();
 
         app.MapFallbackToFile("index.html");

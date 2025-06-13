@@ -35,7 +35,7 @@ export const useSubscribeToDashboardUpdates = () => {
       console.log(
         "📡 Received Dashboard Update at " + new Date().toISOString()
       );
-      const queryKey = [reading.latestReading];
+      const queryKey = ["dashboard", "latestReading"];
       queryClient.setQueryData(queryKey, reading);
     });
 
@@ -49,4 +49,12 @@ export const useSubscribeToDashboardUpdates = () => {
       });
     };
   }, [queryClient]);
+};
+
+export const useLatestDashboardReading = () => {
+  const queryClient = useQueryClient();
+  return queryClient.getQueryData<DashBoardUpdate>([
+    "dashboard",
+    "latestReading",
+  ]);
 };
