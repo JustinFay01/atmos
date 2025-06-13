@@ -25,6 +25,7 @@
         *   Implement logic to construct `UpdateDto`.
         *   Integrate `IHubContext<AtmosHub>` for broadcasting.
         *   Unit tests for calculation logic (e.g., average calculations, extreme updates).
+        *   MinMax Reset rule at midnight in a given timezone. 
     *   **`Orchestrator` (`BackgroundService`):**
         *   Implement polling loop (`Task.Delay`).
         *   Inject `ISensorClient` (configurable to use `MockSensorClient`).
@@ -35,12 +36,13 @@
     *   Define the hub class.
     *   Implement `OnConnectedAsync` / `OnDisconnectedAsync` for logging (optional but useful).
 5.  **Initial DTOs:**
-    *   Define `ReadingDto`, `AverageDto`, `MinMaxDto`, `UpdateDto`.
+    ~~*   Define `ReadingDto`, `AverageDto`, `MinMaxDto`, `UpdateDto`.~~
+    * Map MetricAggregates (and their Metric) to value types for simplified interface with frontend.
 6.  **Testing & Verification (Phase 1):**
     *   Run the backend application.
     ~~*   **Postman (WebSocket Client):** Connect to the SignalR `AtmosHub` endpoint.~~ --> **Switched to client.ts because postman doesn't support SignalR.**
     *   Verify `UpdateDto` messages are received every 10 seconds.
-    *   Check PostgreSQL database to confirm `Reading` entities are being saved.
+    ~~*   Check PostgreSQL database to confirm `Reading` entities are being saved.~~
     *   Manually inspect logs for any errors.
 
 ---
@@ -55,7 +57,7 @@
     *   Write unit tests for `MockSensorClient`.~~ **Moved to Phase 1.**
 2.  **Real Sensor Integration:**
     *   Implement `Rs485SensorClient` (actual serial port communication logic).
-    *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` easily (e.g., via environment variable in `docker-compose.yml`).
+    *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` ~~easily (e.g., via environment variable in `docker-compose.yml`).~~
 ~~3.  **Database Migrations in Docker:**~~
     ~~*   Research and implement a strategy for applying EF Core migrations automatically when the backend container starts (e.g., in `Program.cs` or an entrypoint script). Test this thoroughly.~~
 3. **SQLite Database**
@@ -66,15 +68,18 @@
     *   Install SignalR client library (`@microsoft/signalr`).
     *   Implement basic connection to the backend's `AtmosHub`.
     *   Display the raw `UpdateDto` data received via SignalR (no styling needed, just verify data flow).
+    *  Set up C# Static Files to host the React app in `Atmos.Presentation`.
     ~~*   If running React dev server and backend in Docker, configure CORS on the backend.~~
 5.  **REST Endpoint: Initial Dashboard State:**
-    *   **Implement `GET /api/dashboard/state` in `Atmos.Presentation`.**
-        *   This controller will need access to the `IAggregator` (for `latestUpdate`) and `IReadingRepository` (or a new service) to calculate `hourlyAveragesLast12Hours`.
-    *   React POC: On load/connect, call this endpoint to populate the initial view before SignalR updates start or if it missed initial pushes.
+    *   Fetch historical data for a given date and time range. 
+    *   Aggregate the data into the 5 minute and 1 minute averages (or potentially store these in the database).
+    *   Select file format implementation (e.g., CSV, TXT)
+    *   Convert the UTC time to the local timezone of the user (if specified in the request).
 6.  **Sentry Integration:**
     *   Integrate Sentry SDK into `Atmos.Presentation` for backend error logging.
     *   Integrate Sentry SDK into the React POC for frontend error logging.
     *   Test by intentionally throwing an error in both backend and frontend.
+    *   Determine where logs are saved to, do they go to sentry? or do we save local files?
 ~~7.  **Refine `docker-compose.yml`:**~~
     ~~*   Ensure backend, database (and potentially a basic Nginx for React static files if not using dev server) can be brought up with `docker-compose up`.~~
 
@@ -112,8 +117,8 @@
         *   Implement `GET`.
         *   Implement `PUT`.
         *   **Security:** These definitely need to be secured.
-6.  **Finalize `IAggregator` Hydration:**
-    *   Implement the startup hydration logic for the `IAggregator` based on configuration and historical data.
+~~~~6.  **Finalize `IAggregator` Hydration:**~~
+    ~~*   Implement the startup hydration logic for the `IAggregator` based on configuration and historical data.~~~~
 7.  **Documentation:**
     *   Review and update `README.md`.
     *   Write `docs/setup.md`.
@@ -125,4 +130,8 @@
     *   Test resilience (e.g., what happens if DB is temporarily down, sensor disconnects).
     *   Test Docker deployment thoroughly on a clean system.
 
----
+### Phase 4: Stretch Goals 
+
+1. **Timing and Performance:**
+   * Handle computer sleep/wake events gracefully.
+   * Implement a more robust retry mechanism for sensor reads.
