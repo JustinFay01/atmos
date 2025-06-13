@@ -1,3 +1,4 @@
+using API.Extensions;
 using API.Hubs;
 
 using Application;
@@ -14,7 +15,9 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        
+        builder.UseAtmosIssueTracker();
+        
         builder.Services.AddSignalR();
         builder.Services.AddSingleton<IRealtimeUpdateNotifier, RealTimeUpdateNotifier>();
         builder.Services.UseAtmosInfrastructure();
@@ -22,6 +25,7 @@ public class Program
         builder.Services.AddHostedService<SensorPollingWorker>();
 
         var app = builder.Build();
+        
 
         app.MapHub<DashboardHub>("/dashboard");
 

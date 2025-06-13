@@ -56,7 +56,7 @@ public class OneMinuteAverageRule : IMetricUpdateRule
 
         if (Math.Abs((firstReading.Timestamp - expectedFirstReadingTimestamp).TotalSeconds) > ToleranceInSeconds)
         {
-            _logger.LogError("First reading is not at the top of the minute. Expected: {expectedFirstReadingTimestamp}, Actual: {firstReadingTimestamp}", expectedFirstReadingTimestamp, firstReading.Timestamp);
+            _logger.LogError("Clock drift detected, first reading is not at the top of the minute.");
             return aggregate;
         }
 
