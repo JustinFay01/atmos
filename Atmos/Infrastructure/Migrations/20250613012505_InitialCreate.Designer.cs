@@ -5,45 +5,40 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AtmosContext))]
-    [Migration("20250610014624_Init")]
-    partial class Init
+    [Migration("20250613012505_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Infrastructure.Entities.Reading", b =>
+            modelBuilder.Entity("Domain.Entities.Reading", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<double>("DewPoint")
-                        .HasColumnType("double precision");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("Humidity")
-                        .HasColumnType("double precision");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("Temperature")
-                        .HasColumnType("double precision");
+                        .HasColumnType("REAL");
 
                     b.Property<DateTime>("TimeStamp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp")
-                        .HasDefaultValueSql("now()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
 

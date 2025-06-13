@@ -4,7 +4,6 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,35 +15,31 @@ namespace Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Infrastructure.Entities.Reading", b =>
+            modelBuilder.Entity("Domain.Entities.Reading", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<double>("DewPoint")
-                        .HasColumnType("double precision");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("Humidity")
-                        .HasColumnType("double precision");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("Temperature")
-                        .HasColumnType("double precision");
+                        .HasColumnType("REAL");
 
                     b.Property<DateTime>("TimeStamp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp")
-                        .HasDefaultValueSql("now()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Readings", (string)null);
+                    b.ToTable("Readings");
                 });
 #pragma warning restore 612, 618
         }

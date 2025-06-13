@@ -10,10 +10,18 @@ namespace Infrastructure;
 public class AtmosContext : DbContext
 {
     public DbSet<Reading> Readings { get; set; }
+    
+    public string DbPath { get; }
 
     public AtmosContext(DbContextOptions<AtmosContext> options) : base(options)
     {
+        const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
+        var path = Environment.GetFolderPath(folder);
+        DbPath = Path.Combine(path, "atmos.db");
     }
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlite($"Data Source={DbPath}");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,7 +38,10 @@ public class AtmosContext : DbContext
         public AtmosContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AtmosContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=postgres");
+            const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
+            var path = Environment.GetFolderPath(folder);
+            var dbPath = Path.Combine(path, "atmos.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
 
             return new AtmosContext(optionsBuilder.Options);
         }
