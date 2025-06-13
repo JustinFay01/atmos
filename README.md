@@ -50,7 +50,7 @@ Switching to SQLite.
 
 Since this will be a desktop application, the database will be stored locally on the user's machine. This simplifies deployment and ensures that all data is accessible without needing a separate database server.
 
-Following [Getting STarted with EF Core](https://learn.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli)
+Following [Getting Started with EF Core](https://learn.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli)
 
 ### Logging & Error Monitoring (Sentry)
 
