@@ -26,6 +26,7 @@
         *   Integrate `IHubContext<AtmosHub>` for broadcasting.
         *   Unit tests for calculation logic (e.g., average calculations, extreme updates).
         *   MinMax Reset rule at midnight in a given timezone. 
+        *   What should happen to the current MetricAggregates at midnight? Should they be reset or should we keep them?
     *   **`Orchestrator` (`BackgroundService`):**
         *   Implement polling loop (`Task.Delay`).
         *   Inject `ISensorClient` (configurable to use `MockSensorClient`).

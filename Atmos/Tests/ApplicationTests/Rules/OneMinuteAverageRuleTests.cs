@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using Application.Models;
 using Application.Rules;
 
-namespace Tests.ApplicationTests;
+namespace Tests.ApplicationTests.Rules;
 
 public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
 {
