@@ -30,7 +30,15 @@ export const Dashboard = () => {
                 Temp
               </Typography>
               <Typography variant="body1" component="p">
-                {dashboardStore?.latestUpdate?.temperature.currentValue.value}°C
+                {dashboardStore?.latestUpdate?.temperature.currentValue.value}°F
+              </Typography>
+              <Typography variant="body2" component="p">
+                Min: {dashboardStore?.latestUpdate?.temperature.minValue.value}
+                °F
+              </Typography>
+              <Typography variant="body2" component="p">
+                Max: {dashboardStore?.latestUpdate?.temperature.maxValue.value}
+                °F
               </Typography>
             </FlexColumn>
           </Card>

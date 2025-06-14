@@ -5,6 +5,7 @@ namespace Application.Interfaces;
 
 public interface IAggregator
 {
+    public DashboardUpdate? LatestUpdate { get; }
     public MetricAggregate Temperature { get; }
     public MetricAggregate Humidity { get; }
     public MetricAggregate DewPoint { get; }

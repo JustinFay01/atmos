@@ -26,6 +26,8 @@ public class AggregatorService(
     public MetricAggregate Temperature { get; private set; } = new();
     public MetricAggregate Humidity { get; private set; } = new();
     public MetricAggregate DewPoint { get; private set; } = new();
+    public DashboardUpdate? LatestUpdate { get; private set; }
+
     public async Task ProcessReadingAsync(ReadingDto reading, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Processing reading: {reading}", reading);
@@ -60,14 +62,14 @@ public class AggregatorService(
         logger.LogDebug("Updated aggregates: Temperature={Temperature}, Humidity={Humidity}, DewPoint={DewPoint}",
             Temperature, Humidity, DewPoint);
 
-        // Notify subscribers about the updated aggregates
-        await notifier.SendDashboardUpdateAsync(new DashboardUpdate
+        LatestUpdate = new DashboardUpdate
         {
             Temperature = Temperature,
             Humidity = Humidity,
             DewPoint = DewPoint,
             LatestReading = reading,
-        }, cancellationToken);
+        };
+        await notifier.SendDashboardUpdateAsync(LatestUpdate, cancellationToken);
 
     }
 
