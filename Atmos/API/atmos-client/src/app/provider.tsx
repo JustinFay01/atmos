@@ -9,12 +9,14 @@ import {
   startDashboardConnection,
   stopDashboardConnection,
 } from "@/api/real-time/dashboard-connection";
+import useDynamicIcon from "@/hooks/use-dynamic-icon";
 
 const appQueryClient = new QueryClient({
   defaultOptions: queryConfig,
 });
 
 export const AtmosProvider = ({ children }: React.PropsWithChildren) => {
+  useDynamicIcon();
   useEffect(() => {
     console.log("Starting dashboard connection...");
     startDashboardConnection();
