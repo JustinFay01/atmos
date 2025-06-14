@@ -1,31 +1,23 @@
-import {
-  useLatestDashboardReading,
-  useSubscribeToDashboardUpdates,
-} from "@/api/get-dashboard-update";
+import { useConnectionStore } from "@/stores/connection-store";
+import { useDashboardStore } from "@/stores/dashboard-store";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow } from "@/ui/layout/flexbox";
 import { Card, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
 
 export const Dashboard = () => {
-  useSubscribeToDashboardUpdates();
-  const data = useLatestDashboardReading();
-  const [temperature, setTemperature] = useState(
-    data?.latestReading.temperature || 0
-  );
-  const [humidity, setHumidity] = useState(data?.latestReading.humidity || 0);
-  const [dewPoint, setDewPoint] = useState(data?.latestReading.dewPoint || 0);
-
-  useEffect(() => {
-    if (data) {
-      setTemperature(data.latestReading.temperature);
-      setHumidity(data.latestReading.humidity);
-      setDewPoint(data.latestReading.dewPoint);
-    }
-  }, [data, data?.latestReading]);
+  const dashboardStore = useDashboardStore();
+  const connectionStore = useConnectionStore((state) => state.status);
 
   return (
     <BaseLayout>
+      <FlexColumn alignItems="center" sx={{ padding: 2 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Dashboard
+        </Typography>
+        <Typography variant="body1" component="p">
+          Connection Status: {connectionStore}
+        </Typography>
+      </FlexColumn>
       <FlexColumn alignItems="center" sx={{ padding: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Atmos
@@ -38,7 +30,7 @@ export const Dashboard = () => {
                 Temp
               </Typography>
               <Typography variant="body1" component="p">
-                {temperature}°C
+                {dashboardStore?.latestUpdate?.temperature.currentValue.value}°C
               </Typography>
             </FlexColumn>
           </Card>
@@ -48,7 +40,7 @@ export const Dashboard = () => {
                 Humidity
               </Typography>
               <Typography variant="body1" component="p">
-                {humidity}%
+                {dashboardStore?.latestUpdate?.humidity.currentValue.value}%
               </Typography>
             </FlexColumn>
           </Card>
@@ -58,7 +50,7 @@ export const Dashboard = () => {
                 Dew Point
               </Typography>
               <Typography variant="body1" component="p">
-                {dewPoint}°C
+                {dashboardStore?.latestUpdate?.dewPoint.currentValue.value}°C
               </Typography>
             </FlexColumn>
           </Card>
