@@ -1,7 +1,11 @@
 import * as Sentry from "@sentry/react";
 
-Sentry.init({
-  dsn: "https://examplePublicKey@o0.ingest.sentry.io/0",
-  sendDefaultPii: true,
-  integrations: [],
-});
+if (!import.meta.env.VITE_SENTRY_ENABLED) {
+  console.warn("Sentry is not enabled. Sentry will not be initialized.");
+} else {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    sendDefaultPii: true,
+    integrations: [],
+  });
+}

@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Atmos } from "./app";
 import * as Sentry from "@sentry/react";
 
-const container = document.getElementById("app") as HTMLElement;
+const container = document.getElementById("root") as HTMLElement;
 const root = createRoot(container, {
   // Callback called when an error is thrown and not caught by an ErrorBoundary.
   onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {
