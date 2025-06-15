@@ -108,15 +108,14 @@ public class SensorPollingWorker : BackgroundService
             _logger.LogDebug("Latest reading received: {reading}", sensorData);
 
             // Process and Aggregate Data
-            await _aggregator.AggregateRawReading(sensorData, workCts.Token);
             var aggregatedReadingDto = await _aggregator.AggregateRawReading(sensorData, workCts.Token);
             var aggregate = _mapper.Map<ReadingAggregate>(aggregatedReadingDto);
             
             // Store Aggregated Data
-            await readingRepository.CreateAsync(aggregate , workCts.Token);
+            await readingRepository.CreateAsync(aggregate, workCts.Token);
             
             // Notify Clients of Update
-            await _notifier.SendDashboardUpdateAsync(aggregate, workCts.Token);
+            await _notifier.SendDashboardUpdateAsync(aggregatedReadingDto, workCts.Token);
 
             _logger.LogInformation("Sensor data processed successfully.");
         }

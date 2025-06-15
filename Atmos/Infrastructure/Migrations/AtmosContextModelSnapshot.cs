@@ -17,7 +17,7 @@ namespace Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
 
-            modelBuilder.Entity("Domain.Entities.Reading", b =>
+            modelBuilder.Entity("Domain.Entities.ReadingAggregate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -26,20 +26,74 @@ namespace Infrastructure.Migrations
                     b.Property<double>("DewPoint")
                         .HasColumnType("REAL");
 
+                    b.Property<double?>("DewPointFiveMinuteRollingAverage")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("DewPointMax")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTimeOffset>("DewPointMaxTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("DewPointMin")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTimeOffset>("DewPointMinTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("DewPointOneMinuteAverage")
+                        .HasColumnType("REAL");
+
                     b.Property<double>("Humidity")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("HumidityFiveMinuteRollingAverage")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("HumidityMax")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTimeOffset>("HumidityMaxTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("HumidityMin")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTimeOffset>("HumidityMinTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("HumidityOneMinuteAverage")
                         .HasColumnType("REAL");
 
                     b.Property<double>("Temperature")
                         .HasColumnType("REAL");
 
-                    b.Property<DateTime>("TimeStamp")
+                    b.Property<double?>("TemperatureFiveMinuteRollingAverage")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("TemperatureMax")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTimeOffset>("TemperatureMaxTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("TemperatureMin")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTimeOffset>("TemperatureMinTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("TemperatureOneMinuteAverage")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTimeOffset>("Timestamp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Readings");
+                    b.ToTable("ReadingAggregates");
                 });
 #pragma warning restore 612, 618
         }

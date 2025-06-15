@@ -14,7 +14,7 @@ public class ReadingAggregateRepository : IReadingAggregateRepository
 
     public async Task CreateAsync(ReadingAggregate readingAggregate, CancellationToken cancellationToken = default)
     {
-        await _context.Readings.AddAsync(readingAggregate, cancellationToken);
+        await _context.ReadingAggregates.AddAsync(readingAggregate, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
 }
