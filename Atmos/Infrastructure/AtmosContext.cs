@@ -9,7 +9,7 @@ namespace Infrastructure;
 
 public class AtmosContext : DbContext
 {
-    public DbSet<Reading> Readings { get; set; }
+    public DbSet<ReadingAggregate> Readings { get; set; }
 
     public string DbPath { get; }
 
@@ -31,7 +31,7 @@ public class AtmosContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfiguration(new ReadingConfiguration());
+        modelBuilder.ApplyConfiguration(new ReadingAggregateConfiguration());
     }
 
 

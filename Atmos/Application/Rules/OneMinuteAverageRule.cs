@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using Application.Dtos;
 using Application.Models;
 using Application.Services;
 
@@ -33,36 +34,36 @@ public class OneMinuteAverageRule : IMetricUpdateRule
         _logger = logger;
     }
 
-    public MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric)
+    public SingleReadingAggregateDto Apply(SingleReadingAggregateDto aggregateDto, MetricDto newMetricDto)
     {
-        if (aggregate.RecentReadings.IsEmpty || aggregate.RecentReadings.Count < MaxReadings)
+        if (aggregateDto.RecentReadings.IsEmpty || aggregateDto.RecentReadings.Count < MaxReadings)
         {
-            return aggregate;
+            return aggregateDto;
         }
 
         // Needs to start at the top of the minute (:10)
         // This corresponds to newMetric's time because the previous rule ensures that the last reading is the latest one.
-        var latestRecentReading = aggregate.RecentReadings.Last();
+        var latestRecentReading = aggregateDto.RecentReadings.Last();
         var isTopOfTheMinute = Math.Abs(latestRecentReading.Timestamp.Second) <= ToleranceInSeconds ||
                                 latestRecentReading.Timestamp.Second > 59 - ToleranceInSeconds;
 
         if (!isTopOfTheMinute)
         {
-            return aggregate;
+            return aggregateDto;
         }
 
-        var firstReading = aggregate.RecentReadings.First();
+        var firstReading = aggregateDto.RecentReadings.First();
         var expectedFirstReadingTimestamp = latestRecentReading.Timestamp.AddSeconds(-50);
 
         if (Math.Abs((firstReading.Timestamp - expectedFirstReadingTimestamp).TotalSeconds) > ToleranceInSeconds)
         {
             _logger.LogError("Clock drift detected, first reading is not at the top of the minute.");
-            return aggregate;
+            return aggregateDto;
         }
 
-        var oneMinuteAverage = aggregate.RecentReadings.Average(m => m.Value);
-        var newOneMinuteAverageQueue = new ConcurrentQueue<Metric>(aggregate.OneMinuteAverages);
-        newOneMinuteAverageQueue.Enqueue(new Metric
+        var oneMinuteAverage = aggregateDto.RecentReadings.Average(m => m.Value);
+        var newOneMinuteAverageQueue = new ConcurrentQueue<MetricDto>(aggregateDto.OneMinuteAverages);
+        newOneMinuteAverageQueue.Enqueue(new MetricDto
         {
             Timestamp = latestRecentReading.Timestamp,
             Value = oneMinuteAverage
@@ -73,7 +74,7 @@ public class OneMinuteAverageRule : IMetricUpdateRule
             newOneMinuteAverageQueue.TryDequeue(out _);
         }
 
-        var newAggregate = aggregate.CopyWith(
+        var newAggregate = aggregateDto.CopyWith(
             oneMinuteAverage: oneMinuteAverage,
             oneMinuteRollingAverages: newOneMinuteAverageQueue
         );

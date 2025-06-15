@@ -1,4 +1,3 @@
-using Application.DTOs;
 using Application.Interfaces;
 using Application.Models;
 
@@ -16,7 +15,7 @@ public class RealTimeUpdateNotifier : IRealtimeUpdateNotifier
         _logger = logger;
         _hubContext = hubContext;
     }
-    public Task SendDashboardUpdateAsync(DashboardUpdate update, CancellationToken cancellationToken = default)
+    public Task SendDashboardUpdateAsync(object update, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Sending dashboard update: {update}", update);
         return _hubContext.Clients.All.SendAsync("ReceiveDashboardUpdate", update, cancellationToken);

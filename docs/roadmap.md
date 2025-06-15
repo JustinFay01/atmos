@@ -72,14 +72,15 @@
     ~~*   If running React dev server and backend in Docker, configure CORS on the backend.~~
 5.  **REST Endpoint: Initial Dashboard State:**
     *   Fetch historical data for a given date and time range. 
-    *   Aggregate the data into the 5 minute and 1 minute averages (or potentially store these in the database).
-    *   Select file format implementation (e.g., CSV, TXT)
+    ~~*   Aggregate the data into the 5 minute and 1 minute averages (or potentially store these in the database).~~
+      * Must store these in the database for historical queries.
+    * Select file format implementation (e.g., CSV, TXT)
     *   Convert the UTC time to the local timezone of the user (if specified in the request).
 6.  **Sentry Integration:**
     *   Integrate Sentry SDK into `Atmos.Presentation` for backend error logging.
     *   Integrate Sentry SDK into the React POC for frontend error logging.
     *   Test by intentionally throwing an error in both backend and frontend.
-    *   Determine where logs are saved to, do they go to sentry? or do we save local files?
+    ~~*   Determine where logs are saved to, do they go to sentry? or do we save local files?~~
 ~~7.  **Refine `docker-compose.yml`:**~~
     ~~*   Ensure backend, database (and potentially a basic Nginx for React static files if not using dev server) can be brought up with `docker-compose up`.~~
 

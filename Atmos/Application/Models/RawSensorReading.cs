@@ -1,8 +1,8 @@
 using Application.Helper;
 
-namespace Application.DTOs;
+namespace Application.Models;
 
-public class ReadingDto
+public class RawSensorReading
 {
     public DateTime Timestamp = DateTimeProvider.Instance.Now;
     public required double Temperature { get; set; }

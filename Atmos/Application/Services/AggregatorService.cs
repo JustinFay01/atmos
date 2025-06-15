@@ -1,4 +1,4 @@
-using Application.DTOs;
+using Application.Dtos;
 using Application.Interfaces;
 using Application.Models;
 using Application.Rules;
@@ -9,7 +9,6 @@ namespace Application.Services;
 
 public class AggregatorService(
     ILogger<AggregatorService> logger,
-    IRealtimeUpdateNotifier notifier,
     IMetricUpdateRuleFactory ruleFactory)
     : IAggregator
 {
@@ -23,31 +22,31 @@ public class AggregatorService(
     // to ensure that the five-minute average is calculated correctly based on the one-minute averages.
     private readonly IReadOnlyCollection<IMetricUpdateRule> _rules = ruleFactory.CreateRules();
 
-    public MetricAggregate Temperature { get; private set; } = new();
-    public MetricAggregate Humidity { get; private set; } = new();
-    public MetricAggregate DewPoint { get; private set; } = new();
-    public DashboardUpdate? LatestUpdate { get; private set; }
+    private SingleReadingAggregateDto Temperature { get; set; } = new();
+    private SingleReadingAggregateDto Humidity { get; set; } = new();
+    private SingleReadingAggregateDto DewPoint { get; set; } = new();
+    public ReadingAggregateDto? AggregatedReading { get; private set; }
 
-    public async Task ProcessReadingAsync(ReadingDto reading, CancellationToken cancellationToken = default)
+    public async Task<ReadingAggregateDto> AggregateRawReading(RawSensorReading reading, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Processing reading: {reading}", reading);
         
-        var newTemp = new Metric
+        var newTemp = new MetricDto
         {
             Timestamp = reading.Timestamp,
             Value = reading.Temperature
         };
-        var newHumidity = new Metric
+        var newHumidity = new MetricDto
         {
             Timestamp = reading.Timestamp,
             Value = reading.Humidity
         };
-        var newDewPoint = new Metric
+        var newDewPoint = new MetricDto
         {
             Timestamp = reading.Timestamp,
             Value = reading.DewPoint
         };
-        var tasks = new List<Task<MetricAggregate>>
+        var tasks = new List<Task<SingleReadingAggregateDto>>
         {
             ApplyRulesAsync(Temperature, newTemp, _temperatureLock, nameof(Temperature),cancellationToken),
             ApplyRulesAsync(Humidity, newHumidity, _humidityLock, nameof(Humidity), cancellationToken),
@@ -62,28 +61,27 @@ public class AggregatorService(
         logger.LogDebug("Updated aggregates: Temperature={Temperature}, Humidity={Humidity}, DewPoint={DewPoint}",
             Temperature, Humidity, DewPoint);
 
-        LatestUpdate = new DashboardUpdate
+        AggregatedReading = new ReadingAggregateDto
         {
             Temperature = Temperature,
             Humidity = Humidity,
             DewPoint = DewPoint,
             LatestReading = reading,
         };
-        await notifier.SendDashboardUpdateAsync(LatestUpdate, cancellationToken);
-
+        return AggregatedReading;
     }
 
-    private async Task<MetricAggregate> ApplyRulesAsync(MetricAggregate aggregate, Metric newValue, SemaphoreSlim locker, string metricName, CancellationToken cancellationToken = default)
+    private async Task<SingleReadingAggregateDto> ApplyRulesAsync(SingleReadingAggregateDto aggregateDto, MetricDto newValue, SemaphoreSlim locker, string metricName, CancellationToken cancellationToken = default)
     {
-        logger.LogTrace("Applying rules to {metricName}: {aggregate} with new value: {newValue}", metricName, aggregate, newValue);
+        logger.LogTrace("Applying rules to {metricName}: {aggregate} with new value: {newValue}", metricName, aggregateDto, newValue);
         await locker.WaitAsync(cancellationToken);
         try
         {
-            return _rules.Aggregate(aggregate, (current, rule) => rule.Apply(current, newValue));
+            return _rules.Aggregate(aggregateDto, (current, rule) => rule.Apply(current, newValue));
         }
         finally
         {
-            logger.LogTrace("Finished applying rules to aggregate: {aggregate}", aggregate);
+            logger.LogTrace("Finished applying rules to aggregate: {aggregate}", aggregateDto);
             locker.Release();
         }
     }

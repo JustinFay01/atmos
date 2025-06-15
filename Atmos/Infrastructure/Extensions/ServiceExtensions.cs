@@ -16,7 +16,7 @@ public static class ServiceExtensions
 
         services.AddDbContext<AtmosContext>();
 
-        services.AddScoped<IReadingRepository, ReadingRepository>();
+        services.AddScoped<IReadingAggregateRepository, ReadingAggregateRepository>();
         services.AddSingleton<ISensorClient, MockSensorClient>();
 
         return services;

@@ -1,3 +1,4 @@
+using Application.Dtos;
 using Application.Models;
 using Application.Rules;
 
@@ -17,15 +18,15 @@ public class MinRuleTests : BaseTest<MinRule>
     public async Task MinRule_ResetsMin_WhenNewMetricIsDifferentDay()
     {
         // Arrange
-        var oldMetric = Fixture.Build<Metric>()
+        var oldMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 12, 23, 59, 59))
             .With(m => m.Value, -1)
             .Create();
-        var newMetric = Fixture.Build<Metric>()
+        var newMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 13, 0, 0, 1))
             .With(m => m.Value, 1)
             .Create();
-        var aggregate = Fixture.Build<MetricAggregate>()
+        var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
         
@@ -40,15 +41,15 @@ public class MinRuleTests : BaseTest<MinRule>
     public async Task MinRule_UpdatesMin_WhenNewMetricIsLower()
     {
         // Arrange
-        var oldMetric = Fixture.Build<Metric>()
+        var oldMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 12, 23, 59, 59))
             .With(m => m.Value, -1)
             .Create();
-        var newMetric = Fixture.Build<Metric>()
+        var newMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 12, 23, 59, 59))
             .With(m => m.Value, -2)
             .Create();
-        var aggregate = Fixture.Build<MetricAggregate>()
+        var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
         
@@ -63,15 +64,15 @@ public class MinRuleTests : BaseTest<MinRule>
     public async Task MinRule_DoesNotUpdateMin_WhenNewMetricIsHigher()
     {
         // Arrange
-        var oldMetric = Fixture.Build<Metric>()
+        var oldMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 12, 23, 59, 59))
             .With(m => m.Value, -1)
             .Create();
-        var newMetric = Fixture.Build<Metric>()
+        var newMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 12, 23, 59, 59))
             .With(m => m.Value, 0)
             .Create();
-        var aggregate = Fixture.Build<MetricAggregate>()
+        var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
         
@@ -86,15 +87,15 @@ public class MinRuleTests : BaseTest<MinRule>
     public async Task MinRule_KeepsMin_WhenValuesAreEqualWithinEpsilon()
     {
         // Arrange
-        var oldMetric = Fixture.Build<Metric>()
+        var oldMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 12, 23, 59, 59))
             .With(m => m.Value, -1)
             .Create();
-        var newMetric = Fixture.Build<Metric>()
+        var newMetric = Fixture.Build<MetricDto>()
             .With(m => m.Timestamp, new DateTime(2025, 6, 12, 23, 59, 59))
             .With(m => m.Value, -1 + float.Epsilon / 2) // Slightly higher than old metric
             .Create();
-        var aggregate = Fixture.Build<MetricAggregate>()
+        var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
         

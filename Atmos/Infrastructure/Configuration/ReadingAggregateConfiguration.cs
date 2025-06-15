@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configuration;
 
-public class ReadingConfiguration : BaseEntityConfiguration<Reading>
+public class ReadingAggregateConfiguration : BaseEntityConfiguration<ReadingAggregate>
 {
-    public override void Configure(EntityTypeBuilder<Reading> builder)
+    public override void Configure(EntityTypeBuilder<ReadingAggregate> builder)
     {
         base.Configure(builder);
 
-        builder.Property(c => c.TimeStamp)
+        builder.Property(c => c.Timestamp)
             .HasColumnType("timestamp")
             .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .IsRequired();

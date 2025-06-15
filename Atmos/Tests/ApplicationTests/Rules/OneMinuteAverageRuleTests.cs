@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using Application.Dtos;
 using Application.Models;
 using Application.Rules;
 
@@ -20,8 +21,8 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
     public async Task OneMinuteAverageRule_ShouldReturnSameAggregate_WhenRecentReadingsIsEmpty()
     {
         // Arrange
-        var aggregate = new MetricAggregate();
-        var newMetric = new Metric();
+        var aggregate = new SingleReadingAggregateDto();
+        var newMetric = new MetricDto();
 
         // Act
         var result = Subject.Apply(aggregate, newMetric);
@@ -34,14 +35,14 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
     public async Task OneMinuteAverageRule_ShouldReturnSameAggregate_WhenRecentReadingsCountIsLessThanMaxReadings()
     {
         // Arrange
-        var aggregate = new MetricAggregate
+        var aggregate = new SingleReadingAggregateDto
         {
-            RecentReadings = new ConcurrentQueue<Metric>([
-                new Metric { Timestamp = _now, Value = 1 },
-                new Metric { Timestamp = _now.AddSeconds(10), Value = 2 }
+            RecentReadings = new ConcurrentQueue<MetricDto>([
+                new MetricDto { Timestamp = _now, Value = 1 },
+                new MetricDto { Timestamp = _now.AddSeconds(10), Value = 2 }
             ])
         };
-        var newMetric = new Metric();
+        var newMetric = new MetricDto();
 
         // Act
         var result = Subject.Apply(aggregate, newMetric);
@@ -58,18 +59,18 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
     public async Task OneMinuteAverageRule_ReturnsNewAggregate_WhenAtTopOfMinute()
     {
         // Arrange
-        var aggregate = new MetricAggregate
+        var aggregate = new SingleReadingAggregateDto
         {
-            RecentReadings = new ConcurrentQueue<Metric>([
-                new Metric { Timestamp = _now.AddSeconds(-50), Value = 1 },
-                new Metric { Timestamp = _now.AddSeconds(-40), Value = 2 },
-                new Metric { Timestamp = _now.AddSeconds(-30), Value = 3 },
-                new Metric { Timestamp = _now.AddSeconds(-20), Value = 4 },
-                new Metric { Timestamp = _now.AddSeconds(-10), Value = 5 },
-                new Metric { Timestamp = _now, Value = 6 }
+            RecentReadings = new ConcurrentQueue<MetricDto>([
+                new MetricDto { Timestamp = _now.AddSeconds(-50), Value = 1 },
+                new MetricDto { Timestamp = _now.AddSeconds(-40), Value = 2 },
+                new MetricDto { Timestamp = _now.AddSeconds(-30), Value = 3 },
+                new MetricDto { Timestamp = _now.AddSeconds(-20), Value = 4 },
+                new MetricDto { Timestamp = _now.AddSeconds(-10), Value = 5 },
+                new MetricDto { Timestamp = _now, Value = 6 }
             ])
         };
-        var newMetric = new Metric { Timestamp = _now, Value = 6 };
+        var newMetric = new MetricDto { Timestamp = _now, Value = 6 };
 
         // Act
         var result = Subject.Apply(aggregate, newMetric);
@@ -83,15 +84,15 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
     public async Task OneMinuteAverageRule_ReturnsSameAggregate_WhenInMiddleOfMinute()
     {
         // Arrange
-        var aggregate = new MetricAggregate
+        var aggregate = new SingleReadingAggregateDto
         {
-            RecentReadings = new ConcurrentQueue<Metric>([
-                new Metric { Timestamp = _now.AddSeconds(-40), Value = 1 },
-                new Metric { Timestamp = _now.AddSeconds(-30), Value = 2 },
-                new Metric { Timestamp = _now.AddSeconds(-20), Value = 3 },
-                new Metric { Timestamp = _now.AddSeconds(-10), Value = 4 },
-                new Metric { Timestamp = _now, Value = 5 },
-                new Metric { Timestamp = _now.AddSeconds(10), Value = 6 }
+            RecentReadings = new ConcurrentQueue<MetricDto>([
+                new MetricDto { Timestamp = _now.AddSeconds(-40), Value = 1 },
+                new MetricDto { Timestamp = _now.AddSeconds(-30), Value = 2 },
+                new MetricDto { Timestamp = _now.AddSeconds(-20), Value = 3 },
+                new MetricDto { Timestamp = _now.AddSeconds(-10), Value = 4 },
+                new MetricDto { Timestamp = _now, Value = 5 },
+                new MetricDto { Timestamp = _now.AddSeconds(10), Value = 6 }
             ])
         };
 
@@ -110,15 +111,15 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
     public async Task OneMinuteAverageRule_Integer_CalculatesCorrectOneMinuteAverage()
     {
         // Arrange
-        var aggregate = new MetricAggregate
+        var aggregate = new SingleReadingAggregateDto
         {
-            RecentReadings = new ConcurrentQueue<Metric>([
-                new Metric { Timestamp = _now.AddSeconds(-50), Value = 10 },
-                new Metric { Timestamp = _now.AddSeconds(-40), Value = 20 },
-                new Metric { Timestamp = _now.AddSeconds(-30), Value = 30 },
-                new Metric { Timestamp = _now.AddSeconds(-20), Value = 40 },
-                new Metric { Timestamp = _now.AddSeconds(-10), Value = 50 },
-                new Metric { Timestamp = _now, Value = 60 }
+            RecentReadings = new ConcurrentQueue<MetricDto>([
+                new MetricDto { Timestamp = _now.AddSeconds(-50), Value = 10 },
+                new MetricDto { Timestamp = _now.AddSeconds(-40), Value = 20 },
+                new MetricDto { Timestamp = _now.AddSeconds(-30), Value = 30 },
+                new MetricDto { Timestamp = _now.AddSeconds(-20), Value = 40 },
+                new MetricDto { Timestamp = _now.AddSeconds(-10), Value = 50 },
+                new MetricDto { Timestamp = _now, Value = 60 }
             ])
         };
 
@@ -134,15 +135,15 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
     public async Task OneMinuteAverageRule_Decimal_CalculatesCorrectOneMinuteAverage()
     {
         // Arrange
-        var aggregate = new MetricAggregate
+        var aggregate = new SingleReadingAggregateDto
         {
-            RecentReadings = new ConcurrentQueue<Metric>([
-                new Metric { Timestamp = _now.AddSeconds(-50), Value = 10.1 },
-                new Metric { Timestamp = _now.AddSeconds(-40), Value = 20.2 },
-                new Metric { Timestamp = _now.AddSeconds(-30), Value = 30.3 },
-                new Metric { Timestamp = _now.AddSeconds(-20), Value = 40.4 },
-                new Metric { Timestamp = _now.AddSeconds(-10), Value = 50.5 },
-                new Metric { Timestamp = _now, Value = 60.6 }
+            RecentReadings = new ConcurrentQueue<MetricDto>([
+                new MetricDto { Timestamp = _now.AddSeconds(-50), Value = 10.1 },
+                new MetricDto { Timestamp = _now.AddSeconds(-40), Value = 20.2 },
+                new MetricDto { Timestamp = _now.AddSeconds(-30), Value = 30.3 },
+                new MetricDto { Timestamp = _now.AddSeconds(-20), Value = 40.4 },
+                new MetricDto { Timestamp = _now.AddSeconds(-10), Value = 50.5 },
+                new MetricDto { Timestamp = _now, Value = 60.6 }
             ])
         };
 
