@@ -136,5 +136,6 @@
 1. **Timing and Performance:**
    * Handle computer sleep/wake events gracefully.
    * Implement a more robust retry mechanism for sensor reads.
+   * Implement a start delay 'cushion.' Currently, if the orchestrator starts to close to: 00.00, then the reading may occur at :59.99.
 2. **Maintenance and Monitoring:**
    * Monthly dependabot updates to check for outdated dependencies.

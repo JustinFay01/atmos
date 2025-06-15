@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace API.Extensions;
 
 public static class AtmosIssueTracker
@@ -12,13 +14,13 @@ public static class AtmosIssueTracker
         var sentryConfig = builder.Configuration.GetSection("Sentry");
         var dsn = sentryConfig.GetValue<string>("Dsn");
         var enabled = sentryConfig.GetValue<bool>("Enabled");
-        
+
         if (!enabled)
         {
-            Console.WriteLine("Sentry is disabled in the configuration.");
+            Debug.WriteLine("Sentry is disabled in the configuration.");
             return;
         }
-        
+
         if (string.IsNullOrEmpty(dsn))
         {
             throw new ArgumentException("Sentry DSN is not configured in the application settings.");
@@ -30,7 +32,7 @@ public static class AtmosIssueTracker
             options.Debug = true;
             options.SendDefaultPii = true;
         });
-        
+
         builder.ConfigureSentryLogging();
     }
 
