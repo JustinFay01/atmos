@@ -4,11 +4,12 @@ import { useConnectionStore } from "@/stores/connection-store";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow } from "@/ui/layout/flexbox";
-import { Button, Card, CardContent, Typography } from "@mui/material";
+import { Button, Card, Typography } from "@mui/material";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useQuery } from "@tanstack/react-query";
 import { Dial } from "./components/dial";
 import { DashboardHeader } from "./dashboard-header";
+import { CurrentWeatherCard } from "./components/current-weather-card";
 
 export const Dashboard = () => {
   const dashboardStore = useDashboardStore();
@@ -24,51 +25,35 @@ export const Dashboard = () => {
     <BaseLayout>
       <FlexColumn alignItems="center" sx={{ padding: 2 }}>
         <DashboardHeader status={connectionStore} />
-        <Card sx={{ width: "30%", borderRadius: 2 }}>
-          <CardContent>
-            <FlexColumn>
-              <Typography variant="h3" component="h1">
-                {`${
-                  dashboardStore?.latestUpdate?.temperature.currentValue
-                    .value ?? 0
-                } °F`}
-              </Typography>
-              <Typography variant="h6" component="h2">
-                Temperature
-              </Typography>
-            </FlexColumn>
-          </CardContent>
-        </Card>
-
-        <FlexRow spacing={2}>
-          <Dial
+        <FlexColumn
+          width={"100%"}
+          spacing={1}
+          alignItems="start"
+          sx={{ marginTop: 2 }}
+        >
+          <CurrentWeatherCard
+            label="Temperature"
+            unit="°F"
             value={
               dashboardStore?.latestUpdate?.temperature.currentValue.value ?? 0
             }
-            min={-25}
-            max={125}
-            unit="°F"
-            label="Temperature"
           />
-          <Dial
+          <CurrentWeatherCard
+            label="Humidity"
+            unit="%"
             value={
               dashboardStore?.latestUpdate?.humidity.currentValue.value ?? 0
             }
-            min={0}
-            max={100}
-            unit="%"
-            label="Humidity"
           />
-          <Dial
+          <CurrentWeatherCard
+            label="Dew Point"
+            unit="°F"
             value={
               dashboardStore?.latestUpdate?.dewPoint.currentValue.value ?? 0
             }
-            min={-25}
-            max={125}
-            unit="°F"
-            label="Dew Point"
           />
-        </FlexRow>
+        </FlexColumn>
+
         <LineChart
           width={600}
           height={300}

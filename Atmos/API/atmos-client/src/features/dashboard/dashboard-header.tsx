@@ -45,10 +45,11 @@ export const DashboardHeader = ({ status }: DashboardHeaderProps) => {
         </Typography>
         <FlexSpacer />
         <FlexColumn>
-          <FlexRow spacing={2} alignItems="center">
+          <FlexRow spacing={1} alignItems="center">
             <Typography variant="h3" component="span">
               {getLabel(status)}
             </Typography>
+            <FlexSpacer />
             <LiveClock variant="h3" />
           </FlexRow>
           <Box

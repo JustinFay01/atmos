@@ -3,7 +3,7 @@ import { createTheme } from "@mui/material/styles";
 // Custom palette tokens
 const colors = {
   backgroundDark: "#0B0D2A", // Full background
-  surfaceDark: "#1A1C3B", // Cards and containers
+  surfaceDark: "#292953", // Cards and containers
   primaryBlue: "#00CFFF",
   secondaryYellow: "#FDCB6E",
   textPrimary: "#FFFFFF",
