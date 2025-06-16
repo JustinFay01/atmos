@@ -13,7 +13,7 @@ public class ReadingAggregateConfiguration : BaseEntityConfiguration<ReadingAggr
 
         builder.Property(c => c.Timestamp)
             .HasColumnType("timestamp")
-            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .HasDefaultValueSql("now()")
             .IsRequired();
 
     }

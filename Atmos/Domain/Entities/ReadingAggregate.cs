@@ -6,7 +6,7 @@ public class ReadingAggregate : BaseEntity
     /// The time that this aggregate represents.
     /// Stored in UTC.
     /// </summary>
-    public DateTimeOffset Timestamp { get; set; }
+    public DateTime Timestamp { get; set; }
     
     # region Temperature
     
@@ -19,7 +19,7 @@ public class ReadingAggregate : BaseEntity
     /// The time that the minimum temperature occurred at the Timestamp's point in time.
     /// Stored in UTC.
     /// </summary>
-    public DateTimeOffset TemperatureMinTime { get; set; }
+    public DateTime TemperatureMinTime { get; set; }
     /// <summary>
     /// The day's minimum temperature recorded at the Timestamp's point in time.
     /// </summary>
@@ -29,7 +29,7 @@ public class ReadingAggregate : BaseEntity
     /// The time that the maximum temperature occurred at the Timestamp's point in time.
     /// Stored in UTC.
     /// </summary>
-    public DateTimeOffset TemperatureMaxTime { get; set; }
+    public DateTime TemperatureMaxTime { get; set; }
     
     /// <summary>
     /// The day's maximum temperature recorded at the Timestamp's point in time.
@@ -54,9 +54,9 @@ public class ReadingAggregate : BaseEntity
     # region Humidity
     
     public double Humidity { get; set; }
-    public DateTimeOffset HumidityMinTime { get; set; }
+    public DateTime HumidityMinTime { get; set; }
     public double HumidityMin { get; set; }
-    public DateTimeOffset HumidityMaxTime { get; set; }
+    public DateTime HumidityMaxTime { get; set; }
     public double HumidityMax { get; set; }
     public double? HumidityOneMinuteAverage { get; set; }
     public double? HumidityFiveMinuteRollingAverage { get; set; }
@@ -65,9 +65,9 @@ public class ReadingAggregate : BaseEntity
     # region DewPoint
     
     public double DewPoint { get; set; }
-    public DateTimeOffset DewPointMinTime { get; set; }
+    public DateTime DewPointMinTime { get; set; }
     public double DewPointMin { get; set; }
-    public DateTimeOffset DewPointMaxTime { get; set; }
+    public DateTime DewPointMaxTime { get; set; }
     public double DewPointMax { get; set; }
     public double? DewPointOneMinuteAverage { get; set; }
     public double? DewPointFiveMinuteRollingAverage { get; set; }
