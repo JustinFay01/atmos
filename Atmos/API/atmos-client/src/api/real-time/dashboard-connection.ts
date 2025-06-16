@@ -6,7 +6,7 @@ import { useDashboardStore } from "@/stores/dashboard-store";
 let connection: signalR.HubConnection | null = null;
 
 export const startDashboardConnection = () => {
-  const DASHBOARD_URL = import.meta.env.VITE_BASE_URL + "/dashboard";
+  const DASHBOARD_URL = import.meta.env.VITE_BASE_URL + "/v1/dashboard";
   const SUBSCRIPTION_NAME = "ReceiveDashboardUpdate";
   if (connection) {
     return connection;
@@ -21,7 +21,6 @@ export const startDashboardConnection = () => {
   setConnectionStatus("connecting");
 
   connection.on(SUBSCRIPTION_NAME, (data: DashboardUpdate) => {
-    console.log("Received dashboard update:", data);
     setConnectionStatus("connected");
     updateData(data);
     setHasReceivedUpdate(true);

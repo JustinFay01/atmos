@@ -18,10 +18,8 @@ const appQueryClient = new QueryClient({
 export const AtmosProvider = ({ children }: React.PropsWithChildren) => {
   useDynamicIcon();
   useEffect(() => {
-    console.log("Starting dashboard connection...");
     startDashboardConnection();
     return () => {
-      console.log("Stopping dashboard connection...");
       stopDashboardConnection();
     };
   }, []);
