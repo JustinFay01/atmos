@@ -25,6 +25,8 @@ public class SensorPollingWorker : BackgroundService
     private Task? _orchestrationTask;
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(10);
     private readonly TimeSpan _processingTimeout = TimeSpan.FromSeconds(9);
+    // Delay by 150 (:00.150) to ensure we don't drift backwards into :59.99
+    private const int DELAY_CUSHION_MS = 150;
 
     public SensorPollingWorker(ILogger<SensorPollingWorker> logger, IAggregator aggregator, ISensorClient sensorClient, IMapper mapper, IServiceScopeFactory scopeFactory, IRealtimeUpdateNotifier notifier)
     {
@@ -48,7 +50,7 @@ public class SensorPollingWorker : BackgroundService
         else
         {
             _logger.LogDebug("Delaying start by {Delay} milliseconds.", delay);
-            await Task.Delay((int)delay, cancellationToken);
+            await Task.Delay((int)delay + DELAY_CUSHION_MS, cancellationToken);
         }
         await base.StartAsync(cancellationToken);
     }
@@ -110,10 +112,10 @@ public class SensorPollingWorker : BackgroundService
             // Process and Aggregate Data
             var aggregatedReadingDto = await _aggregator.AggregateRawReading(sensorData, workCts.Token);
             var aggregate = _mapper.Map<ReadingAggregate>(aggregatedReadingDto);
-            
+
             // Store Aggregated Data
             await readingRepository.CreateAsync(aggregate, workCts.Token);
-            
+
             // Notify Clients of Update
             await _notifier.SendDashboardUpdateAsync(aggregatedReadingDto, workCts.Token);
 

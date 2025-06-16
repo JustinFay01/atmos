@@ -3,14 +3,18 @@ import { create } from "zustand";
 
 type DashboardStore = {
   latestUpdate: DashboardUpdate | null;
-  updateData: (data: DashboardUpdate) => void;
+  recentUpdates: DashboardUpdate[];
+  addUpdate: (data: DashboardUpdate) => void;
+  clearUpdates: () => void;
 };
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
+  recentUpdates: [],
   latestUpdate: null,
-  updateData: (data: DashboardUpdate) =>
+  addUpdate: (data: DashboardUpdate) =>
     set((state) => ({
-      ...state,
+      recentUpdates: [...state.recentUpdates, data].slice(-1000), // Keep only the last 10 updates
       latestUpdate: data,
     })),
+  clearUpdates: () => set({ recentUpdates: [], latestUpdate: null }),
 }));

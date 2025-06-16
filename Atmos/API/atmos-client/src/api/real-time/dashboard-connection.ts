@@ -16,13 +16,13 @@ export const startDashboardConnection = () => {
 
   const { setConnectionStatus, setHasReceivedUpdate } =
     useConnectionStore.getState();
-  const { updateData } = useDashboardStore.getState();
+  const { addUpdate } = useDashboardStore.getState();
 
   setConnectionStatus("connecting");
 
   connection.on(SUBSCRIPTION_NAME, (data: DashboardUpdate) => {
     setConnectionStatus("connected");
-    updateData(data);
+    addUpdate(data);
     setHasReceivedUpdate(true);
   });
 

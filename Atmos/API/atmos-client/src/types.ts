@@ -5,7 +5,7 @@ export type Reading = {
 };
 
 export type Metric = {
-  date: string;
+  timestamp: string;
   value: number;
 };
 

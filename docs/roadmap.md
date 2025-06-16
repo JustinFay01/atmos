@@ -69,6 +69,13 @@
     *   Implement basic connection to the backend's `AtmosHub`.
     *   Display the raw `UpdateDto` data received via SignalR (no styling needed, just verify data flow).
     *  Set up C# Static Files to host the React app in `Atmos.Presentation`.
+    * Basic frontend displays:
+      * Three dials for current temperature, humidity, and dew point.
+      * Today's min/max readings.
+      * A realtime clock showing current time in the configured timezone.
+      * A simple line chart showing the last hour of temperature readings (updated in real-time).
+        * For now the this will reset on refresh, later we will implement a cache of these readings in the backend.
+      * A raw readings table showing the last 10 readings received.
     ~~*   If running React dev server and backend in Docker, configure CORS on the backend.~~
 5.  **REST Endpoint: Initial Dashboard State:**
     *   Fetch historical data for a given date and time range. 

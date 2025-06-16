@@ -6,10 +6,14 @@ import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow } from "@/ui/layout/flexbox";
 import { Button, Card, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { LiveClock } from "./components/live-clock";
+import { Dial } from "./components/dial";
+import { LineChart } from "@mui/x-charts/LineChart";
 
 export const Dashboard = () => {
   const dashboardStore = useDashboardStore();
   const connectionStore = useConnectionStore((state) => state.status);
+
   const readings = useQuery({
     queryKey: readingKeys.all,
     queryFn: () => getReadingAggregates(),
@@ -25,6 +29,7 @@ export const Dashboard = () => {
         <Typography variant="body1" component="p">
           Connection Status: {connectionStore}
         </Typography>
+        <LiveClock />
       </FlexColumn>
       <FlexColumn alignItems="center" sx={{ padding: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -32,45 +37,68 @@ export const Dashboard = () => {
         </Typography>
 
         <FlexRow spacing={2}>
-          <Card sx={{ padding: 2 }}>
-            <FlexColumn alignItems="center">
-              <Typography variant="h6" component="h2">
-                Temp
-              </Typography>
-              <Typography variant="body1" component="p">
-                {dashboardStore?.latestUpdate?.temperature.currentValue.value}°F
-              </Typography>
-              <Typography variant="body2" component="p">
-                Min: {dashboardStore?.latestUpdate?.temperature.minValue.value}
-                °F
-              </Typography>
-              <Typography variant="body2" component="p">
-                Max: {dashboardStore?.latestUpdate?.temperature.maxValue.value}
-                °F
-              </Typography>
-            </FlexColumn>
-          </Card>
-          <Card sx={{ padding: 2 }}>
-            <FlexColumn alignItems="center">
-              <Typography variant="h6" component="h2">
-                Humidity
-              </Typography>
-              <Typography variant="body1" component="p">
-                {dashboardStore?.latestUpdate?.humidity.currentValue.value}%
-              </Typography>
-            </FlexColumn>
-          </Card>
-          <Card sx={{ padding: 2 }}>
-            <FlexColumn alignItems="center">
-              <Typography variant="h6" component="h2">
-                Dew Point
-              </Typography>
-              <Typography variant="body1" component="p">
-                {dashboardStore?.latestUpdate?.dewPoint.currentValue.value}°C
-              </Typography>
-            </FlexColumn>
-          </Card>
+          <Dial
+            value={
+              dashboardStore?.latestUpdate?.temperature.currentValue.value ?? 0
+            }
+            unit="°F"
+            label="Temperature"
+          />
+          <Dial
+            value={
+              dashboardStore?.latestUpdate?.humidity.currentValue.value ?? 0
+            }
+            unit="%"
+            label="Humidity"
+          />
+          <Dial
+            value={
+              dashboardStore?.latestUpdate?.dewPoint.currentValue.value ?? 0
+            }
+            unit="°F"
+            label="Dew Point"
+          />
         </FlexRow>
+        <LineChart
+          width={600}
+          height={300}
+          xAxis={[
+            {
+              dataKey: "timestamp",
+              valueFormatter: (value: number) => {
+                const date = new Date(value);
+                const minutes = date.getMinutes().toString().padStart(2, "0");
+                const seconds = date.getSeconds().toString().padStart(2, "0");
+                return `${minutes}:${seconds}`;
+              },
+            },
+          ]}
+          series={[
+            {
+              dataKey: "value",
+            },
+          ]}
+          dataset={dashboardStore?.recentUpdates.reduce((acc, update) => {
+            acc.push({
+              timestamp: new Date(update.temperature.currentValue.timestamp),
+              value: update.temperature.currentValue.value,
+            });
+            return acc;
+          }, [] as { timestamp: Date; value: number }[])}
+        />
+        <LineChart
+          title="Recent Temperature Updates"
+          series={[
+            {
+              data: dashboardStore?.recentUpdates.reduce((acc, update) => {
+                const value = update.temperature.currentValue.value;
+                acc.push(value);
+                return acc;
+              }, [] as number[]),
+            },
+          ]}
+          height={300}
+        />
         <FlexColumn alignItems="center" sx={{ marginTop: 2 }}>
           <Card sx={{ padding: 2, width: "100%" }}>
             <FlexRow
@@ -84,6 +112,7 @@ export const Dashboard = () => {
               <Button
                 variant="outlined"
                 color="primary"
+                disabled={readings.isLoading}
                 onClick={() => {
                   readings.refetch();
                 }}
