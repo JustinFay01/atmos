@@ -22,14 +22,14 @@ public class ReadingAggregateController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetReadingsAsync([FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to)
+    public async Task<IActionResult> GetReadingsAsync([FromQuery] DateTimeOffset? from, [FromQuery] DateTimeOffset? to)
     {
-        _logger.LogInformation("Getting aggregated reading");
+        _logger.LogInformation("Received request to GetReadingsAsync from: {From} | to: {To}", from, to);
         try
         {
             // Ensure from and to are in UTC
-            var fromUtc = from.ToUniversalTime();
-            var toUtc = to.ToUniversalTime();
+            var fromUtc = from?.ToUniversalTime() ?? DateTimeOffset.MinValue.ToUniversalTime();
+            var toUtc = to?.ToUniversalTime() ?? DateTimeOffset.MaxValue.ToUniversalTime();
 
             var readings = await _aggregator.GetAsync(fromUtc, toUtc);
 
