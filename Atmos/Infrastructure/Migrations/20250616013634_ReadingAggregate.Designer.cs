@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AtmosContext))]
-    [Migration("20250616010926_ReadingAggregate")]
+    [Migration("20250616013634_ReadingAggregate")]
     partial class ReadingAggregate
     {
         /// <inheritdoc />
@@ -96,7 +96,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime>("Timestamp")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamptz")
                         .HasDefaultValueSql("now()");
 
                     b.HasKey("Id");

@@ -93,7 +93,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime>("Timestamp")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamptz")
                         .HasDefaultValueSql("now()");
 
                     b.HasKey("Id");

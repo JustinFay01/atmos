@@ -16,7 +16,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()"),
+                    Timestamp = table.Column<DateTime>(type: "timestamptz", nullable: false, defaultValueSql: "now()"),
                     Temperature = table.Column<double>(type: "double precision", nullable: false),
                     TemperatureMinTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TemperatureMin = table.Column<double>(type: "double precision", nullable: false),
