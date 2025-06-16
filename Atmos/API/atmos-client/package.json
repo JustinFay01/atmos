@@ -21,11 +21,11 @@
     "axios": "^1.10.0",
     "curvy-graphs": "^1.0.1",
     "gsap": "^3.13.0",
-    "motion": "^12.18.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.6.2",
     "react-signalr": "^0.2.24",
+    "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^5.1.4",
     "zustand": "^5.0.5"
   },

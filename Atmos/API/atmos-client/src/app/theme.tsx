@@ -4,6 +4,7 @@ import { createTheme } from "@mui/material/styles";
 const colors = {
   backgroundDark: "#0B0D2A", // Full background
   surfaceDark: "#292953", // Cards and containers
+  surfaceDarkGradient: "#292970", // Gradient for cards
   primaryBlue: "#00CFFF",
   secondaryYellow: "#FDCB6E",
   textPrimary: "#FFFFFF",
@@ -48,6 +49,7 @@ const theme = createTheme({
       fontSize: "1.5rem",
       color: colors.textPrimary,
     },
+
     body1: {
       fontSize: "1rem",
       color: colors.textSecondary,
@@ -70,8 +72,9 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: colors.surfaceDark,
+          background: `linear-gradient(140deg, ${colors.surfaceDark}, ${colors.surfaceDarkGradient})`,
           borderRadius: "12px",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
         },
       },
     },

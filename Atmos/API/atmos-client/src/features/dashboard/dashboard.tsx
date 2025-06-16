@@ -2,14 +2,20 @@ import { getReadingAggregates } from "@/api/readings/get-readings";
 import { readingKeys } from "@/api/readings/reading-keys";
 import { useConnectionStore } from "@/stores/connection-store";
 import { useDashboardStore } from "@/stores/dashboard-store";
+
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow } from "@/ui/layout/flexbox";
 import { Button, Card, Typography } from "@mui/material";
-import { LineChart } from "@mui/x-charts/LineChart";
 import { useQuery } from "@tanstack/react-query";
-import { Dial } from "./components/dial";
-import { DashboardHeader } from "./dashboard-header";
 import { CurrentWeatherCard } from "./components/current-weather-card";
+import { DashboardHeader } from "./dashboard-header";
+
+import StaticHumiditySvg from "@/assets/humidity-static.svg";
+import HumiditySvg from "@/assets/humidity.svg";
+import StaticMistSvg from "@/assets/mist-static.svg";
+import MistSvg from "@/assets/mist.svg";
+import StaticThermometerSvg from "@/assets/thermometer-static.svg";
+import ThermometerSvg from "@/assets/thermometer.svg";
 
 export const Dashboard = () => {
   const dashboardStore = useDashboardStore();
@@ -37,6 +43,8 @@ export const Dashboard = () => {
             value={
               dashboardStore?.latestUpdate?.temperature.currentValue.value ?? 0
             }
+            iconSrc={StaticThermometerSvg}
+            animatedIconSrc={ThermometerSvg}
           />
           <CurrentWeatherCard
             label="Humidity"
@@ -44,6 +52,8 @@ export const Dashboard = () => {
             value={
               dashboardStore?.latestUpdate?.humidity.currentValue.value ?? 0
             }
+            iconSrc={StaticHumiditySvg}
+            animatedIconSrc={HumiditySvg}
           />
           <CurrentWeatherCard
             label="Dew Point"
@@ -51,49 +61,11 @@ export const Dashboard = () => {
             value={
               dashboardStore?.latestUpdate?.dewPoint.currentValue.value ?? 0
             }
+            iconSrc={StaticMistSvg}
+            animatedIconSrc={MistSvg}
           />
         </FlexColumn>
 
-        <LineChart
-          width={600}
-          height={300}
-          xAxis={[
-            {
-              dataKey: "timestamp",
-              valueFormatter: (value: number) => {
-                const date = new Date(value);
-                const minutes = date.getMinutes().toString().padStart(2, "0");
-                const seconds = date.getSeconds().toString().padStart(2, "0");
-                return `${minutes}:${seconds}`;
-              },
-            },
-          ]}
-          series={[
-            {
-              dataKey: "value",
-            },
-          ]}
-          dataset={dashboardStore?.recentUpdates.reduce((acc, update) => {
-            acc.push({
-              timestamp: new Date(update.temperature.currentValue.timestamp),
-              value: update.temperature.currentValue.value,
-            });
-            return acc;
-          }, [] as { timestamp: Date; value: number }[])}
-        />
-        <LineChart
-          title="Recent Temperature Updates"
-          series={[
-            {
-              data: dashboardStore?.recentUpdates.reduce((acc, update) => {
-                const value = update.temperature.currentValue.value;
-                acc.push(value);
-                return acc;
-              }, [] as number[]),
-            },
-          ]}
-          height={300}
-        />
         <FlexColumn alignItems="center" sx={{ marginTop: 2 }}>
           <Card sx={{ padding: 2, width: "100%" }}>
             <FlexRow
