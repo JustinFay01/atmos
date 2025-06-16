@@ -1,8 +1,10 @@
-import { Typography } from "@mui/material";
+import { Typography, type TypographyProps } from "@mui/material";
 import React from "react";
 import { useEffect } from "react";
 
-export const LiveClock = () => {
+type LiveClockProps = TypographyProps;
+
+export const LiveClock = (props: LiveClockProps) => {
   const [time, setTime] = React.useState(new Date());
   const [timerId, setTimerId] = React.useState<number | null>(null);
 
@@ -20,7 +22,7 @@ export const LiveClock = () => {
   }, []);
 
   return (
-    <Typography key={timerId} variant="h6">
+    <Typography key={timerId} variant="h6" {...props}>
       {time.toLocaleTimeString()}
     </Typography>
   );

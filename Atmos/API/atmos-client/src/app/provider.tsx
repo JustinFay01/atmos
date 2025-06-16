@@ -26,9 +26,11 @@ export const AtmosProvider = ({ children }: React.PropsWithChildren) => {
 
   return (
     <QueryClientProvider client={appQueryClient}>
-      <CssBaseline />
       <ReactQueryDevtools initialIsOpen={false} />
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

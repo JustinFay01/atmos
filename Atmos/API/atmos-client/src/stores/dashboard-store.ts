@@ -13,7 +13,7 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   latestUpdate: null,
   addUpdate: (data: DashboardUpdate) =>
     set((state) => ({
-      recentUpdates: [...state.recentUpdates, data].slice(-1000), // Keep only the last 10 updates
+      recentUpdates: [...state.recentUpdates, data].slice(-100), // Keep only the last 10 updates
       latestUpdate: data,
     })),
   clearUpdates: () => set({ recentUpdates: [], latestUpdate: null }),

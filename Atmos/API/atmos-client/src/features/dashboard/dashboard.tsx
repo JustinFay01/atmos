@@ -4,11 +4,11 @@ import { useConnectionStore } from "@/stores/connection-store";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow } from "@/ui/layout/flexbox";
-import { Button, Card, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import { LiveClock } from "./components/live-clock";
-import { Dial } from "./components/dial";
+import { Button, Card, CardContent, Typography } from "@mui/material";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { useQuery } from "@tanstack/react-query";
+import { Dial } from "./components/dial";
+import { DashboardHeader } from "./dashboard-header";
 
 export const Dashboard = () => {
   const dashboardStore = useDashboardStore();
@@ -23,24 +23,30 @@ export const Dashboard = () => {
   return (
     <BaseLayout>
       <FlexColumn alignItems="center" sx={{ padding: 2 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Dashboard
-        </Typography>
-        <Typography variant="body1" component="p">
-          Connection Status: {connectionStore}
-        </Typography>
-        <LiveClock />
-      </FlexColumn>
-      <FlexColumn alignItems="center" sx={{ padding: 2 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Atmos
-        </Typography>
+        <DashboardHeader status={connectionStore} />
+        <Card sx={{ width: "30%", borderRadius: 2 }}>
+          <CardContent>
+            <FlexColumn>
+              <Typography variant="h3" component="h1">
+                {`${
+                  dashboardStore?.latestUpdate?.temperature.currentValue
+                    .value ?? 0
+                } °F`}
+              </Typography>
+              <Typography variant="h6" component="h2">
+                Temperature
+              </Typography>
+            </FlexColumn>
+          </CardContent>
+        </Card>
 
         <FlexRow spacing={2}>
           <Dial
             value={
               dashboardStore?.latestUpdate?.temperature.currentValue.value ?? 0
             }
+            min={-25}
+            max={125}
             unit="°F"
             label="Temperature"
           />
@@ -48,6 +54,8 @@ export const Dashboard = () => {
             value={
               dashboardStore?.latestUpdate?.humidity.currentValue.value ?? 0
             }
+            min={0}
+            max={100}
             unit="%"
             label="Humidity"
           />
@@ -55,6 +63,8 @@ export const Dashboard = () => {
             value={
               dashboardStore?.latestUpdate?.dewPoint.currentValue.value ?? 0
             }
+            min={-25}
+            max={125}
             unit="°F"
             label="Dew Point"
           />

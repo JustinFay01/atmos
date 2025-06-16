@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type ConnectionStatus =
+export type ConnectionStatus =
   | "connecting"
   | "connected"
   | "reconnecting"
