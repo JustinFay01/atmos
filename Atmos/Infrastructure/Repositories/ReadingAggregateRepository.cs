@@ -1,6 +1,8 @@
 using Domain.Entities;
 using Domain.Interfaces;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Infrastructure.Repositories;
 
 public class ReadingAggregateRepository : IReadingAggregateRepository
@@ -10,6 +12,16 @@ public class ReadingAggregateRepository : IReadingAggregateRepository
     public ReadingAggregateRepository(AtmosContext context)
     {
         _context = context;
+    }
+
+    public async Task<List<ReadingAggregate>> GetAsync(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+    {
+       var readings = await _context.ReadingAggregates
+           .Where(r => r.Timestamp >= from && r.Timestamp <= to)
+           .OrderBy(r => r.Timestamp)
+            .ToListAsync(cancellationToken);
+       
+         return readings;
     }
 
     public async Task CreateAsync(ReadingAggregate readingAggregate, CancellationToken cancellationToken = default)

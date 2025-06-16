@@ -46,7 +46,7 @@ public class Program
 
         app.MapFallbackToFile("index.html");
 
-        app.MapHub<DashboardHub>("/dashboard");
+        app.MapHub<DashboardHub>("/v1/dashboard");
         app.MapControllers();
         app.Run();
     }
