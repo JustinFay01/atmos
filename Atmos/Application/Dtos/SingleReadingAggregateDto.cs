@@ -1,28 +1,28 @@
 using System.Collections.Concurrent;
 
-namespace Application.Models;
+namespace Application.Dtos;
 
-public class MetricAggregate
+public class SingleReadingAggregateDto
 {
     /// <summary>
     ///  Current value of the metric. This is the latest reading or the last calculated value.
     /// </summary>
-    public Metric CurrentValue { get; init; } = new();
+    public MetricDto CurrentValue { get; init; } = new();
 
     /// <summary>
     ///  The last six, ten-second readings. Used for calculating the one-minute rolling average.
     /// </summary>
-    public ConcurrentQueue<Metric> RecentReadings { get; init; } = [];
+    public ConcurrentQueue<MetricDto> RecentReadings { get; init; } = [];
 
     /// <summary>
     /// Daily minimum value. Resets at a configurable time each day (default is midnight UTC).
     /// </summary>
-    public Metric MinValue { get; init; } = new() { Value = double.MaxValue };
+    public MetricDto MinValue { get; init; } = new() { Value = double.MaxValue };
 
     /// <summary>
     ///  Daily maximum value. Resets at a configurable time each day (default is midnight UTC).
     /// </summary>
-    public Metric MaxValue { get; init; } = new() { Value = double.MinValue };
+    public MetricDto MaxValue { get; init; } = new() { Value = double.MinValue };
 
     /// <summary>
     /// Average of the last six ten-second readings, taken at :10, :20, :30, :40, :50, and :00 each minute.
@@ -34,7 +34,7 @@ public class MetricAggregate
     /// <summary>
     /// The last five, one-minute averages. Used for calculating the five-minute rolling average.
     /// </summary>
-    public ConcurrentQueue<Metric> OneMinuteAverages { get; init; } = [];
+    public ConcurrentQueue<MetricDto> OneMinuteAverages { get; init; } = [];
 
     /// <summary>
     /// Average of the last five, one-minute readings. Null until five readings are available.
@@ -43,15 +43,15 @@ public class MetricAggregate
         ? OneMinuteAverages.Select(m => m.Value).Average()
         : null;
 
-    public MetricAggregate CopyWith(
-        Metric? currentValue = null,
-        Metric? minValue = null,
-        Metric? maxValue = null,
+    public SingleReadingAggregateDto CopyWith(
+        MetricDto? currentValue = null,
+        MetricDto? minValue = null,
+        MetricDto? maxValue = null,
         double? oneMinuteAverage = null,
-        ConcurrentQueue<Metric>? recentReadings = null,
-        ConcurrentQueue<Metric>? oneMinuteRollingAverages = null)
+        ConcurrentQueue<MetricDto>? recentReadings = null,
+        ConcurrentQueue<MetricDto>? oneMinuteRollingAverages = null)
     {
-        return new MetricAggregate
+        return new SingleReadingAggregateDto
         {
             CurrentValue = currentValue ?? CurrentValue,
             MinValue = minValue ?? MinValue,

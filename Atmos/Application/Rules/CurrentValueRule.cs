@@ -1,13 +1,14 @@
+using Application.Dtos;
 using Application.Models;
 
 namespace Application.Rules;
 
 public class CurrentValueRule : IMetricUpdateRule
 {
-    public MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric)
+    public SingleReadingAggregateDto Apply(SingleReadingAggregateDto aggregateDto, MetricDto newMetricDto)
     {
-        var newAggregate = aggregate.CopyWith(
-            currentValue: newMetric
+        var newAggregate = aggregateDto.CopyWith(
+            currentValue: newMetricDto
         );
         return newAggregate;
     }

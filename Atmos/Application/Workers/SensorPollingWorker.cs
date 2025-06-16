@@ -20,18 +20,20 @@ public class SensorPollingWorker : BackgroundService
     private readonly IAggregator _aggregator;
     private readonly IMapper _mapper;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IRealtimeUpdateNotifier _notifier;
 
     private Task? _orchestrationTask;
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(10);
     private readonly TimeSpan _processingTimeout = TimeSpan.FromSeconds(9);
 
-    public SensorPollingWorker(ILogger<SensorPollingWorker> logger, IAggregator aggregator, ISensorClient sensorClient, IMapper mapper, IServiceScopeFactory scopeFactory)
+    public SensorPollingWorker(ILogger<SensorPollingWorker> logger, IAggregator aggregator, ISensorClient sensorClient, IMapper mapper, IServiceScopeFactory scopeFactory, IRealtimeUpdateNotifier notifier)
     {
         _logger = logger;
         _aggregator = aggregator;
         _sensorClient = sensorClient;
         _mapper = mapper;
         _scopeFactory = scopeFactory;
+        _notifier = notifier;
     }
 
     public override async Task StartAsync(CancellationToken cancellationToken)
@@ -98,15 +100,22 @@ public class SensorPollingWorker : BackgroundService
             workCts.Token.ThrowIfCancellationRequested();
 
             using var scope = _scopeFactory.CreateScope();
-            var readingRepository = scope.ServiceProvider.GetRequiredService<IReadingRepository>();
+            var readingRepository = scope.ServiceProvider.GetRequiredService<IReadingAggregateRepository>();
 
+            // Get Raw Sensor Data
             _logger.LogDebug("Fetching latest sensor reading.");
             var sensorData = await _sensorClient.GetReadingAsync(workCts.Token);
             _logger.LogDebug("Latest reading received: {reading}", sensorData);
 
-            var reading = _mapper.Map<Reading>(sensorData);
-            await readingRepository.CreateAsync(reading, workCts.Token);
-            await _aggregator.ProcessReadingAsync(sensorData, workCts.Token);
+            // Process and Aggregate Data
+            var aggregatedReadingDto = await _aggregator.AggregateRawReading(sensorData, workCts.Token);
+            var aggregate = _mapper.Map<ReadingAggregate>(aggregatedReadingDto);
+            
+            // Store Aggregated Data
+            await readingRepository.CreateAsync(aggregate, workCts.Token);
+            
+            // Notify Clients of Update
+            await _notifier.SendDashboardUpdateAsync(aggregatedReadingDto, workCts.Token);
 
             _logger.LogInformation("Sensor data processed successfully.");
         }

@@ -1,5 +1,5 @@
-using Application.DTOs;
 using Application.Interfaces;
+using Application.Models;
 
 namespace Infrastructure.Hardware;
 
@@ -18,10 +18,10 @@ public class MockSensorClient : ISensorClient
         throw new NotImplementedException();
     }
 
-    public Task<ReadingDto> GetReadingAsync(CancellationToken cancellationToken)
+    public Task<RawSensorReading> GetReadingAsync(CancellationToken cancellationToken)
     {
         _iterationCount++;
-        var reading = new ReadingDto
+        var reading = new RawSensorReading
         {
             Temperature = _iterationCount,
             Humidity = _iterationCount * 2,

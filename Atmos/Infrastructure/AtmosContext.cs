@@ -9,29 +9,16 @@ namespace Infrastructure;
 
 public class AtmosContext : DbContext
 {
-    public DbSet<Reading> Readings { get; set; }
-
-    public string DbPath { get; }
-
+    public DbSet<ReadingAggregate> ReadingAggregates { get; set; }
+    
     public AtmosContext(DbContextOptions<AtmosContext> options) : base(options)
     {
-        const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        DbPath = Path.Combine(path, "atmos.db");
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlite($"Data Source={DbPath}");
-        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfiguration(new ReadingConfiguration());
+        modelBuilder.ApplyConfiguration(new ReadingAggregateConfiguration());
     }
 
 
@@ -43,10 +30,7 @@ public class AtmosContext : DbContext
         public AtmosContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AtmosContext>();
-            const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(folder);
-            var dbPath = Path.Combine(path, "atmos.db");
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=postgres");
 
             return new AtmosContext(optionsBuilder.Options);
         }

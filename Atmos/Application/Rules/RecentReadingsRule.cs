@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using Application.Dtos;
 using Application.Models;
 
 namespace Application.Rules;
@@ -11,16 +12,16 @@ public class RecentReadingsRule : IMetricUpdateRule
 {
     private const int MaxReadings = 6; // Assuming 10-second intervals for 1 minute
 
-    public MetricAggregate Apply(MetricAggregate aggregate, Metric newMetric)
+    public SingleReadingAggregateDto Apply(SingleReadingAggregateDto aggregateDto, MetricDto newMetricDto)
     {
-        var newQueue = new ConcurrentQueue<Metric>(aggregate.RecentReadings);
-        newQueue.Enqueue(newMetric);
+        var newQueue = new ConcurrentQueue<MetricDto>(aggregateDto.RecentReadings);
+        newQueue.Enqueue(newMetricDto);
         while (newQueue.Count > MaxReadings)
         {
             newQueue.TryDequeue(out _);
         }
 
-        var newAggregate = aggregate.CopyWith(
+        var newAggregate = aggregateDto.CopyWith(
             recentReadings: newQueue
         );
         return newAggregate;

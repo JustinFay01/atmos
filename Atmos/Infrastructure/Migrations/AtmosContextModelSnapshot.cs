@@ -4,6 +4,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -15,31 +16,89 @@ namespace Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "9.0.6")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("Domain.Entities.Reading", b =>
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Entities.ReadingAggregate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<double>("DewPoint")
-                        .HasColumnType("REAL");
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("DewPointFiveMinuteRollingAverage")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("DewPointMax")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("DewPointMaxTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("DewPointMin")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("DewPointMinTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("DewPointOneMinuteAverage")
+                        .HasColumnType("double precision");
 
                     b.Property<double>("Humidity")
-                        .HasColumnType("REAL");
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("HumidityFiveMinuteRollingAverage")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("HumidityMax")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("HumidityMaxTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("HumidityMin")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("HumidityMinTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("HumidityOneMinuteAverage")
+                        .HasColumnType("double precision");
 
                     b.Property<double>("Temperature")
-                        .HasColumnType("REAL");
+                        .HasColumnType("double precision");
 
-                    b.Property<DateTime>("TimeStamp")
+                    b.Property<double?>("TemperatureFiveMinuteRollingAverage")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("TemperatureMax")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("TemperatureMaxTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("TemperatureMin")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("TemperatureMinTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("TemperatureOneMinuteAverage")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("Timestamp")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Readings");
+                    b.ToTable("ReadingAggregates");
                 });
 #pragma warning restore 612, 618
         }

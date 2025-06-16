@@ -1,4 +1,3 @@
-using Application.DTOs;
 using Application.Interfaces;
 using Application.Models;
 using Application.Rules;
@@ -14,18 +13,15 @@ namespace Tests.ApplicationTests.ServiceTests;
 
 public class AggregatorTests : BaseTest<AggregatorService>
 {
-    private readonly Mock<IRealtimeUpdateNotifier> _notifierMock;
     private readonly AggregatorService _aggregatorService;
 
     public AggregatorTests()
     {
-        _notifierMock = new Mock<IRealtimeUpdateNotifier>();
         var oneMinuteRuleAverageLogger = new Mock<ILogger<OneMinuteAverageRule>>();
         var ruleFactory = new MetricUpdateRuleFactory(oneMinuteRuleAverageLogger.Object);
 
         _aggregatorService = new AggregatorService(
             LoggerMock.Object,
-            _notifierMock.Object,
             ruleFactory
         );
     }
@@ -33,22 +29,12 @@ public class AggregatorTests : BaseTest<AggregatorService>
     [Test]
     public async Task AggregatorService_UpdateAggregates()
     {
-        var reading = Fixture.Create<ReadingDto>();
+        var reading = Fixture.Create<RawSensorReading>();
 
-        await _aggregatorService.ProcessReadingAsync(reading);
+        var aggregateDto = await _aggregatorService.AggregateRawReading(reading);
 
-        await Assert.That(reading.Temperature).IsEqualTo(_aggregatorService.Temperature.CurrentValue.Value);
-        await Assert.That(reading.Humidity).IsEqualTo(_aggregatorService.Humidity.CurrentValue.Value);
-        await Assert.That(reading.DewPoint).IsEqualTo(_aggregatorService.DewPoint.CurrentValue.Value);
-    }
-
-    [Test]
-    public async Task AggregatorService_NotifySubscribers()
-    {
-        var reading = Fixture.Create<ReadingDto>();
-
-        await _aggregatorService.ProcessReadingAsync(reading);
-
-        _notifierMock.Verify(n => n.SendDashboardUpdateAsync(It.IsAny<DashboardUpdate>(), It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.That(reading.Temperature).IsEqualTo(aggregateDto.Temperature.CurrentValue.Value);
+        await Assert.That(reading.Humidity).IsEqualTo(aggregateDto.Humidity.CurrentValue.Value);
+        await Assert.That(reading.DewPoint).IsEqualTo(aggregateDto.DewPoint.CurrentValue.Value);
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using Application.Dtos;
 using Application.Helper;
 using Application.Models;
 using Application.Rules;
@@ -26,14 +27,14 @@ public class RecentReadingsRuleTests : BaseTest<RecentReadingsRule>
     public async Task RecentReadingsRule_ShouldUpdateRecentReadings_WhenNewMetricIsAdded()
     {
         // Arrange
-        var aggregate = new MetricAggregate
+        var aggregate = new SingleReadingAggregateDto
         {
-            RecentReadings = new ConcurrentQueue<Metric>([
-                new Metric { Timestamp = _timeProviderMock.Object.Now, Value = 1 },
-                new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(10), Value = 2 }
+            RecentReadings = new ConcurrentQueue<MetricDto>([
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now, Value = 1 },
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(10), Value = 2 }
             ])
         };
-        var newMetric = new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(20), Value = 3 };
+        var newMetric = new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(20), Value = 3 };
 
         // Act
         var result = Subject.Apply(aggregate, newMetric);
@@ -47,18 +48,18 @@ public class RecentReadingsRuleTests : BaseTest<RecentReadingsRule>
     public async Task RecentReadingsRule_ShouldLimitRecentReadingsToMaxCount()
     {
         // Arrange
-        var aggregate = new MetricAggregate
+        var aggregate = new SingleReadingAggregateDto
         {
-            RecentReadings = new ConcurrentQueue<Metric>([
-                new Metric { Timestamp = _timeProviderMock.Object.Now, Value = 1 },
-                new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(10), Value = 2 },
-                new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(20), Value = 3 },
-                new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(30), Value = 4 },
-                new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(40), Value = 5 },
-                new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(50), Value = 6 }
+            RecentReadings = new ConcurrentQueue<MetricDto>([
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now, Value = 1 },
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(10), Value = 2 },
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(20), Value = 3 },
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(30), Value = 4 },
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(40), Value = 5 },
+                new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(50), Value = 6 }
             ])
         };
-        var newMetric = new Metric { Timestamp = _timeProviderMock.Object.Now.AddSeconds(60), Value = 7 };
+        var newMetric = new MetricDto { Timestamp = _timeProviderMock.Object.Now.AddSeconds(60), Value = 7 };
 
         // Act
         var result = Subject.Apply(aggregate, newMetric);

@@ -1,3 +1,6 @@
+# Ignore generated react files in wwwroot
+/API/wwwroot/
+
 *.swp
 *.*~
 project.lock.json
