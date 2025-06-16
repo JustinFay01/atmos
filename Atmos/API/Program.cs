@@ -44,10 +44,11 @@ public class Program
 
         app.UseStaticFiles();
 
-        app.MapFallbackToFile("index.html");
 
         app.MapHub<DashboardHub>("/v1/dashboard");
         app.MapControllers();
+        app.MapFallbackToFile("index.html");
+    
         app.Run();
     }
 }

@@ -12,12 +12,12 @@ public class ReadingAggregateController : ControllerBase
 {
 
     private readonly ILogger<ReadingAggregateController> _logger;
-    private readonly IReadingAggregateRepository _aggregator;
+    private readonly IReadingAggregateRepository _aggregatorRepository;
 
-    public ReadingAggregateController(ILogger<ReadingAggregateController> logger, IReadingAggregateRepository aggregator)
+    public ReadingAggregateController(ILogger<ReadingAggregateController> logger, IReadingAggregateRepository aggregatorRepository)
     {
         _logger = logger;
-        _aggregator = aggregator;
+        _aggregatorRepository = aggregatorRepository;
     }
 
 
@@ -31,7 +31,7 @@ public class ReadingAggregateController : ControllerBase
             var fromUtc = from?.ToUniversalTime() ?? DateTimeOffset.MinValue.ToUniversalTime();
             var toUtc = to?.ToUniversalTime() ?? DateTimeOffset.MaxValue.ToUniversalTime();
 
-            var readings = await _aggregator.GetAsync(fromUtc, toUtc);
+            var readings = await _aggregatorRepository.GetAsync(fromUtc, toUtc);
 
             return Ok(readings);
         }
