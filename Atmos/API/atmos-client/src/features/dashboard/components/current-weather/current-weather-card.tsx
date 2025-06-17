@@ -26,7 +26,7 @@ export const CurrentWeatherCard = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       sx={{
-        width: "25%",
+        minWidth: 300,
         borderRadius: 5,
         position: "relative",
         display: "flex",
@@ -35,9 +35,6 @@ export const CurrentWeatherCard = ({
           transition: "transform 0.3s ease-in-out",
           boxShadow: 3,
         },
-        background: (theme) =>
-          `linear-gradient(140deg,  ${theme.palette.background.paper}, #292970)`,
-
         ...cardProps.sx,
       }}
       {...cardProps}
