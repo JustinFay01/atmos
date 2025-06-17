@@ -20,7 +20,7 @@ export const CurrentWeatherContent = ({
   dewPoint,
 }: CurrentWeatherCardProps) => {
   return (
-    <FlexColumn width={"100%"} spacing={1} sx={{ marginTop: 2 }}>
+    <FlexColumn width={"100%"} spacing={1}>
       <CurrentWeatherCard
         label="Temperature"
         unit="°F"
