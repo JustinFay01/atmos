@@ -93,6 +93,13 @@ const theme = createTheme({
         },
       },
     },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: colors.surfaceDark,
+        },
+      },
+    },
   },
 });
 
