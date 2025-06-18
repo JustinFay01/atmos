@@ -10,6 +10,7 @@ import {
   stopDashboardConnection,
 } from "@/api/real-time/dashboard-connection";
 import useDynamicIcon from "@/hooks/use-dynamic-icon";
+import { DialogsProvider } from "@toolpad/core/useDialogs";
 
 const appQueryClient = new QueryClient({
   defaultOptions: queryConfig,
@@ -29,7 +30,7 @@ export const AtmosProvider = ({ children }: React.PropsWithChildren) => {
       <ReactQueryDevtools initialIsOpen={false} />
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {children}
+        <DialogsProvider>{children}</DialogsProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

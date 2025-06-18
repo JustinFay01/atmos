@@ -13,8 +13,8 @@ const READING_URL = "api/v1/reading-aggregate";
  * @property to - (Optional) The end date and time (inclusive) for the aggregation, in UTC.
  */
 type ReadingAggregateQueryParams = {
-  from?: Date;
-  to?: Date;
+  from?: Date | null | undefined;
+  to?: Date | null | undefined;
 };
 
 export const getReadingAggregates = async (
