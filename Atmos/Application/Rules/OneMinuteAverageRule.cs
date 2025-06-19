@@ -24,7 +24,7 @@ namespace Application.Rules;
 /// </summary>
 public class OneMinuteAverageRule : IMetricUpdateRule
 {
-    private const int MaxReadings = 6; // Assuming six ten-second readings for one minute
+    private const int MaxReadings = 5; // We want 5 one-minute averages so that we can calculate a five-minute rolling average.
     private const int ToleranceInSeconds = 4; // Allowable difference in seconds for the one-minute average
 
     private readonly ILogger<OneMinuteAverageRule> _logger;
