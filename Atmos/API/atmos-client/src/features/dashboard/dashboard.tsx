@@ -4,6 +4,7 @@ import { useConnectionStore } from "@/stores/connection-store";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
+import type { ReadingAggregate } from "@/types";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow, FlexSpacer } from "@/ui/layout/flexbox";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
@@ -22,6 +23,7 @@ import {
   Switch,
   Tab,
   Tabs,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -31,11 +33,10 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useQuery } from "@tanstack/react-query";
 import { useDialogs } from "@toolpad/core/useDialogs";
+import xlsx, { type IContent, type IJsonSheet } from "json-as-xlsx";
 import { useState } from "react";
 import { CurrentWeatherContent } from "./components/current-weather/current-weather-content";
 import { DashboardHeader } from "./dashboard-header";
-import xlsx, { type IJsonSheet } from "json-as-xlsx";
-import type { ReadingAggregate } from "@/types";
 
 export const Dashboard = () => {
   const dashboardStore = useDashboardStore();
@@ -44,6 +45,9 @@ export const Dashboard = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<FileType>("xlsx");
+
   const excelSettings = {
     extraLength: 8,
     writeMode: "writeFile",
@@ -57,7 +61,7 @@ export const Dashboard = () => {
     enabled: false,
   });
 
-  const downloadExcel = async (data: ReadingAggregate[]) => {
+  const downloadExcel = async (fileName: string, data: ReadingAggregate[]) => {
     const formattedData: IJsonSheet[] = [
       {
         columns: [
@@ -102,36 +106,25 @@ export const Dashboard = () => {
           { label: "Dew Point Max Time", value: "dewPointMaxTime" },
           { label: "Dew Point Max (°F)", value: "dewPointMax" },
         ],
-        content: data.map((reading) => ({
-          timestamp: reading.timestamp,
-          temperature: reading.temperature,
-          humidity: reading.humidity,
-          dewPoint: reading.dewPoint,
-          temperatureMinTime: reading.temperatureMinTime,
-          temperatureMin: reading.temperatureMin,
-          temperatureMaxTime: reading.temperatureMaxTime,
-          temperatureMax: reading.temperatureMax,
-          humidityMinTime: reading.humidityMinTime,
-          humidityMin: reading.humidityMin,
-          humidityMaxTime: reading.humidityMaxTime,
-          humidityMax: reading.humidityMax,
-          dewPointMinTime: reading.dewPointMinTime,
-          dewPointMin: reading.dewPointMin,
-          dewPointMaxTime: reading.dewPointMaxTime,
-          dewPointMax: reading.dewPointMax,
-        })),
+        content: data,
       },
     ];
 
     xlsx(formattedData, {
       ...excelSettings,
-      fileName: `atmos_readings_${startDate?.toISOString()}_${endDate?.toISOString()}.xlsx`,
+      fileName: fileName,
     });
   };
 
-  const downloadInFormat = async (type: "xlsx", data: ReadingAggregate[]) => {
-    if (type === "xlsx") {
-      await downloadExcel(data);
+  const downloadInFormat = async (
+    fileName: string,
+    type: FileType,
+    data: ReadingAggregate[]
+  ) => {
+    switch (type) {
+      case "xlsx":
+        await downloadExcel(fileName, data);
+        break;
     }
   };
 
@@ -140,6 +133,9 @@ export const Dashboard = () => {
       <ExportDialog
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
+        onFileNameChange={setFileName}
+        onFileTypeChange={setFileType}
+        fileName={fileName}
       />,
       { title: "Export Data" }
     );
@@ -151,10 +147,18 @@ export const Dashboard = () => {
         to: endDate,
       });
 
-      await downloadInFormat("xlsx", data);
+      let finalFileName =
+        fileName ??
+        `atmos_readings${startDate ? `_${startDate.toDateString()}` : ""}${endDate ? `_${endDate.toDateString()}` : ""}`;
+      finalFileName = finalFileName.replace(/\s+/g, "_");
+      await downloadInFormat(finalFileName, "xlsx", data);
     } catch (error) {
       console.error("Error exporting data:", error);
     } finally {
+      setStartDate(null);
+      setEndDate(null);
+      setFileName(null);
+      setFileType("xlsx");
       setExporting(false);
     }
   };
@@ -242,6 +246,36 @@ export const Dashboard = () => {
                     width: 150,
                   },
                   {
+                    field: "temperatureOneMinuteAverage",
+                    headerName: "Temperature 1 Min Avg (°F)",
+                    width: 200,
+                  },
+                  {
+                    field: "temperatureFiveMinuteAverage",
+                    headerName: "Temperature 5 Min Avg (°F)",
+                    width: 200,
+                  },
+                  {
+                    field: "humidityOneMinuteAverage",
+                    headerName: "Humidity 1 Min Avg (%)",
+                    width: 200,
+                  },
+                  {
+                    field: "humidityFiveMinuteAverage",
+                    headerName: "Humidity 5 Min Avg (%)",
+                    width: 200,
+                  },
+                  {
+                    field: "dewPointOneMinuteAverage",
+                    headerName: "Dew Point 1 Min Avg (°F)",
+                    width: 200,
+                  },
+                  {
+                    field: "dewPointFiveMinuteAverage",
+                    headerName: "Dew Point 5 Min Avg (°F)",
+                    width: 200,
+                  },
+                  {
                     field: "temperatureMinTime",
                     headerName: "Temperature Min Time",
                     width: 180,
@@ -304,10 +338,6 @@ export const Dashboard = () => {
                 ]}
                 loading={readings.isLoading}
                 pageSizeOptions={[10, 25, 50, 100]}
-                onRowClick={(params) => {
-                  //dashboardStore.setSelectedReading(params.row);
-                  console.log("Row clicked:", params.row);
-                }}
               />
             </FlexColumn>
           </Grid>
@@ -317,14 +347,25 @@ export const Dashboard = () => {
   );
 };
 
+type FileType = "xlsx" | "json" | "txt";
+
 type ExportDialogProps = {
+  startDate?: Date | null;
+  endDate?: Date | null;
+  fileType?: FileType;
+  fileName?: string | null;
+  onFileNameChange?: (name: string | null) => void;
   onStartDateChange?: (date: Date | null) => void;
   onEndDateChange?: (date: Date | null) => void;
+  onFileTypeChange?: (fileType: FileType) => void;
 };
 
 const ExportDialog = ({
+  fileName,
   onStartDateChange,
   onEndDateChange,
+  onFileTypeChange,
+  onFileNameChange,
 }: ExportDialogProps) => {
   const [useTimestamp, setUseTimestamp] = useState(true);
 
@@ -339,9 +380,13 @@ const ExportDialog = ({
           <Select
             labelId="export-format-label"
             label="Export Format"
-            defaultValue="csv"
+            defaultValue="xlsx"
+            onChange={(e) => {
+              const value = e.target.value as FileType;
+              onFileTypeChange?.(value);
+            }}
           >
-            <MenuItem value="csv">CSV</MenuItem>
+            <MenuItem value="xlsx">XLSX</MenuItem>
             <MenuItem value="json">JSON</MenuItem>
             <MenuItem value="txt">TXT</MenuItem>
           </Select>
@@ -353,7 +398,7 @@ const ExportDialog = ({
               onChange={() => setUseTimestamp(!useTimestamp)}
             />
           }
-          label="With Timestamp"
+          label={"Use Timestamp for Date Selection"}
         />
       </FormGroup>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -393,6 +438,13 @@ const ExportDialog = ({
           </>
         )}
       </LocalizationProvider>
+      <TextField
+        id="file-name"
+        label="File Name"
+        variant="outlined"
+        value={fileName}
+        onChange={(e) => onFileNameChange?.(e.target.value)}
+      />
     </FlexColumn>
   );
 };

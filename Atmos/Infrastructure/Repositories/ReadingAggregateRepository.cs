@@ -23,9 +23,9 @@ public class ReadingAggregateRepository : IReadingAggregateRepository
             throw new ArgumentException("The 'from' date must be earlier than the 'to' date.");
         }
 
-        if (from > DateTimeProvider.Instance.Now || to > DateTimeProvider.Instance.Now)
+        if (from > DateTimeProvider.Instance.Now)
         {
-            throw new ArgumentException("The 'from' and 'to' dates must not be in the future.");
+            throw new ArgumentException("The 'from' date must not be in the future.");
         }
 
         var readings = await _context.ReadingAggregates

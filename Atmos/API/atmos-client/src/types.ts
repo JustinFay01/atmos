@@ -1,3 +1,5 @@
+import type { IContent } from "json-as-xlsx";
+
 export type Reading = {
   temperature: number;
   humidity: number;
@@ -28,7 +30,7 @@ export type DashboardUpdate = {
 };
 
 // Flattened ReadingAggregate for historical data to download or to display in tables
-export interface ReadingAggregate {
+export interface ReadingAggregate extends IContent {
   timestamp: string;
   temperature: number;
   temperatureMinTime: string;
