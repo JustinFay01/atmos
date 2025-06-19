@@ -10,6 +10,9 @@ import { FlexColumn, FlexRow, FlexSpacer } from "@/ui/layout/flexbox";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
+  Button,
+  Dialog,
+  DialogActions,
   Fab,
   FormControl,
   FormControlLabel,
@@ -33,7 +36,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useQuery } from "@tanstack/react-query";
 import { useDialogs } from "@toolpad/core/useDialogs";
-import xlsx, { type IContent, type IJsonSheet } from "json-as-xlsx";
+import xlsx, { type IJsonSheet } from "json-as-xlsx";
 import { useState } from "react";
 import { CurrentWeatherContent } from "./components/current-weather/current-weather-content";
 import { DashboardHeader } from "./dashboard-header";
@@ -42,11 +45,7 @@ export const Dashboard = () => {
   const dashboardStore = useDashboardStore();
   const connectionStore = useConnectionStore((state) => state.status);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
   const [exporting, setExporting] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<FileType>("xlsx");
 
   const excelSettings = {
     extraLength: 8,
@@ -128,18 +127,12 @@ export const Dashboard = () => {
     }
   };
 
-  const onExport = async () => {
-    const confirmed = await dialogs.confirm(
-      <ExportDialog
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-        onFileNameChange={setFileName}
-        onFileTypeChange={setFileType}
-        fileName={fileName}
-      />,
-      { title: "Export Data" }
-    );
-    if (!confirmed) return;
+  const onSubmit = async (
+    fileName: string | null,
+    fileType: FileType,
+    startDate: Date | null,
+    endDate: Date | null
+  ) => {
     setExporting(true);
     try {
       const data = await getReadingAggregates({
@@ -151,16 +144,25 @@ export const Dashboard = () => {
         fileName ??
         `atmos_readings${startDate ? `_${startDate.toDateString()}` : ""}${endDate ? `_${endDate.toDateString()}` : ""}`;
       finalFileName = finalFileName.replace(/\s+/g, "_");
-      await downloadInFormat(finalFileName, "xlsx", data);
+      await downloadInFormat(finalFileName, fileType, data);
     } catch (error) {
       console.error("Error exporting data:", error);
-    } finally {
-      setStartDate(null);
-      setEndDate(null);
-      setFileName(null);
-      setFileType("xlsx");
-      setExporting(false);
     }
+  };
+
+  const onExport = async () => {
+    const result = await dialogs.open(ExportDialog);
+    if (!result.confirmed) {
+      return;
+    }
+    setExporting(true);
+    await onSubmit(
+      result.fileName,
+      result.fileType,
+      result.startDate,
+      result.endDate
+    );
+    setExporting(false);
   };
 
   return (
@@ -349,102 +351,145 @@ export const Dashboard = () => {
 
 type FileType = "xlsx" | "json" | "txt";
 
-type ExportDialogProps = {
-  startDate?: Date | null;
-  endDate?: Date | null;
-  fileType?: FileType;
-  fileName?: string | null;
-  onFileNameChange?: (name: string | null) => void;
-  onStartDateChange?: (date: Date | null) => void;
-  onEndDateChange?: (date: Date | null) => void;
-  onFileTypeChange?: (fileType: FileType) => void;
+type ExportDialogResult = {
+  confirmed: boolean;
+  fileName: string | null;
+  fileType: FileType;
+  startDate: Date | null;
+  endDate: Date | null;
 };
 
-const ExportDialog = ({
-  fileName,
-  onStartDateChange,
-  onEndDateChange,
-  onFileTypeChange,
-  onFileNameChange,
-}: ExportDialogProps) => {
+type ExportDialogProps = {
+  open: boolean;
+  onClose: (result: ExportDialogResult) => Promise<void>;
+};
+
+function ExportDialog({ open, onClose }: ExportDialogProps) {
   const [useTimestamp, setUseTimestamp] = useState(true);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<FileType>("xlsx");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   return (
-    <FlexColumn spacing={2}>
-      <Typography variant="body2" color="textSecondary">
-        Choose your export options here.
-      </Typography>
-      <FormGroup>
-        <FormControl fullWidth>
-          <InputLabel id="export-format-label">Export Format</InputLabel>
-          <Select
-            labelId="export-format-label"
-            label="Export Format"
-            defaultValue="xlsx"
-            onChange={(e) => {
-              const value = e.target.value as FileType;
-              onFileTypeChange?.(value);
+    <Dialog
+      open={open}
+      onClose={() => {
+        onClose({
+          confirmed: false,
+          fileName: null,
+          fileType: fileType,
+          startDate: startDate,
+          endDate: endDate,
+        });
+      }}
+      fullWidth
+      maxWidth="md"
+    >
+      <FlexColumn spacing={2}>
+        <Typography variant="body2" color="textSecondary">
+          Choose your export options here.
+        </Typography>
+        <FormGroup>
+          <FormControl fullWidth>
+            <InputLabel id="export-format-label">Export Format</InputLabel>
+            <Select
+              labelId="export-format-label"
+              label="Export Format"
+              defaultValue="xlsx"
+              onChange={(e) => setFileType(e.target.value as FileType)}
+              value={fileType}
+            >
+              <MenuItem value="xlsx">XLSX</MenuItem>
+              <MenuItem value="json">JSON</MenuItem>
+              <MenuItem value="txt">TXT</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={!!useTimestamp}
+                onChange={(e) => setUseTimestamp(e.target.checked)}
+              />
+            }
+            label={"Use Timestamp for Date Selection"}
+          />
+        </FormGroup>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          {!useTimestamp ? (
+            <>
+              <DatePicker
+                label="Start Date"
+                onChange={(pickerValue) => {
+                  const date = pickerValue ? pickerValue.toDate() : null;
+                  setStartDate(date);
+                }}
+              />
+              <DatePicker
+                label="End Date"
+                onChange={(pickerValue) => {
+                  const date = pickerValue ? pickerValue.toDate() : null;
+                  setEndDate(date);
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <DateTimePicker
+                label="Start Date and Time"
+                onChange={(pickerValue) => {
+                  const date = pickerValue ? pickerValue.toDate() : null;
+                  setStartDate(date);
+                }}
+              />
+              <DateTimePicker
+                label="End Date and Time"
+                onChange={(pickerValue) => {
+                  const date = pickerValue ? pickerValue.toDate() : null;
+                  setEndDate(date);
+                }}
+              />
+            </>
+          )}
+        </LocalizationProvider>
+        <TextField
+          id="file-name"
+          label="File Name"
+          variant="outlined"
+          value={fileName}
+          onChange={(e) => setFileName(e.target.value)}
+        />
+        <DialogActions>
+          <Button
+            variant="outlined"
+            onClick={() =>
+              onClose({
+                confirmed: false,
+                fileName: null,
+                fileType: fileType,
+                startDate: startDate,
+                endDate: endDate,
+              })
+            }
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              onClose({
+                confirmed: true,
+                fileName: fileName,
+                fileType: fileType,
+                startDate: startDate,
+                endDate: endDate,
+              });
             }}
           >
-            <MenuItem value="xlsx">XLSX</MenuItem>
-            <MenuItem value="json">JSON</MenuItem>
-            <MenuItem value="txt">TXT</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={!!useTimestamp}
-              onChange={() => setUseTimestamp(!useTimestamp)}
-            />
-          }
-          label={"Use Timestamp for Date Selection"}
-        />
-      </FormGroup>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        {!useTimestamp ? (
-          <>
-            <DatePicker
-              label="Start Date"
-              onChange={(pickerValue) => {
-                const date = pickerValue ? pickerValue.toDate() : null;
-                onStartDateChange?.(date);
-              }}
-            />
-            <DatePicker
-              label="End Date"
-              onChange={(pickerValue) => {
-                const date = pickerValue ? pickerValue.toDate() : null;
-                onEndDateChange?.(date);
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <DateTimePicker
-              label="Start Date and Time"
-              onChange={(pickerValue) => {
-                const date = pickerValue ? pickerValue.toDate() : null;
-                onStartDateChange?.(date);
-              }}
-            />
-            <DateTimePicker
-              label="End Date and Time"
-              onChange={(pickerValue) => {
-                const date = pickerValue ? pickerValue.toDate() : null;
-                onEndDateChange?.(date);
-              }}
-            />
-          </>
-        )}
-      </LocalizationProvider>
-      <TextField
-        id="file-name"
-        label="File Name"
-        variant="outlined"
-        value={fileName}
-        onChange={(e) => onFileNameChange?.(e.target.value)}
-      />
-    </FlexColumn>
+            Export
+          </Button>
+        </DialogActions>
+      </FlexColumn>
+    </Dialog>
   );
-};
+}
