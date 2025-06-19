@@ -1,5 +1,7 @@
 import type { IContent } from "json-as-xlsx";
 
+export type FileType = "xlsx" | "json" | "txt";
+
 export type Reading = {
   temperature: number;
   humidity: number;
