@@ -16,7 +16,6 @@ import {
   Tabs,
   Tooltip,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 import { useQuery } from "@tanstack/react-query";
 import { useDialogs } from "@toolpad/core/useDialogs";
 import { useState } from "react";

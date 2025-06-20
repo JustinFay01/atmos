@@ -60,9 +60,10 @@
     *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` ~~easily (e.g., via environment variable in `docker-compose.yml`).~~
 ~~3.  **Database Migrations in Docker:**~~
     ~~*   Research and implement a strategy for applying EF Core migrations automatically when the backend container starts (e.g., in `Program.cs` or an entrypoint script). Test this thoroughly.~~
-3. **SQLite Database**
-    *   Implement routine backups of the SQLite database.
-    *   Define strategy for handling database migrations in SQLite.
+3. **Postgres Database**
+    *   Implement routine backups of the Postgres database.
+    *   Define strategy for handling database migrations in Postgres.
+    *   Stop reading sensor if database isn't saving readings.
 5. **React Frontend POC:**
     *   Create a basic React application (e.g., using `create-react-app`).
     *   Install SignalR client library (`@microsoft/signalr`).
@@ -83,6 +84,7 @@
       * Must store these in the database for historical queries.
     * Select file format implementation (e.g., CSV, TXT)
     *   Convert the UTC time to the local timezone of the user (if specified in the request).
+    * Have the option to unique 5 minute averages
 6.  **Sentry Integration:**
     *   Integrate Sentry SDK into `Atmos.Presentation` for backend error logging.
     *   Integrate Sentry SDK into the React POC for frontend error logging.

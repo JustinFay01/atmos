@@ -6,6 +6,16 @@ const excelSettings = {
   writeMode: "writeFile",
 };
 
+const downloadBlob = (blob: Blob, fileName: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const downloadExcel = async (fileName: string, data: ReadingAggregate[]) => {
   const formattedData: IJsonSheet[] = [
     {
@@ -64,13 +74,18 @@ const downloadExcel = async (fileName: string, data: ReadingAggregate[]) => {
 const downloadJson = async (fileName: string, data: ReadingAggregate[]) => {
   const jsonContent = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonContent], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  downloadBlob(blob, fileName);
+};
+
+const downloadTxt = async (fileName: string, data: ReadingAggregate[]) => {
+  const textContent = data
+    .map(
+      (reading) =>
+        `${reading.timestamp}, ${reading.temperature}, ${reading.humidity}, ${reading.dewPoint}`
+    )
+    .join("\n");
+  const blob = new Blob([textContent], { type: "text/plain" });
+  downloadBlob(blob, fileName);
 };
 
 export const downloadInFormat = async (
@@ -85,5 +100,10 @@ export const downloadInFormat = async (
     case "json":
       await downloadJson(fileName, data);
       break;
+    case "txt":
+      await downloadTxt(fileName, data);
+      break;
+    default:
+      throw new Error(`Unsupported file type: ${type}`);
   }
 };

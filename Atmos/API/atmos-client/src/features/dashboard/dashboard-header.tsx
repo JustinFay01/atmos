@@ -19,7 +19,7 @@ export const DashboardHeader = ({ status }: DashboardHeaderProps) => {
       case "connecting":
         return "Connecting";
       case "reconnecting":
-        return "Reconnecting...";
+        return "Reconnecting";
       default:
         return "Unknown";
     }
