@@ -25,6 +25,7 @@ import type { FileType } from "@/types";
 import { downloadInFormat } from "./components/history/util/export-handler";
 import { ExportDialog } from "./components/history/export-dialog";
 import { HistoryTable } from "./components/history/history-table";
+import { BarChart } from "@mui/x-charts";
 
 export const Dashboard = () => {
   const dashboardStore = useDashboardStore();
@@ -90,19 +91,49 @@ export const Dashboard = () => {
       </Tabs>
       <Grid container spacing={2}>
         {selectedIndex === 0 && (
-          <Grid size={4} padding={2}>
-            <CurrentWeatherContent
-              temperature={
-                dashboardStore.latestUpdate?.temperature.currentValue.value
-              }
-              humidity={
-                dashboardStore.latestUpdate?.humidity.currentValue.value
-              }
-              dewPoint={
-                dashboardStore.latestUpdate?.dewPoint.currentValue.value
-              }
-            />
-          </Grid>
+          <>
+            <Grid
+              size={4}
+              padding={2}
+              visibility={selectedIndex === 0 ? "visible" : "hidden"}
+            >
+              <CurrentWeatherContent
+                temperature={
+                  dashboardStore.latestUpdate?.temperature.currentValue.value
+                }
+                humidity={
+                  dashboardStore.latestUpdate?.humidity.currentValue.value
+                }
+                dewPoint={
+                  dashboardStore.latestUpdate?.dewPoint.currentValue.value
+                }
+              />
+            </Grid>
+            <Grid size={8}>
+              <BarChart
+                title="Min/Max Readings"
+                xAxis={[{ data: ["Temperature", "Humidity", "Dew Point"] }]}
+                series={[
+                  {
+                    data: [
+                      dashboardStore.latestUpdate?.temperature.minValue.value ||
+                        0,
+                      dashboardStore.latestUpdate?.humidity.minValue.value || 0,
+                      dashboardStore.latestUpdate?.dewPoint.minValue.value || 0,
+                    ],
+                  },
+                  {
+                    data: [
+                      dashboardStore.latestUpdate?.temperature.maxValue.value ||
+                        0,
+                      dashboardStore.latestUpdate?.humidity.maxValue.value || 0,
+                      dashboardStore.latestUpdate?.dewPoint.maxValue.value || 0,
+                    ],
+                  },
+                ]}
+              />
+            </Grid>
+          </>
         )}
         {selectedIndex === 1 && (
           <Grid size={12} sx={{ height: "80vh" }} padding={2}>

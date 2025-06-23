@@ -22,7 +22,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 type ExportDialogResult = {
   confirmed: boolean;
-  fileName: string | null;
+  fileName: string;
   fileType: FileType;
   startDate: Date | null;
   endDate: Date | null;
@@ -35,7 +35,7 @@ type ExportDialogProps = {
 
 export function ExportDialog({ open, onClose }: ExportDialogProps) {
   const [useTimestamp, setUseTimestamp] = useState(true);
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>("");
   const [fileType, setFileType] = useState<FileType>("xlsx");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -46,7 +46,7 @@ export function ExportDialog({ open, onClose }: ExportDialogProps) {
       onClose={() => {
         onClose({
           confirmed: false,
-          fileName: null,
+          fileName: "",
           fileType: fileType,
           startDate: startDate,
           endDate: endDate,
@@ -134,7 +134,7 @@ export function ExportDialog({ open, onClose }: ExportDialogProps) {
             onClick={() =>
               onClose({
                 confirmed: false,
-                fileName: null,
+                fileName: "",
                 fileType: fileType,
                 startDate: startDate,
                 endDate: endDate,
