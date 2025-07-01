@@ -3,6 +3,7 @@ import { readingKeys } from "@/api/readings/reading-keys";
 import { useConnectionStore } from "@/stores/connection-store";
 import { useDashboardStore } from "@/stores/dashboard-store";
 
+import type { FileType } from "@/types";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow, FlexSpacer } from "@/ui/layout/flexbox";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
@@ -20,14 +21,20 @@ import { useQuery } from "@tanstack/react-query";
 import { useDialogs } from "@toolpad/core/useDialogs";
 import { useState } from "react";
 import { CurrentWeatherContent } from "./components/current-weather/current-weather-content";
-import { DashboardHeader } from "./dashboard-header";
-import type { FileType } from "@/types";
-import { downloadInFormat } from "./components/history/util/export-handler";
+import { MinMaxBarGraph } from "./components/current-weather/min-max-bar-graph";
 import { ExportDialog } from "./components/history/export-dialog";
 import { HistoryTable } from "./components/history/history-table";
-import { BarChart } from "@mui/x-charts";
+import { downloadInFormat } from "./components/history/util/export-handler";
+import { FiveMinuteAverageTable } from "./components/live-readings/five-minute-average-table";
+import { OneMinuteAverageTable } from "./components/live-readings/one-minute-average-table";
+import { TenSecondReadingTable } from "./components/live-readings/ten-second-reading-table";
+import { DashboardHeader } from "./dashboard-header";
 
 export const Dashboard = () => {
+  const CURRENT_READINGS_INDEX = 0;
+  const HISTORICAL_DATA_INDEX = 1;
+  const LIVE_READINGS_INDEX = 2;
+
   const dashboardStore = useDashboardStore();
   const connectionStore = useConnectionStore((state) => state.status);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -54,9 +61,9 @@ export const Dashboard = () => {
         to: endDate,
       });
 
-      let finalFileName =
-        fileName ??
-        `atmos_readings${startDate ? `_${startDate.toDateString()}` : ""}${endDate ? `_${endDate.toDateString()}` : ""}`;
+      let finalFileName = fileName
+        ? fileName.trim()
+        : `atmos_readings${startDate ? `_${startDate.toDateString()}` : ""}${endDate ? `_${endDate.toDateString()}` : ""}`;
       finalFileName = finalFileName.replace(/\s+/g, "_");
       await downloadInFormat(finalFileName, fileType, data);
     } catch (error) {
@@ -88,14 +95,17 @@ export const Dashboard = () => {
       >
         <Tab label="Current Weather" />
         <Tab label="Historical Data" />
+        <Tab label="Live Readings" />
       </Tabs>
       <Grid container spacing={2}>
-        {selectedIndex === 0 && (
+        {selectedIndex === CURRENT_READINGS_INDEX && (
           <>
             <Grid
               size={4}
               padding={2}
-              visibility={selectedIndex === 0 ? "visible" : "hidden"}
+              visibility={
+                selectedIndex === CURRENT_READINGS_INDEX ? "visible" : "hidden"
+              }
             >
               <CurrentWeatherContent
                 temperature={
@@ -110,32 +120,11 @@ export const Dashboard = () => {
               />
             </Grid>
             <Grid size={8}>
-              <BarChart
-                title="Min/Max Readings"
-                xAxis={[{ data: ["Temperature", "Humidity", "Dew Point"] }]}
-                series={[
-                  {
-                    data: [
-                      dashboardStore.latestUpdate?.temperature.minValue.value ||
-                        0,
-                      dashboardStore.latestUpdate?.humidity.minValue.value || 0,
-                      dashboardStore.latestUpdate?.dewPoint.minValue.value || 0,
-                    ],
-                  },
-                  {
-                    data: [
-                      dashboardStore.latestUpdate?.temperature.maxValue.value ||
-                        0,
-                      dashboardStore.latestUpdate?.humidity.maxValue.value || 0,
-                      dashboardStore.latestUpdate?.dewPoint.maxValue.value || 0,
-                    ],
-                  },
-                ]}
-              />
+              <MinMaxBarGraph latestReading={dashboardStore.latestUpdate} />
             </Grid>
           </>
         )}
-        {selectedIndex === 1 && (
+        {selectedIndex === HISTORICAL_DATA_INDEX && (
           <Grid size={12} sx={{ height: "80vh" }} padding={2}>
             <FlexColumn gap={2} sx={{ height: "100%" }}>
               <FlexRow alignItems="end" spacing={3}>
@@ -177,6 +166,19 @@ export const Dashboard = () => {
               />
             </FlexColumn>
           </Grid>
+        )}
+        {selectedIndex === LIVE_READINGS_INDEX && (
+          <>
+            <Grid size={{ sm: 12, md: 4 }} padding={2}>
+              <TenSecondReadingTable readings={dashboardStore.recentUpdates} />
+            </Grid>
+            <Grid size={{ sm: 12, md: 4 }} padding={2}>
+              <OneMinuteAverageTable readings={dashboardStore.recentUpdates} />
+            </Grid>
+            <Grid size={{ sm: 12, md: 4 }} padding={2}>
+              <FiveMinuteAverageTable readings={dashboardStore.recentUpdates} />
+            </Grid>
+          </>
         )}
       </Grid>
     </BaseLayout>

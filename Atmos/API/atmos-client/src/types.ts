@@ -19,7 +19,7 @@ export type MetricAggregate = {
   maxValue: Metric;
   oneMinuteAverage: number;
   tenMinuteAverage: number;
-  fiveMinuteAverage: number;
+  fiveMinuteRollingAverage: number;
   recentReadings: Metric[];
   oneMinuteAverages: Metric[];
 };
