@@ -23,7 +23,6 @@ export const startDashboardConnection = () => {
   connection.on(SUBSCRIPTION_NAME, (data: DashboardUpdate) => {
     setConnectionStatus("connected");
     addUpdate(data);
-    console.log("Received dashboard update:", data);
     setHasReceivedUpdate(true);
   });
 

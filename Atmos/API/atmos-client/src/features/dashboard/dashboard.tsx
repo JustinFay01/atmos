@@ -9,6 +9,7 @@ import { FlexColumn, FlexRow, FlexSpacer } from "@/ui/layout/flexbox";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
+  Card,
   Fab,
   Grid,
   IconButton,
@@ -22,6 +23,7 @@ import { useDialogs } from "@toolpad/core/useDialogs";
 import { useState } from "react";
 import { CurrentWeatherContent } from "./components/current-weather/current-weather-content";
 import { MinMaxBarGraph } from "./components/current-weather/min-max-bar-graph";
+import { MinMaxCard } from "./components/current-weather/min-max-card";
 import { ExportDialog } from "./components/history/export-dialog";
 import { HistoryTable } from "./components/history/history-table";
 import { downloadInFormat } from "./components/history/util/export-handler";
@@ -97,11 +99,11 @@ export const Dashboard = () => {
         <Tab label="Historical Data" />
         <Tab label="Live Readings" />
       </Tabs>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} paddingRight={2}>
         {selectedIndex === CURRENT_READINGS_INDEX && (
           <>
             <Grid
-              size={4}
+              size={{ sm: 12, md: 3 }}
               padding={2}
               visibility={
                 selectedIndex === CURRENT_READINGS_INDEX ? "visible" : "hidden"
@@ -119,8 +121,80 @@ export const Dashboard = () => {
                 }
               />
             </Grid>
-            <Grid size={8}>
-              <MinMaxBarGraph latestReading={dashboardStore.latestUpdate} />
+            <Grid size={{ sm: 12, md: 5 }}>
+              {/*12 hour reading table*/}
+              <Card></Card>
+            </Grid>
+            <Grid size={{ sm: 12, md: 4 }}>
+              <FlexColumn gap={2}>
+                <MinMaxCard
+                  loading={!dashboardStore.latestUpdate}
+                  label="Temperature"
+                  unit="°F"
+                  max={
+                    dashboardStore.latestUpdate?.temperature.maxValue.value ||
+                    null
+                  }
+                  min={
+                    dashboardStore.latestUpdate?.temperature.minValue.value ||
+                    null
+                  }
+                  maxTimestamp={
+                    dashboardStore.latestUpdate?.temperature.maxValue
+                      .timestamp || null
+                  }
+                  minTimestamp={
+                    dashboardStore.latestUpdate?.temperature.minValue
+                      .timestamp || null
+                  }
+                />
+                <MinMaxCard
+                  loading={!dashboardStore.latestUpdate}
+                  label="Humidity"
+                  unit="%"
+                  max={
+                    dashboardStore.latestUpdate?.humidity.maxValue.value || null
+                  }
+                  min={
+                    dashboardStore.latestUpdate?.humidity.minValue.value || null
+                  }
+                  maxTimestamp={
+                    dashboardStore.latestUpdate?.humidity.maxValue.timestamp ||
+                    null
+                  }
+                  minTimestamp={
+                    dashboardStore.latestUpdate?.humidity.minValue.timestamp ||
+                    null
+                  }
+                />
+                <MinMaxCard
+                  loading={!dashboardStore.latestUpdate}
+                  label="Dew Point"
+                  unit="°F"
+                  max={
+                    dashboardStore.latestUpdate?.dewPoint.maxValue.value || null
+                  }
+                  min={
+                    dashboardStore.latestUpdate?.dewPoint.minValue.value || null
+                  }
+                  maxTimestamp={
+                    dashboardStore.latestUpdate?.dewPoint.maxValue.timestamp ||
+                    null
+                  }
+                  minTimestamp={
+                    dashboardStore.latestUpdate?.dewPoint.minValue.timestamp ||
+                    null
+                  }
+                />
+              </FlexColumn>
+            </Grid>
+            <Grid size={{ sm: 12, md: 8 }}>
+              <MinMaxBarGraph
+                latestReading={dashboardStore.latestUpdate || null}
+              />
+            </Grid>
+            <Grid size={{ sm: 12, md: 4 }}>
+              {/* Sensor connection status */}
             </Grid>
           </>
         )}

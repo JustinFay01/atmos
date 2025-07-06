@@ -45,8 +45,8 @@ public class OneMinuteAverageRule : IMetricUpdateRule
         // Needs to start at the top of the minute (:10)
         // This corresponds to newMetric's time because the previous rule ensures that the last reading is the latest one.
         var latestRecentReading = aggregateDto.RecentReadings.Last();
-        var isTopOfTheMinute = Math.Abs(latestRecentReading.Timestamp.Second) <= _sensorSettings.Tolerance * 1000 ||
-                                latestRecentReading.Timestamp.Second > 59 - _sensorSettings.Tolerance * 1000;
+        var isTopOfTheMinute = Math.Abs(latestRecentReading.Timestamp.Second) <= _sensorSettings.Tolerance / 1000 ||
+                                latestRecentReading.Timestamp.Second > 59 - _sensorSettings.Tolerance / 1000;
 
         if (!isTopOfTheMinute)
         {
