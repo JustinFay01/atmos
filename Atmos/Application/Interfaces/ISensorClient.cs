@@ -5,7 +5,7 @@ namespace Application.Interfaces;
 public interface ISensorClient
 {
     public bool IsConnected { get; }
-    
+
     /// <summary>
     /// Try to connect to the sensor client.
     /// </summary>

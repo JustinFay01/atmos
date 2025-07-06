@@ -42,7 +42,7 @@ public class Program
             configuration.GetSection("Sensor").Bind(sensorSettings);
             return sensorSettings;
         });
-        
+
         builder.Services.UseAtmosInfrastructure(builder.Configuration);
         builder.Services.UseAtmosApplicationServices();
         builder.Services.AddHostedService<SensorPollingWorker>();
@@ -57,7 +57,7 @@ public class Program
         app.MapHub<DashboardHub>("/v1/dashboard");
         app.MapControllers();
         app.MapFallbackToFile("index.html");
-    
+
         app.Run();
     }
 }

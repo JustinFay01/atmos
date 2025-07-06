@@ -20,7 +20,7 @@ public class DashboardHub : Hub
         await base.OnConnectedAsync();
         _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
         await Clients.Client(Context.ConnectionId).SendAsync("ReceiveDashboardUpdate", _aggregator.AggregatedReading);
-        
+
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

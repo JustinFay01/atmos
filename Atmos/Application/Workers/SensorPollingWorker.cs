@@ -43,10 +43,10 @@ public class SensorPollingWorker(
         {
             await DelayUntilNextTickAsync(cancellationToken);
         }
-        
+
         await base.StartAsync(cancellationToken);
     }
-    
+
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await base.StopAsync(cancellationToken);
@@ -63,7 +63,7 @@ public class SensorPollingWorker(
             while (!stoppingToken.IsCancellationRequested)
             {
                 logger.LogInformation("Worker tick at: {Time}", DateTimeProvider.Instance.Now);
-                
+
                 switch (_orchestrationTask)
                 {
                     case { IsCompleted: false }:
@@ -75,7 +75,7 @@ public class SensorPollingWorker(
                         _orchestrationTask = OrchestrateSensorDataAsync(stoppingToken);
                         break;
                 }
-                
+
                 await DelayUntilNextTickAsync(stoppingToken);
             }
         }
@@ -167,7 +167,7 @@ public class SensorPollingWorker(
                     await Task.Delay(MAX_RETRY_DELAY_MS, cancellationToken); // Wait before retrying
                     continue;
                 }
-                
+
                 logger.LogInformation("Sensor client connected successfully.");
                 break;
             }
@@ -196,5 +196,5 @@ public class SensorPollingWorker(
             logger.LogDebug("No delay needed, proceeding to next tick.");
         }
     }
-    
+
 }

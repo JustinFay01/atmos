@@ -4,7 +4,7 @@ using Application.Dtos;
 
 namespace Tests.ApplicationTests.Rules;
 
-public class FiveMinuteRollingAverageTests 
+public class FiveMinuteRollingAverageTests
 {
 
     private readonly DateTime _now = new(2023, 1, 1, 1, 0, 0, DateTimeKind.Utc);
@@ -26,7 +26,7 @@ public class FiveMinuteRollingAverageTests
 
         // Act
         // Its a computed property, so we just access it
-        
+
         // Assert
         await Assert.That(aggregate.FiveMinuteRollingAverage).IsNotNull();
     }

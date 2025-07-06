@@ -12,7 +12,7 @@ public class MockSensorClient : ISensorClient
     public async Task<bool> ConnectAsync(CancellationToken cancellationToken)
     {
         await Task.Delay(100, cancellationToken);
-        return true; 
+        return true;
     }
 
     public Task DisconnectAsync(CancellationToken cancellationToken)
