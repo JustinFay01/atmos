@@ -9,9 +9,10 @@ public class MockSensorClient : ISensorClient
 
     private int _iterationCount = 0;
     private readonly Random _random = new Random();
-    public Task ConnectAsync(CancellationToken cancellationToken)
+    public async Task<bool> ConnectAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await Task.Delay(100, cancellationToken);
+        return true; 
     }
 
     public Task DisconnectAsync(CancellationToken cancellationToken)
