@@ -4,6 +4,7 @@ using API.Hubs;
 using Application;
 using Application.Extensions;
 using Application.Interfaces;
+using Application.Models;
 using Application.Workers;
 
 using Infrastructure.Extensions;
@@ -34,6 +35,14 @@ public class Program
 
         builder.Services.AddSignalR();
         builder.Services.AddSingleton<IRealtimeUpdateNotifier, RealTimeUpdateNotifier>();
+        builder.Services.AddSingleton<SensorSettings>(sp =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            var sensorSettings = new SensorSettings();
+            configuration.GetSection("Sensor").Bind(sensorSettings);
+            return sensorSettings;
+        });
+        
         builder.Services.UseAtmosInfrastructure(builder.Configuration);
         builder.Services.UseAtmosApplicationServices();
         builder.Services.AddHostedService<SensorPollingWorker>();

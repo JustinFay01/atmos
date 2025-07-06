@@ -1,5 +1,6 @@
 using Application.Helper;
 using Application.Interfaces;
+using Application.Models;
 
 using AutoMapper;
 
@@ -14,6 +15,7 @@ namespace Application.Workers;
 
 public class SensorPollingWorker(
     ILogger<SensorPollingWorker> logger,
+    SensorSettings sensorSettings,
     IAggregator aggregator,
     ISensorClient sensorClient,
     IMapper mapper,
@@ -24,9 +26,6 @@ public class SensorPollingWorker(
     private Task? _orchestrationTask;
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(10);
     private readonly TimeSpan _processingTimeout = TimeSpan.FromSeconds(9);
-    // Delay by 150 (:00.150) to ensure we don't drift backwards into :59.99
-    private const int DELAY_CUSHION_MS = 150;
-    private const int MAX_CONNECTION_ATTEMPTS = 3;
     private const int MAX_RETRY_DELAY_MS = 2000; // Maximum delay between retries in milliseconds
 
     public override async Task StartAsync(CancellationToken cancellationToken)
@@ -39,8 +38,12 @@ public class SensorPollingWorker(
             await StopAsync(cancellationToken);
             return;
         }
+
+        if (sensorSettings.WaitTillNearestTenSeconds)
+        {
+            await DelayUntilNextTickAsync(cancellationToken);
+        }
         
-        await DelayUntilNextTickAsync(cancellationToken);
         await base.StartAsync(cancellationToken);
     }
     
@@ -53,14 +56,14 @@ public class SensorPollingWorker(
     {
         logger.LogDebug("SensorPollingWorker is starting.");
 
-        using var timer = new PeriodicTimer(_pollingInterval);
+        // using var timer = new PeriodicTimer(_pollingInterval);
 
         try
         {
-            while (await timer.WaitForNextTickAsync(stoppingToken))
+            while (!stoppingToken.IsCancellationRequested)
             {
                 logger.LogInformation("Worker tick at: {Time}", DateTimeProvider.Instance.Now);
-
+                
                 switch (_orchestrationTask)
                 {
                     case { IsCompleted: false }:
@@ -72,6 +75,8 @@ public class SensorPollingWorker(
                         _orchestrationTask = OrchestrateSensorDataAsync(stoppingToken);
                         break;
                 }
+                
+                await DelayUntilNextTickAsync(stoppingToken);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -149,17 +154,16 @@ public class SensorPollingWorker(
     private async Task AttemptToConnectSensorClientAsync(CancellationToken cancellationToken)
     {
         var attemptNumber = 1;
-        while (attemptNumber <= MAX_CONNECTION_ATTEMPTS && !cancellationToken.IsCancellationRequested)
+        while (attemptNumber <= sensorSettings.MaxRetryCount && !cancellationToken.IsCancellationRequested)
         {
             try
             {
-                logger.LogInformation("Attempting to connect to sensor client. Attempts left: {Attempts}",
-                    MAX_CONNECTION_ATTEMPTS - attemptNumber + 1);
+                logger.LogInformation("Attempting to connect to sensor client. Attempt: {Attempts}", attemptNumber);
                 var status = await sensorClient.ConnectAsync(cancellationToken);
                 if (!status)
                 {
                     attemptNumber++;
-                    logger.LogWarning("Sensor client connection failed. Retrying... Attempts left: {Attempts}", MAX_CONNECTION_ATTEMPTS - attemptNumber + 1);
+                    logger.LogWarning("Sensor client connection failed. Retrying... Attempt: {Attempts}", attemptNumber);
                     await Task.Delay(MAX_RETRY_DELAY_MS, cancellationToken); // Wait before retrying
                     continue;
                 }
@@ -174,7 +178,7 @@ public class SensorPollingWorker(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while trying to connect to the sensor client. Attempt {AttemptNumber} of {MaxAttempts}.", attemptNumber, MAX_CONNECTION_ATTEMPTS);
+                logger.LogError(ex, "An error occurred while trying to connect to the sensor client. Attempt {AttemptNumber} of {MaxAttempts}.", attemptNumber, sensorSettings.MaxRetryCount);
                 return;
             }
         }
@@ -185,7 +189,7 @@ public class SensorPollingWorker(
         if (delay > 0)
         {
             logger.LogDebug("Delaying until next tick by {Delay} milliseconds.", delay);
-            await Task.Delay((int)delay + DELAY_CUSHION_MS, cancellationToken);
+            await Task.Delay((int)delay + sensorSettings.DelayCushion, cancellationToken);
         }
         else
         {

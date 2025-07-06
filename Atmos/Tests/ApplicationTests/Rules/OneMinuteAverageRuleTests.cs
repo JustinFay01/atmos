@@ -9,12 +9,19 @@ namespace Tests.ApplicationTests.Rules;
 public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
 {
     private readonly DateTime _now = new(2023, 1, 1, 1, 0, 0, DateTimeKind.Utc);
+    private readonly SensorSettings _sensorSettings = new()
+    {
+        Tolerance = 4000, // 4 seconds in milliseconds
+        WaitTillNearestTenSeconds = true,
+        DelayCushion = 150,
+        MaxRetryCount = 3
+    };
 
     #region Early Exit Conditions
 
     public OneMinuteAverageRuleTests()
     {
-        Subject = new OneMinuteAverageRule(LoggerMock.Object);
+        Subject = new OneMinuteAverageRule(LoggerMock.Object, _sensorSettings);
     }
 
     [Test]
@@ -81,7 +88,7 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
     }
 
     [Test]
-    public async Task OneMinuteAverageRule_ReturnsSameAggregate_WhenInMiddleOfMinute()
+    public async Task OneMinuteAverageRule_ReturnsNewAggregate_WhenInMiddleOfMinute()
     {
         // Arrange
         var aggregate = new SingleReadingAggregateDto
@@ -100,7 +107,7 @@ public class OneMinuteAverageRuleTests : BaseTest<OneMinuteAverageRule>
         var result = Subject.Apply(aggregate, aggregate.RecentReadings.Last());
 
         // Assert
-        await Assert.That(result.OneMinuteAverages.Count).IsEqualTo(0);
+        await Assert.That(result.OneMinuteAverages.Count).IsEqualTo(1);
     }
 
     #endregion

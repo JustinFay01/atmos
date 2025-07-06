@@ -25,13 +25,14 @@ namespace Application.Rules;
 public class OneMinuteAverageRule : IMetricUpdateRule
 {
     private const int MaxReadings = 5; // We want 5 one-minute averages so that we can calculate a five-minute rolling average.
-    private const int ToleranceInSeconds = 4; // Allowable difference in seconds for the one-minute average
 
     private readonly ILogger<OneMinuteAverageRule> _logger;
+    private readonly SensorSettings _sensorSettings;
 
-    public OneMinuteAverageRule(ILogger<OneMinuteAverageRule> logger)
+    public OneMinuteAverageRule(ILogger<OneMinuteAverageRule> logger, SensorSettings sensorSettings)
     {
         _logger = logger;
+        _sensorSettings = sensorSettings;
     }
 
     public SingleReadingAggregateDto Apply(SingleReadingAggregateDto aggregateDto, MetricDto newMetricDto)
@@ -44,8 +45,8 @@ public class OneMinuteAverageRule : IMetricUpdateRule
         // Needs to start at the top of the minute (:10)
         // This corresponds to newMetric's time because the previous rule ensures that the last reading is the latest one.
         var latestRecentReading = aggregateDto.RecentReadings.Last();
-        var isTopOfTheMinute = Math.Abs(latestRecentReading.Timestamp.Second) <= ToleranceInSeconds ||
-                                latestRecentReading.Timestamp.Second > 59 - ToleranceInSeconds;
+        var isTopOfTheMinute = Math.Abs(latestRecentReading.Timestamp.Second) <= _sensorSettings.Tolerance * 1000 ||
+                                latestRecentReading.Timestamp.Second > 59 - _sensorSettings.Tolerance * 1000;
 
         if (!isTopOfTheMinute)
         {
@@ -55,10 +56,9 @@ public class OneMinuteAverageRule : IMetricUpdateRule
         var firstReading = aggregateDto.RecentReadings.First();
         var expectedFirstReadingTimestamp = latestRecentReading.Timestamp.AddSeconds(-50);
 
-        if (Math.Abs((firstReading.Timestamp - expectedFirstReadingTimestamp).TotalSeconds) > ToleranceInSeconds)
+        if (Math.Abs((firstReading.Timestamp - expectedFirstReadingTimestamp).TotalSeconds) > _sensorSettings.Tolerance * 1000)
         {
-            _logger.LogError("Clock drift detected, first reading is not at the top of the minute.");
-            return aggregateDto;
+            _logger.LogWarning("Clock drift detected, first reading is not at the top of the minute.");
         }
 
         var oneMinuteAverage = aggregateDto.RecentReadings.Average(m => m.Value);
