@@ -31,6 +31,14 @@ export type DashboardUpdate = {
   dewPoint: MetricAggregate;
 };
 
+export type HourReading = {
+  hour: number;
+  timestamp: string;
+  temperature: number;
+  humidity: number;
+  dewPoint: number;
+};
+
 // Flattened ReadingAggregate for historical data to download or to display in tables
 export interface ReadingAggregate extends IContent {
   timestamp: string;

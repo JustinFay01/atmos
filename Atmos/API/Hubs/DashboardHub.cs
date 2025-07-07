@@ -1,31 +1,33 @@
 using Application.Interfaces;
+using Application.Services;
 
 using Microsoft.AspNetCore.SignalR;
 
 namespace API.Hubs;
 
-public class DashboardHub : Hub
+public class DashboardHub(
+    ILogger<DashboardHub> logger,
+    IAggregator aggregator,
+    IHourlyReadingService hourlyReadingService)
+    : Hub
 {
-    private readonly ILogger<DashboardHub> _logger;
-    private readonly IAggregator _aggregator;
-
-    public DashboardHub(ILogger<DashboardHub> logger, IAggregator aggregator)
-    {
-        _logger = logger;
-        _aggregator = aggregator;
-    }
-
     public override async Task OnConnectedAsync()
     {
         await base.OnConnectedAsync();
-        _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
-        await Clients.Client(Context.ConnectionId).SendAsync("ReceiveDashboardUpdate", _aggregator.AggregatedReading);
+        logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
+        
+        await Task.WhenAll([
+            Clients.Client(Context.ConnectionId)
+                .SendAsync(HubSubscription.ReceiveDashboardUpdate, aggregator.AggregatedReading),
+            Clients.Client(Context.ConnectionId)
+                .SendAsync(HubSubscription.ReceiveHourlyUpdate, hourlyReadingService.HourlyReadings)
+        ]);
 
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await base.OnDisconnectedAsync(exception);
-        _logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
+        logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
     }
 }

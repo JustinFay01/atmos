@@ -1,6 +1,7 @@
 using Application.Helper;
 using Application.Interfaces;
 using Application.Models;
+using Application.Services;
 
 using AutoMapper;
 
@@ -20,13 +21,13 @@ public class SensorPollingWorker(
     ISensorClient sensorClient,
     IMapper mapper,
     IServiceScopeFactory scopeFactory,
+    IHourlyReadingService hourlyReadingService,
     IRealtimeUpdateNotifier notifier)
     : BackgroundService
 {
     private Task? _orchestrationTask;
-    private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(10);
     private readonly TimeSpan _processingTimeout = TimeSpan.FromSeconds(9);
-    private const int MAX_RETRY_DELAY_MS = 2000; // Maximum delay between retries in milliseconds
+    private const int MaxRetryDelayMs = 2000; // Maximum delay between retries in milliseconds
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -55,9 +56,7 @@ public class SensorPollingWorker(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogDebug("SensorPollingWorker is starting.");
-
-        // using var timer = new PeriodicTimer(_pollingInterval);
-
+        
         try
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -119,8 +118,12 @@ public class SensorPollingWorker(
             var aggregate = mapper.Map<ReadingAggregate>(aggregatedReadingDto);
 
             // Store Aggregated Data
-            await readingRepository.CreateAsync(aggregate, workCts.Token);
 
+            await Task.WhenAll([
+                readingRepository.CreateAsync(aggregate, workCts.Token),
+                hourlyReadingService.ProcessReadingAsync(sensorData, workCts.Token),
+            ]);
+            
             // Notify Clients of Update
             await notifier.SendDashboardUpdateAsync(aggregatedReadingDto, workCts.Token);
 
@@ -164,7 +167,7 @@ public class SensorPollingWorker(
                 {
                     attemptNumber++;
                     logger.LogWarning("Sensor client connection failed. Retrying... Attempt: {Attempts}", attemptNumber);
-                    await Task.Delay(MAX_RETRY_DELAY_MS, cancellationToken); // Wait before retrying
+                    await Task.Delay(MaxRetryDelayMs, cancellationToken); // Wait before retrying
                     continue;
                 }
 

@@ -46,17 +46,22 @@ export const DashboardHeader = ({ status }: DashboardHeaderProps) => {
       spacing={2}
       minWidth={300}
     >
-      {useMediaQuery(theme.breakpoints.up("sm")) && (
+      {useMediaQuery(theme.breakpoints.up("md")) && (
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="h3" component="h1">
-            Dashboard
+            Atmos
           </Typography>
         </Grid>
       )}
       <Grid
         size={{ xs: 12, md: 6 }}
-        width={"100%"}
-        sx={{ display: "flex", justifyContent: "flex-end" }}
+        sx={{
+          display: "flex",
+          justifyContent: {
+            xs: "center",
+            md: "flex-end",
+          },
+        }}
       >
         <FlexColumn>
           <FlexRow spacing={1}>

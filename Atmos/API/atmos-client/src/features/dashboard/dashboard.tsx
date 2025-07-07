@@ -15,12 +15,19 @@ import {
   IconButton,
   LinearProgress,
   Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Tabs,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useDialogs } from "@toolpad/core/useDialogs";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CurrentWeatherContent } from "./components/current-weather/current-weather-content";
 import { MinMaxBarGraph } from "./components/current-weather/min-max-bar-graph";
 import { MinMaxCard } from "./components/current-weather/min-max-card";
@@ -88,6 +95,20 @@ export const Dashboard = () => {
     setExporting(false);
   };
 
+  const orderTwelveHourUpdates = useMemo(() => {
+    // Get current hour (0-23)
+    const currentHour = new Date().getHours();
+    // Build an array of the last 12 hours, starting from currentHour
+    const last12Hours = Array.from(
+      { length: 12 },
+      (_, i) => (currentHour - i + 24) % 24
+    );
+    // Reorder twelveHourUpdates to match last12Hours
+    return last12Hours.map((hour) =>
+      dashboardStore.hourUpdates.find((r) => r?.hour === hour)
+    );
+  }, [dashboardStore.hourUpdates]);
+
   return (
     <BaseLayout>
       <DashboardHeader status={connectionStore} />
@@ -99,12 +120,13 @@ export const Dashboard = () => {
         <Tab label="Historical Data" />
         <Tab label="Live Readings" />
       </Tabs>
-      <Grid container spacing={2} paddingRight={2}>
+      <Grid container>
         {selectedIndex === CURRENT_READINGS_INDEX && (
           <>
             <Grid
               size={{ sm: 12, md: 3 }}
               padding={2}
+              sx={{ width: "100%", height: "100%" }}
               visibility={
                 selectedIndex === CURRENT_READINGS_INDEX ? "visible" : "hidden"
               }
@@ -121,11 +143,57 @@ export const Dashboard = () => {
                 }
               />
             </Grid>
-            <Grid size={{ sm: 12, md: 5 }}>
-              {/*12 hour reading table*/}
-              <Card></Card>
+            <Grid
+              size={{ sm: 12, md: 5.5 }}
+              padding={2}
+              sx={{ overflowY: "auto" }}
+            >
+              <TableContainer
+                component={Card}
+                sx={{ height: "50vh", overflowY: "auto" }}
+              >
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  sx={{ textAlign: "start" }}
+                >
+                  Last 12 Hour Updates
+                </Typography>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Time</TableCell>
+                      <TableCell>Temperature (°F)</TableCell>
+                      <TableCell>Humidity (%)</TableCell>
+                      <TableCell>Dew Point (°F)</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody sx={{ overflowY: "auto" }}>
+                    {orderTwelveHourUpdates.map(
+                      (reading) =>
+                        reading && (
+                          <TableRow key={reading.hour}>
+                            <TableCell>
+                              {new Date(
+                                new Date().setHours(reading.hour, 0, 0, 0)
+                              ).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </TableCell>
+                            <TableCell>
+                              {reading.temperature.toFixed(1)}
+                            </TableCell>
+                            <TableCell>{reading.humidity.toFixed(1)}</TableCell>
+                            <TableCell>{reading.dewPoint.toFixed(1)}</TableCell>
+                          </TableRow>
+                        )
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Grid>
-            <Grid size={{ sm: 12, md: 4 }}>
+            <Grid size={{ sm: 12, md: 3.5 }} padding={2}>
               <FlexColumn gap={2}>
                 <MinMaxCard
                   loading={!dashboardStore.latestUpdate}

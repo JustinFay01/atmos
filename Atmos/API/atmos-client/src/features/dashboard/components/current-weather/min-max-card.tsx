@@ -37,7 +37,7 @@ export const MinMaxCard = ({
             <Typography variant="h3" component="h3" sx={{ fontWeight: 625 }}>
               {`${max ?? 0} ${unit}`}
             </Typography>
-            <Typography variant="h6" component="h6" sx={{ fontWeight: 625 }}>
+            <Typography variant="h6" component="h3">
               {`Max ${label}`}
             </Typography>
           </FlexColumn>
@@ -48,7 +48,7 @@ export const MinMaxCard = ({
             <Typography variant="h3" component="h3" sx={{ fontWeight: 625 }}>
               {`${min ?? 0} ${unit}`}
             </Typography>
-            <Typography variant="h6" component="h6" sx={{ fontWeight: 625 }}>
+            <Typography variant="h6" component="h3">
               {`Min ${label}`}
             </Typography>
           </FlexColumn>

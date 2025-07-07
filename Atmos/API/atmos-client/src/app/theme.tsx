@@ -60,6 +60,26 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          // fallback for Firefox
+          scrollbarColor: "#888 transparent",
+          scrollbarWidth: "thin",
+        },
+        // Chrome, Edge, Safari
+        "*::-webkit-scrollbar": {
+          width: "8px",
+        },
+        "*::-webkit-scrollbar-thumb": {
+          backgroundColor: "#888",
+          borderRadius: "8px",
+        },
+        "*::-webkit-scrollbar-track": {
+          background: "transparent",
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: {

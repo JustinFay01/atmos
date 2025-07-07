@@ -46,14 +46,6 @@ export const ReadingTable = ({ title, readings }: ReadingTableProps) => {
             overflowY: "auto",
             height: "70vh",
             paddingRight: 2,
-            scrollbarColor: "#888 transparent",
-            scrollbarWidth: "thin",
-            "&::-webkit-scrollbar": {
-              width: "8px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#888",
-            },
           }}
         >
           {readings.length === 0 && (

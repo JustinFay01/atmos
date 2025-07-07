@@ -19,6 +19,12 @@ public class RealTimeUpdateNotifier : IRealtimeUpdateNotifier
     public Task SendDashboardUpdateAsync(ReadingAggregateDto update, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Sending dashboard update: {update}", update);
-        return _hubContext.Clients.All.SendAsync("ReceiveDashboardUpdate", update, cancellationToken);
+        return _hubContext.Clients.All.SendAsync(HubSubscription.ReceiveDashboardUpdate, update, cancellationToken);
+    }
+    
+    public Task SendHourUpdateAsync(IList<HourReadingDto?> update, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Sending hourly update: {update}", update);
+        return _hubContext.Clients.All.SendAsync(HubSubscription.ReceiveHourlyUpdate, update, cancellationToken);
     }
 }

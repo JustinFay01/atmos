@@ -26,10 +26,8 @@ export const CurrentWeatherCard = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       sx={{
-        minWidth: 300,
-        borderRadius: 5,
         position: "relative",
-        display: "flex",
+        width: "100%",
         "&:hover": {
           transform: "scale(1.02)",
           transition: "transform 0.3s ease-in-out",
