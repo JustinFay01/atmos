@@ -14,8 +14,7 @@ export const FiveMinuteAverageTable = ({
     const seenHumidity = new Set<number>();
     const seenDewPoints = new Set<number>();
 
-    return [...readings]
-      .reverse()
+    const filtered = [...readings]
       .map((update) => ({
         temperature: update.temperature.fiveMinuteRollingAverage,
         humidity: update.humidity.fiveMinuteRollingAverage,
@@ -34,6 +33,8 @@ export const FiveMinuteAverageTable = ({
 
         return isUnique;
       });
+
+    return filtered.reverse();
   }, [readings]);
 
   return (

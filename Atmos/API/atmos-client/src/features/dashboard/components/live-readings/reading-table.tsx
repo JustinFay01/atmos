@@ -1,5 +1,5 @@
 import { FlexRow } from "@/ui/layout/flexbox";
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Divider, Tooltip, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 
 type TableReading = {
@@ -56,35 +56,44 @@ export const ReadingTable = ({ title, readings }: ReadingTableProps) => {
           <AnimatePresence>
             {readings.length > 0 &&
               readings.map((update) => (
-                <motion.div
-                  key={`${update.temperature}-${update.humidity}-${update.dewPoint}`}
-                  layout
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                <Tooltip
+                  key={update.timestamp}
+                  title={new Date(update.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
                 >
-                  <FlexRow
-                    alignItems="start"
-                    sx={{
-                      borderBottom: "1px solid #ccc",
-                      width: "100%",
-                      padding: 1,
-                    }}
-                    gap={2}
-                    padding={1}
-                    justifyContent={"space-between"}
+                  <motion.div
+                    key={`${title}-${update.timestamp}`}
+                    layout
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
                   >
-                    <Typography variant="body1">
-                      {formatReading(update.temperature, "°F")}
-                    </Typography>
-                    <Typography variant="body1" sx={{ marginLeft: 2 }}>
-                      {formatReading(update.humidity, "%")}
-                    </Typography>
-                    <Typography variant="body1" sx={{ marginLeft: 2 }}>
-                      {formatReading(update.dewPoint, "°F")}
-                    </Typography>
-                  </FlexRow>
-                </motion.div>
+                    <FlexRow
+                      alignItems="start"
+                      sx={{
+                        borderBottom: "1px solid #ccc",
+                        width: "100%",
+                        padding: 1,
+                      }}
+                      gap={2}
+                      padding={1}
+                      justifyContent={"space-between"}
+                    >
+                      <Typography variant="body1">
+                        {formatReading(update.temperature, "°F")}
+                      </Typography>
+                      <Typography variant="body1" sx={{ marginLeft: 2 }}>
+                        {formatReading(update.humidity, "%")}
+                      </Typography>
+                      <Typography variant="body1" sx={{ marginLeft: 2 }}>
+                        {formatReading(update.dewPoint, "°F")}
+                      </Typography>
+                    </FlexRow>
+                  </motion.div>
+                </Tooltip>
               ))}
           </AnimatePresence>
         </Box>

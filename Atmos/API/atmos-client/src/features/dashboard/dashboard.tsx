@@ -163,9 +163,9 @@ export const Dashboard = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Time</TableCell>
-                      <TableCell>Temperature (°F)</TableCell>
-                      <TableCell>Humidity (%)</TableCell>
-                      <TableCell>Dew Point (°F)</TableCell>
+                      <TableCell align="right">Temperature (°F)</TableCell>
+                      <TableCell align="right">Humidity (%)</TableCell>
+                      <TableCell align="right">Dew Point (°F)</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody sx={{ overflowY: "auto" }}>
@@ -181,11 +181,15 @@ export const Dashboard = () => {
                                 minute: "2-digit",
                               })}
                             </TableCell>
-                            <TableCell>
+                            <TableCell align="right">
                               {reading.temperature.toFixed(1)}
                             </TableCell>
-                            <TableCell>{reading.humidity.toFixed(1)}</TableCell>
-                            <TableCell>{reading.dewPoint.toFixed(1)}</TableCell>
+                            <TableCell align="right">
+                              {reading.humidity.toFixed(1)}
+                            </TableCell>
+                            <TableCell align="right">
+                              {reading.dewPoint.toFixed(1)}
+                            </TableCell>
                           </TableRow>
                         )
                     )}
