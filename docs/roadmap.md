@@ -4,19 +4,19 @@
 
 **Goal:** Establish the fundamental data pipeline: mock sensor -> processing -> storage -> real-time push. Verify backend logic independently.
 
-1.  **Project Setup (.NET):**
+1~~.  **Project Setup (.NET):**~~
     *   Create solution and projects:
         *   `Atmos.Domain`: Entities (`Reading`), Interfaces (`ISensorClient`, `IAggregator`, `IReadingRepository`), Core Services (Orchestrator, Aggregator).
         *   `Atmos.Infrastructure`: EF Core (`AppDbContext`, `ReadingRepository` implementation, Migrations), ~~`Rs485SensorClient`~~ **Moving to phase 2**, `MockSensorClient`.
         *   `Atmos.Presentation` (SignalR project): SignalR Hub (`DashboardHub`) and DTOs
-2.  **Database Setup:**
+2.  ~~**Database Setup:**~~
     *   Define `Reading` entity.
     *   Implement `AppDbContext` with EF Core.
     *   Create initial EF Core migration.
     ~~*   **Docker:** Setup `docker-compose.yml` for a PostgreSQL container.~~
     ~~*   Configure connection string in `Atmos.Presentation` (`appsettings.json`).~~
     * Set up SQLite database for local storage.
-3.  **Core Logic Implementation:**
+3.  ~~**Core Logic Implementation:**~~
     *   **`MockSensorClient`:** Implement `ISensorClient` to return mock `SensorData` DTOs on a timer or on demand.
     *   **`IReadingRepository`:** Implement saving `Reading` entities using EF Core.
     *   **`IAggregator`:**
@@ -60,11 +60,11 @@
     *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` ~~easily (e.g., via environment variable in `docker-compose.yml`).~~
 ~~3.  **Database Migrations in Docker:**~~
     ~~*   Research and implement a strategy for applying EF Core migrations automatically when the backend container starts (e.g., in `Program.cs` or an entrypoint script). Test this thoroughly.~~
-3. **Postgres Database**
+3. ~~**Postgres Database**~~
     *   Implement routine backups of the Postgres database.
     *   Define strategy for handling database migrations in Postgres.
     *   Stop reading sensor if database isn't saving readings.
-5. **React Frontend POC:**
+5. ~~**React Frontend POC:**~~
     *   Create a basic React application (e.g., using `create-react-app`).
     *   Install SignalR client library (`@microsoft/signalr`).
     *   Implement basic connection to the backend's `AtmosHub`.
@@ -85,7 +85,7 @@
     * Select file format implementation (e.g., CSV, TXT)
     *   Convert the UTC time to the local timezone of the user (if specified in the request).
     * Have the option to unique 5 minute averages
-6.  **Sentry Integration:**
+6.  ~~**Sentry Integration:**~~
     *   Integrate Sentry SDK into `Atmos.Presentation` for backend error logging.
     *   Integrate Sentry SDK into the React POC for frontend error logging.
     *   Test by intentionally throwing an error in both backend and frontend.
@@ -99,7 +99,7 @@
 
 **Goal:** Implement all core features described in the README, create a user-friendly interface, and prepare for deployment.
 
-1.  **React Frontend Development - Live Dashboard:**
+1.  ~~**React Frontend Development - Live Dashboard:**~~
     *   Design and style the Live Dashboard page.
     *   Implement components for:
         *   Most recent readings (temperature, humidity, dew point).
@@ -107,11 +107,11 @@
         *   Today's min/max readings.
         *   Hourly chart for the last 12 hours (using data from `GET /api/dashboard/state` and potentially updated by SignalR if you decide to push hourly aggregates too, though less critical).
     *   Ensure all components update dynamically based on SignalR `UpdateDto` pushes.
-2.  **REST Endpoints for Historical Data:**
+2.  ~~**REST Endpoints for Historical Data:**~~
     *   Implement `GET` (with pagination, filtering, sorting).
     *   Implement `GET` (CSV export).
     *   Implement `GET` (for querying averages over custom ranges/intervals).
-3.  **React Frontend Development - History Viewer:**
+3.  ~~**React Frontend Development - History Viewer:**~~
     *   Design and style the History page.
     *   Implement browsing and pagination for historical readings (using `GET`).
     *   Implement functionality to select date ranges and download data (using `GET`).
@@ -138,14 +138,114 @@
     *   Integration tests (e.g., testing API endpoints with an in-memory test server or against a test DB).
     *   End-to-end testing (manual or automated if you have the tools/time).
     *   Test resilience (e.g., what happens if DB is temporarily down, sensor disconnects).
-    *   Test Docker deployment thoroughly on a clean system.
+    *   Test Docker deployment thoroughly on a clean system.'
+
+### Phase 3.5: Installer 
+#### **Phase 0: Project Setup & Dependencies**
+
+This phase covers setting up the C# console project for the launcher itself.
+
+*   **[ ] 1. Create Project:**
+    *   Create a new `.NET Console Application` project named `Atmos.Launcher`.
+    *   Ensure the project is configured to be published as a **self-contained** single executable.
+
+*   **[ ] 2. Add NuGet Packages:**
+    *   **[ ] `Octokit.NET`:** For interacting with the GitHub API to check for new releases.
+    *   **[ ] `Spectre.Console`:** (Highly Recommended) For creating a much nicer user interface with prompts, spinners, and status tables. This will significantly improve the user experience.
+    *   Other core dependencies will be from the .NET SDK itself (`System.Text.Json`, `System.IO.Compression`, `System.Net.Http`).
+
+*   **[ ] 3. Define Core Helper Functions:**
+    *   Create a utility class for running external processes (like `docker`, `sc.exe`, and the migration tool) using `System.Diagnostics.Process`. This class should be able to capture standard output, standard error, and exit codes.
+
+---
+
+#### **Phase 1: First-Time Installation Logic**
+
+This is the workflow when the launcher detects it is being run in a new location.
+
+*   **[ ] 1. Prerequisite Checks:**
+    *   **[ ] Docker:** Execute `docker version`. If it fails, halt the installation and instruct the user to install and start Docker Desktop.
+    *   **[ ] .NET Runtime:** Check for the required ASP.NET Core Runtime version needed by the main Atmos service. If not found, halt and provide a download link.
+
+*   **[ ] 2. User Interaction & Setup:**
+    *   **[ ] Prompt for Path:** Ask the user for the desired installation directory (e.g., `C:\Atmos`). Default to a sensible location.
+    *   **[ ] Create Directory Structure:** Create the target directory.
+    *   **[ ] Copy Application Files:** Copy the bundled `app/` folder and `docker-compose.yml` into the new directory.
+
+*   **[ ] 3. Configuration:**
+    *   **[ ] Generate DB Password:** Create a cryptographically secure random string for the Postgres password.
+    *   **[ ] Create `.env` file:** Write `POSTGRES_PASSWORD=<generated_password>` to a new `.env` file in the installation root (`C:\Atmos\.env`).
+    *   **[ ] Create `appsettings.json`:** Generate the `appsettings.production.json` file inside the `app` folder, injecting the correct connection string using `localhost`, the default port, and the generated password.
+
+*   **[ ] 4. System Deployment:**
+    *   **[ ] Start Database:** Run `docker-compose up -d` using the `docker-compose.yml` in the target directory. Wait for it to complete and check for errors.
+    *   **[ ] Run Migrations:** Execute the `Atmos.Migration.exe` tool, passing the connection string as an argument. Check for a successful exit code.
+
+*   **[ ] 5. Finalizing Installation:**
+    *   **[ ] Create State File:** Create a `launcher.json` or `atmos.json` file in the installation root. Store the current version in it (e.g., `{ "InstalledVersion": "1.0.0" }`).
+    *   **[ ] Register as a Service:** (Windows Focus) Execute `sc.exe create AtmosService binPath="C:\Atmos\app\Atmos.Service.exe" start=auto` to register the main application as a Windows Service that starts on boot.
+    *   **[ ] Start Service:** Execute `sc.exe start AtmosService`.
+    *   **[ ] Create Shortcut:** Create a desktop shortcut pointing to the `atmos-launcher.exe` in the installation directory.
+    *   **[ ] Display Success Message:** Inform the user the installation is complete and the dashboard is ready.
+
+---
+
+#### **Phase 2: Management & Update Logic**
+
+This is the workflow when the launcher is executed from an existing installation directory.
+
+*   **[ ] 1. Check System Status:**
+    *   Check if the Postgres Docker container is running (`docker ps`).
+    *   Check if the `AtmosService` Windows Service is running (`sc.exe query AtmosService`).
+
+*   **[ ] 2. Check for Updates:**
+    *   Read the `InstalledVersion` from the local `launcher.json`.
+    *   Use `Octokit.NET` to query the latest release from your GitHub repository.
+    *   Compare versions. If a newer version is available, store its download URL and tag name.
+
+*   **[ ] 3. Display Management Menu:**
+    *   Use `Spectre.Console` to show a menu with the system status and options:
+        *   `[O]pen Dashboard` (Launches `http://localhost:5000` in the default browser)
+        *   `[S]top / Start Service`
+        *   `[R]estart Service`
+        *   `[U]pdate to vX.X.X` (This option only appears if an update is available)
+        *   `[L]ogs` (Tails the application log file)
+        *   `[E]xit`
+
+*   **[ ] 4. Implement Update Workflow (for option [U]):**
+    *   **[ ] Stop Service:** `sc.exe stop AtmosService`.
+    *   **[ ] Download & Extract:** Download the new release `.zip` asset from GitHub. Unzip its `app/` contents, overwriting the existing files in `C:\Atmos\app`.
+    *   **[ ] Run Migrations:** Execute the migration tool again (it's safe and idempotent).
+    *   **[ ] Update State File:** Update the `InstalledVersion` in `launcher.json` to the new version.
+    *   **[ ] Start Service:** `sc.exe start AtmosService`.
+    *   **[ ] Report Success.**
+
+---
+
+#### **Phase 3: Packaging for Release**
+
+This defines the final structure of the asset you will upload to GitHub Releases.
+
+*   **[ ] 1. Define Release ZIP Structure:**
+    *   The final `atmos-vX.X.X.zip` should contain:
+        ```
+        /atmos-launcher.exe         <-- Your compiled, self-contained launcher
+        /docker-compose.yml         <-- The docker-compose file for Postgres
+        /app/                       <-- A folder containing the main application
+            /Atmos.Service.exe
+            /Atmos.Migration.exe
+            /wwwroot/
+            /... (all other required DLLs and files)
+        ```
+*   **[ ] 2. Create Build Script:**
+    *   Automate the process of publishing the Launcher, publishing the Service, gathering the files, and creating the final ZIP archive with the correct structure. The core command for your launcher will be `dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true`.
 
 ### Phase 4: Stretch Goals 
 
-1. **Timing and Performance:**
+1. ~~**Timing and Performance:**~~
    * Handle computer sleep/wake events gracefully.
-   * Implement a more robust retry mechanism for sensor reads.
-   * Implement a start delay 'cushion.' Currently, if the orchestrator starts to close to: 00.00, then the reading may occur at :59.99.
-   * Fix download query for performance. Consider server-side streaming or pagination for large datasets.
+   ~~* Implement a more robust retry mechanism for sensor reads.~~
+   ~~* Implement a start delay 'cushion.' Currently, if the orchestrator starts to close to: 00.00, then the reading may occur at :59.99.~~
+   ~~* Fix download query for performance. Consider server-side streaming or pagination for large datasets.~~
 2. **Maintenance and Monitoring:**
    * Monthly dependabot updates to check for outdated dependencies.
