@@ -3,33 +3,24 @@ import { readingKeys } from "@/api/readings/reading-keys";
 import { useConnectionStore } from "@/stores/connection-store";
 import { useDashboardStore } from "@/stores/dashboard-store";
 
-import type { FileType } from "@/types";
+import type { FileType, HourReading } from "@/types";
 import { BaseLayout } from "@/ui/layout/blocks";
 import { FlexColumn, FlexRow, FlexSpacer } from "@/ui/layout/flexbox";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
-  Card,
   Fab,
   Grid,
   IconButton,
   LinearProgress,
   Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Tabs,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useDialogs } from "@toolpad/core/useDialogs";
 import { useMemo, useState } from "react";
 import { CurrentWeatherContent } from "./components/current-weather/current-weather-content";
-import { MinMaxBarGraph } from "./components/current-weather/min-max-bar-graph";
 import { MinMaxCard } from "./components/current-weather/min-max-card";
 import { ExportDialog } from "./components/history/export-dialog";
 import { HistoryTable } from "./components/history/history-table";
@@ -38,6 +29,7 @@ import { FiveMinuteAverageTable } from "./components/live-readings/five-minute-a
 import { OneMinuteAverageTable } from "./components/live-readings/one-minute-average-table";
 import { TenSecondReadingTable } from "./components/live-readings/ten-second-reading-table";
 import { DashboardHeader } from "./dashboard-header";
+import { TwelveHourTable } from "./components/current-weather/twelve-hour-table";
 
 export const Dashboard = () => {
   const CURRENT_READINGS_INDEX = 0;
@@ -95,18 +87,16 @@ export const Dashboard = () => {
     setExporting(false);
   };
 
-  const orderTwelveHourUpdates = useMemo(() => {
-    // Get current hour (0-23)
+  const orderTwelveHourUpdates: (HourReading | null)[] = useMemo(() => {
     const currentHour = new Date().getHours();
-    // Build an array of the last 12 hours, starting from currentHour
     const last12Hours = Array.from(
       { length: 12 },
       (_, i) => (currentHour - i + 24) % 24
     );
-    // Reorder twelveHourUpdates to match last12Hours
-    return last12Hours.map((hour) =>
-      dashboardStore.hourUpdates.find((r) => r?.hour === hour)
-    );
+    return last12Hours.map((hour) => {
+      const found = dashboardStore.hourUpdates.find((r) => r?.hour === hour);
+      return found ?? null;
+    });
   }, [dashboardStore.hourUpdates]);
 
   return (
@@ -124,7 +114,7 @@ export const Dashboard = () => {
         {selectedIndex === CURRENT_READINGS_INDEX && (
           <>
             <Grid
-              size={{ sm: 12, md: 3 }}
+              size={{ sm: 12, md: 6 }}
               padding={2}
               sx={{ width: "100%", height: "100%" }}
               visibility={
@@ -143,62 +133,9 @@ export const Dashboard = () => {
                 }
               />
             </Grid>
-            <Grid
-              size={{ sm: 12, md: 5.5 }}
-              padding={2}
-              sx={{ overflowY: "auto" }}
-            >
-              <TableContainer
-                component={Card}
-                sx={{ height: "50vh", overflowY: "auto" }}
-              >
-                <Typography
-                  variant="h6"
-                  component="h2"
-                  sx={{ textAlign: "start" }}
-                >
-                  Last 12 Hour Updates
-                </Typography>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Time</TableCell>
-                      <TableCell align="right">Temperature (°F)</TableCell>
-                      <TableCell align="right">Humidity (%)</TableCell>
-                      <TableCell align="right">Dew Point (°F)</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody sx={{ overflowY: "auto" }}>
-                    {orderTwelveHourUpdates.map(
-                      (reading) =>
-                        reading && (
-                          <TableRow key={reading.hour}>
-                            <TableCell>
-                              {new Date(
-                                new Date().setHours(reading.hour, 0, 0, 0)
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </TableCell>
-                            <TableCell align="right">
-                              {reading.temperature.toFixed(1)}
-                            </TableCell>
-                            <TableCell align="right">
-                              {reading.humidity.toFixed(1)}
-                            </TableCell>
-                            <TableCell align="right">
-                              {reading.dewPoint.toFixed(1)}
-                            </TableCell>
-                          </TableRow>
-                        )
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-            <Grid size={{ sm: 12, md: 3.5 }} padding={2}>
-              <FlexColumn gap={2}>
+
+            <Grid size={{ sm: 12, md: 6 }} padding={2}>
+              <FlexColumn gap={1}>
                 <MinMaxCard
                   loading={!dashboardStore.latestUpdate}
                   label="Temperature"
@@ -260,13 +197,13 @@ export const Dashboard = () => {
                 />
               </FlexColumn>
             </Grid>
-            <Grid size={{ sm: 12, md: 8 }}>
-              <MinMaxBarGraph
-                latestReading={dashboardStore.latestUpdate || null}
+            <Grid size={{ sm: 12 }} padding={2} sx={{ overflowY: "auto" }}>
+              <TwelveHourTable
+                loading={
+                  !dashboardStore.latestUpdate || !dashboardStore.hourUpdates
+                }
+                readings={orderTwelveHourUpdates}
               />
-            </Grid>
-            <Grid size={{ sm: 12, md: 4 }}>
-              {/* Sensor connection status */}
             </Grid>
           </>
         )}
