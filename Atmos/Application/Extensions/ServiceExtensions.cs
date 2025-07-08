@@ -16,6 +16,7 @@ public static class ServiceExtensions
 
         services.AddSingleton<IMetricUpdateRuleFactory, MetricUpdateRuleFactory>();
         services.AddSingleton<IAggregator, AggregatorService>();
+        services.AddSingleton<IHourlyReadingService, HourlyReadingService>();
 
         return services;
     }

@@ -29,14 +29,14 @@ public class MinRuleTests : BaseTest<MinRule>
         var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
-        
+
         // Act
         var result = Subject.Apply(aggregate, newMetric);
-        
+
         // Assert
         await Assert.That(result.MinValue.Value).IsEqualTo(newMetric.Value);
     }
-    
+
     [Test]
     public async Task MinRule_UpdatesMin_WhenNewMetricIsLower()
     {
@@ -52,10 +52,10 @@ public class MinRuleTests : BaseTest<MinRule>
         var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
-        
+
         // Act
         var result = Subject.Apply(aggregate, newMetric);
-        
+
         // Assert
         await Assert.That(result.MinValue.Value).IsEqualTo(newMetric.Value);
     }
@@ -75,14 +75,14 @@ public class MinRuleTests : BaseTest<MinRule>
         var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
-        
+
         // Act
         var result = Subject.Apply(aggregate, newMetric);
-        
+
         // Assert
         await Assert.That(result.MinValue.Value).IsEqualTo(oldMetric.Value);
     }
-    
+
     [Test]
     public async Task MinRule_KeepsMin_WhenValuesAreEqualWithinEpsilon()
     {
@@ -98,10 +98,10 @@ public class MinRuleTests : BaseTest<MinRule>
         var aggregate = Fixture.Build<SingleReadingAggregateDto>()
             .With(a => a.MinValue, oldMetric)
             .Create();
-        
+
         // Act
         var result = Subject.Apply(aggregate, newMetric);
-        
+
         // Assert
         await Assert.That(result.MinValue.Value).IsEqualTo(oldMetric.Value);
     }

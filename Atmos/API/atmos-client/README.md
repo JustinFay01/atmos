@@ -1,6 +1,10 @@
 # Palette
 ![Palette](./doc_assets/Palette.png)
 
+# Goal
+
+![alt text](./doc_assets/dashboard_example.png)
+
 
 # Generated
 

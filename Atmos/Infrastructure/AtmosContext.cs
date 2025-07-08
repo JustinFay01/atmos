@@ -10,7 +10,7 @@ namespace Infrastructure;
 public class AtmosContext : DbContext
 {
     public DbSet<ReadingAggregate> ReadingAggregates { get; set; }
-    
+
     public AtmosContext(DbContextOptions<AtmosContext> options) : base(options)
     {
     }

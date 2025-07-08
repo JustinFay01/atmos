@@ -28,7 +28,6 @@ export const Main = ({ children, sx }: WithChildrenAndSx) => (
     component="main"
     flex="1 1 auto"
     sx={{
-      backgroundColor: "#E2E2E2",
       ...sx,
     }}
   >

@@ -60,15 +60,23 @@
     *   Add configuration to switch between `MockSensorClient` and `Rs485SensorClient` ~~easily (e.g., via environment variable in `docker-compose.yml`).~~
 ~~3.  **Database Migrations in Docker:**~~
     ~~*   Research and implement a strategy for applying EF Core migrations automatically when the backend container starts (e.g., in `Program.cs` or an entrypoint script). Test this thoroughly.~~
-3. **SQLite Database**
-    *   Implement routine backups of the SQLite database.
-    *   Define strategy for handling database migrations in SQLite.
+3. **Postgres Database**
+    *   Implement routine backups of the Postgres database.
+    *   Define strategy for handling database migrations in Postgres.
+    *   Stop reading sensor if database isn't saving readings.
 5. **React Frontend POC:**
     *   Create a basic React application (e.g., using `create-react-app`).
     *   Install SignalR client library (`@microsoft/signalr`).
     *   Implement basic connection to the backend's `AtmosHub`.
     *   Display the raw `UpdateDto` data received via SignalR (no styling needed, just verify data flow).
     *  Set up C# Static Files to host the React app in `Atmos.Presentation`.
+    * Basic frontend displays:
+      * Three dials for current temperature, humidity, and dew point.
+      * Today's min/max readings.
+      * A realtime clock showing current time in the configured timezone.
+      * A simple line chart showing the last hour of temperature readings (updated in real-time).
+        * For now the this will reset on refresh, later we will implement a cache of these readings in the backend.
+      * A raw readings table showing the last 10 readings received.
     ~~*   If running React dev server and backend in Docker, configure CORS on the backend.~~
 5.  **REST Endpoint: Initial Dashboard State:**
     *   Fetch historical data for a given date and time range. 
@@ -76,6 +84,7 @@
       * Must store these in the database for historical queries.
     * Select file format implementation (e.g., CSV, TXT)
     *   Convert the UTC time to the local timezone of the user (if specified in the request).
+    * Have the option to unique 5 minute averages
 6.  **Sentry Integration:**
     *   Integrate Sentry SDK into `Atmos.Presentation` for backend error logging.
     *   Integrate Sentry SDK into the React POC for frontend error logging.

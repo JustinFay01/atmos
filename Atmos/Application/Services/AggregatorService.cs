@@ -30,7 +30,7 @@ public class AggregatorService(
     public async Task<ReadingAggregateDto> AggregateRawReading(RawSensorReading reading, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Processing reading: {reading}", reading);
-        
+
         var newTemp = new MetricDto
         {
             Timestamp = reading.Timestamp,

@@ -10,6 +10,7 @@ import {
   stopDashboardConnection,
 } from "@/api/real-time/dashboard-connection";
 import useDynamicIcon from "@/hooks/use-dynamic-icon";
+import { DialogsProvider } from "@toolpad/core/useDialogs";
 
 const appQueryClient = new QueryClient({
   defaultOptions: queryConfig,
@@ -18,19 +19,19 @@ const appQueryClient = new QueryClient({
 export const AtmosProvider = ({ children }: React.PropsWithChildren) => {
   useDynamicIcon();
   useEffect(() => {
-    console.log("Starting dashboard connection...");
     startDashboardConnection();
     return () => {
-      console.log("Stopping dashboard connection...");
       stopDashboardConnection();
     };
   }, []);
 
   return (
     <QueryClientProvider client={appQueryClient}>
-      <CssBaseline />
       <ReactQueryDevtools initialIsOpen={false} />
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <DialogsProvider>{children}</DialogsProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

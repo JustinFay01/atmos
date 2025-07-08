@@ -1,6 +1,7 @@
-using Application.Extensions;
 using Application.Helper;
 using Application.Interfaces;
+using Application.Models;
+using Application.Services;
 
 using AutoMapper;
 
@@ -13,83 +14,88 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Workers;
 
-public class SensorPollingWorker : BackgroundService
+public class SensorPollingWorker(
+    ILogger<SensorPollingWorker> logger,
+    SensorSettings sensorSettings,
+    IAggregator aggregator,
+    ISensorClient sensorClient,
+    IMapper mapper,
+    IServiceScopeFactory scopeFactory,
+    IHourlyReadingService hourlyReadingService,
+    IRealtimeUpdateNotifier notifier)
+    : BackgroundService
 {
-    private readonly ILogger<SensorPollingWorker> _logger;
-    private readonly ISensorClient _sensorClient;
-    private readonly IAggregator _aggregator;
-    private readonly IMapper _mapper;
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IRealtimeUpdateNotifier _notifier;
-
     private Task? _orchestrationTask;
-    private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(10);
     private readonly TimeSpan _processingTimeout = TimeSpan.FromSeconds(9);
-
-    public SensorPollingWorker(ILogger<SensorPollingWorker> logger, IAggregator aggregator, ISensorClient sensorClient, IMapper mapper, IServiceScopeFactory scopeFactory, IRealtimeUpdateNotifier notifier)
-    {
-        _logger = logger;
-        _aggregator = aggregator;
-        _sensorClient = sensorClient;
-        _mapper = mapper;
-        _scopeFactory = scopeFactory;
-        _notifier = notifier;
-    }
+    private const int MaxRetryDelayMs = 2000; // Maximum delay between retries in milliseconds
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogDebug("SensorPollingWorker has been requested to start. Waiting until the nearest 10 second mark.");
+        logger.LogDebug("SensorPollingWorker is starting.");
+        await AttemptToConnectSensorClientAsync(cancellationToken);
 
-        var delay = DateTimeProvider.Instance.MillisecondsTillTenSeconds();
-        if (delay == 0)
+        if (!sensorClient.IsConnected)
         {
-            _logger.LogDebug("No delay needed, starting immediately.");
+            await StopAsync(cancellationToken);
+            return;
         }
-        else
+
+        if (sensorSettings.WaitTillNearestTenSeconds)
         {
-            _logger.LogDebug("Delaying start by {Delay} milliseconds.", delay);
-            await Task.Delay((int)delay, cancellationToken);
+            await DelayUntilNextTickAsync(cancellationToken);
         }
+
         await base.StartAsync(cancellationToken);
+    }
+
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await base.StopAsync(cancellationToken);
+        logger.LogDebug("SensorPollingWorker has stopped and will not process any more sensor data.");
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogDebug("SensorPollingWorker is starting.");
-
-        using var timer = new PeriodicTimer(_pollingInterval);
-
+        logger.LogDebug("SensorPollingWorker is starting.");
+        
         try
         {
-            while (await timer.WaitForNextTickAsync(stoppingToken))
+            while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker tick at: {Time}", DateTimeProvider.Instance.Now);
+                logger.LogInformation("Worker tick at: {Time}", DateTimeProvider.Instance.Now);
 
-                if (_orchestrationTask is { IsCompleted: false })
+                switch (_orchestrationTask)
                 {
-                    _logger.LogWarning("Previous sensor data processing is still in progress. Skipping this tick.");
-                    continue;
+                    case { IsCompleted: false }:
+                        logger.LogWarning("Previous sensor data processing is still in progress. Skipping this tick.");
+                        continue;
+                    case { IsFaulted: true }:
+                        throw _orchestrationTask.Exception;
+                    default:
+                        _orchestrationTask = OrchestrateSensorDataAsync(stoppingToken);
+                        break;
                 }
 
-                _orchestrationTask = OrchestrateSensorDataAsync(stoppingToken);
+                await DelayUntilNextTickAsync(stoppingToken);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("SensorPollingWorker has been cancelled.");
+            logger.LogInformation("SensorPollingWorker has been cancelled.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred in SensorPollingWorker.");
+            logger.LogCritical(ex, "An error occurred in SensorPollingWorker. The application is shutting down.");
+            await StopAsync(stoppingToken);
         }
         finally
         {
-            _logger.LogDebug("SensorPollingWorker is stopping.");
+            logger.LogDebug("SensorPollingWorker is stopping.");
         }
     }
 
     private async Task OrchestrateSensorDataAsync(CancellationToken stoppingToken)
     {
-        _logger.LogDebug("Orchestrating sensor data processing.");
+        logger.LogDebug("Orchestrating sensor data processing.");
 
         using var workCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 
@@ -99,48 +105,99 @@ public class SensorPollingWorker : BackgroundService
         {
             workCts.Token.ThrowIfCancellationRequested();
 
-            using var scope = _scopeFactory.CreateScope();
+            using var scope = scopeFactory.CreateScope();
             var readingRepository = scope.ServiceProvider.GetRequiredService<IReadingAggregateRepository>();
 
             // Get Raw Sensor Data
-            _logger.LogDebug("Fetching latest sensor reading.");
-            var sensorData = await _sensorClient.GetReadingAsync(workCts.Token);
-            _logger.LogDebug("Latest reading received: {reading}", sensorData);
+            logger.LogDebug("Fetching latest sensor reading.");
+            var sensorData = await sensorClient.GetReadingAsync(workCts.Token);
+            logger.LogDebug("Latest reading received: {reading}", sensorData);
 
             // Process and Aggregate Data
-            var aggregatedReadingDto = await _aggregator.AggregateRawReading(sensorData, workCts.Token);
-            var aggregate = _mapper.Map<ReadingAggregate>(aggregatedReadingDto);
-            
+            var aggregatedReadingDto = await aggregator.AggregateRawReading(sensorData, workCts.Token);
+            var aggregate = mapper.Map<ReadingAggregate>(aggregatedReadingDto);
+
             // Store Aggregated Data
-            await readingRepository.CreateAsync(aggregate, workCts.Token);
+
+            await Task.WhenAll([
+                readingRepository.CreateAsync(aggregate, workCts.Token),
+                hourlyReadingService.ProcessReadingAsync(sensorData, workCts.Token),
+            ]);
             
             // Notify Clients of Update
-            await _notifier.SendDashboardUpdateAsync(aggregatedReadingDto, workCts.Token);
+            await notifier.SendDashboardUpdateAsync(aggregatedReadingDto, workCts.Token);
 
-            _logger.LogInformation("Sensor data processed successfully.");
+            logger.LogInformation("Sensor data processed successfully.");
         }
         catch (OperationCanceledException operationCanceledException)
         {
             if (stoppingToken.IsCancellationRequested && operationCanceledException.CancellationToken == workCts.Token)
             {
-                _logger.LogInformation("Sensor data processing was cancelled by the stopping token.");
+                logger.LogInformation("Sensor data processing was cancelled by the stopping token.");
             }
             else if (operationCanceledException.CancellationToken == workCts.Token)
             {
-                _logger.LogWarning("Sensor data processing timed out after {Timeout} and was cancelled. Attempting to cancel and skip this iteration.", _processingTimeout);
+                logger.LogWarning("Sensor data processing timed out after {Timeout} and was cancelled. Attempting to cancel and skip this iteration.", _processingTimeout);
             }
             else
             {
-                _logger.LogWarning(operationCanceledException, "Sensor data processing was cancelled due to an unexpected cancellation request.");
+                logger.LogWarning(operationCanceledException, "Sensor data processing was cancelled due to an unexpected cancellation request.");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while processing the sensor reading.");
+            logger.LogError(ex, "An error occurred while processing the sensor reading.");
+            throw;
         }
         finally
         {
-            _logger.LogDebug("Finished attempt to process sensor data.");
+            logger.LogDebug("Finished attempt to process sensor data.");
         }
     }
+    private async Task AttemptToConnectSensorClientAsync(CancellationToken cancellationToken)
+    {
+        var attemptNumber = 1;
+        while (attemptNumber <= sensorSettings.MaxRetryCount && !cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                logger.LogInformation("Attempting to connect to sensor client. Attempt: {Attempts}", attemptNumber);
+                var status = await sensorClient.ConnectAsync(cancellationToken);
+                if (!status)
+                {
+                    attemptNumber++;
+                    logger.LogWarning("Sensor client connection failed. Retrying... Attempt: {Attempts}", attemptNumber);
+                    await Task.Delay(MaxRetryDelayMs, cancellationToken); // Wait before retrying
+                    continue;
+                }
+
+                logger.LogInformation("Sensor client connected successfully.");
+                break;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogInformation("SensorPollingWorker start operation was cancelled and has shutdown.");
+                return; // Exit if the operation was canceled
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while trying to connect to the sensor client. Attempt {AttemptNumber} of {MaxAttempts}.", attemptNumber, sensorSettings.MaxRetryCount);
+                return;
+            }
+        }
+    }
+    private async Task DelayUntilNextTickAsync(CancellationToken cancellationToken)
+    {
+        var delay = DateTimeProvider.Instance.MillisecondsTillTenSeconds();
+        if (delay > 0)
+        {
+            logger.LogDebug("Delaying until next tick by {Delay} milliseconds.", delay);
+            await Task.Delay((int)delay + sensorSettings.DelayCushion, cancellationToken);
+        }
+        else
+        {
+            logger.LogDebug("No delay needed, proceeding to next tick.");
+        }
+    }
+
 }

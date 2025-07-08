@@ -18,7 +18,7 @@ public class AggregatorTests : BaseTest<AggregatorService>
     public AggregatorTests()
     {
         var oneMinuteRuleAverageLogger = new Mock<ILogger<OneMinuteAverageRule>>();
-        var ruleFactory = new MetricUpdateRuleFactory(oneMinuteRuleAverageLogger.Object);
+        var ruleFactory = new MetricUpdateRuleFactory(oneMinuteRuleAverageLogger.Object, new SensorSettings());
 
         _aggregatorService = new AggregatorService(
             LoggerMock.Object,
