@@ -8,7 +8,8 @@ public class ChainBuilder
     {
         var pathPrompt = new PathPromptHandler();
 
-        //dockerCheck.SetNext();
+        pathPrompt
+            .SetNext(new FetchReleaseInfoHandler());
 
         return pathPrompt;
     }
