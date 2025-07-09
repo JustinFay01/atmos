@@ -6,7 +6,7 @@ namespace Launcher.Handlers;
 
 public class PathPromptHandler : IInstallationHandler
 {
-    public string StepName => "PChoose Installation Path";
+    public string StepName => "Choose Installation Path";
     private IInstallationHandler? _nextHandler;
     
     public IInstallationHandler SetNext(IInstallationHandler handler)
