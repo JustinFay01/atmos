@@ -1,6 +1,7 @@
 using Octokit;
 
 using Spectre.Console;
+using Spectre.Console.Extensions;
 
 namespace Launcher.Handlers;
 
@@ -22,9 +23,19 @@ public class FetchReleaseInfoHandler : IInstallationHandler
     {
         try
         {
+            AnsiConsole.MarkupLine($"[bold]Step: {StepName}[/]");
+            
             // Octokit requires a product name for the user-agent header.
             var client = new GitHubClient(new ProductHeaderValue("JustinFay01"));
-            var releases = await client.Repository.Release.GetAll(GitHubOwner, GitHubRepo);
+
+            var releases = await client.Repository.Release.GetAll(GitHubOwner, GitHubRepo)
+                .Spinner();
+            
+            if (releases == null || !releases.Any())
+            {
+                return new HandlerResult(false, "No releases found in the specified repository.");
+            }
+            
             var latestRelease = releases
                 //.Where(r => !r.Prerelease) // Exclude pre-releases
                 .OrderByDescending(r => r.CreatedAt)
