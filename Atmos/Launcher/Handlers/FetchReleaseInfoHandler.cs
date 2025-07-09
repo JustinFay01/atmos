@@ -70,6 +70,7 @@ public class FetchReleaseInfoHandler : IInstallationHandler
         }
         catch (Exception ex)
         {
+            AnsiConsole.WriteException(ex);
             return new HandlerResult(false, $"An unexpected error occurred while fetching from GitHub: {ex.Message}");
         }
         
