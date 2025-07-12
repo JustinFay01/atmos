@@ -2,12 +2,12 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <AssemblyName>atmos</AssemblyName>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
-<!--        <PublishAot>true</PublishAot>-->
         <RuntimeIdentifier>osx-x64</RuntimeIdentifier> <!-- win-x64, linux-x64, osx-x64, etc -->
     </PropertyGroup>
 
