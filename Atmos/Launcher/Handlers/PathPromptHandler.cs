@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 
+using Launcher.Handlers.Abstract;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -7,18 +8,10 @@ using Spectre.Console;
 
 namespace Launcher.Handlers;
 
-public class PathPromptHandler : IInstallationHandler, IInteractiveInstallationHandler
+public class PathPromptHandler : DefaultSetNextHandler, IInteractiveInstallationHandler
 {
-    public string StepName => "Choose Installation Path";
-    public IInstallationHandler? Next { get; private set; }
-
-    public IInstallationHandler SetNext(IInstallationHandler handler)
-    {
-        Next = handler;
-        return handler;
-    }
-
-    public async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override string StepName => "Choose Installation Path";
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
     {
         var fallbackPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Atmos")

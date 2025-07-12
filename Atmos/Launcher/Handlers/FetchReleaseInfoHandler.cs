@@ -1,3 +1,5 @@
+using Launcher.Handlers.Abstract;
+
 using Octokit;
 
 using Spectre.Console;
@@ -5,22 +7,14 @@ using Spectre.Console.Extensions;
 
 namespace Launcher.Handlers;
 
-public class FetchReleaseInfoHandler : IInstallationHandler
+public class FetchReleaseInfoHandler : DefaultSetNextHandler, IInstallationHandler
 {
     private const string GitHubOwner = "JustinFay01";
     private const string GitHubRepo = "atmos";
 
-    public string StepName => "Fetching latest release information";
+    public override string StepName => "Fetching latest release information";
 
-    public IInstallationHandler? Next { get; private set; }
-
-    public IInstallationHandler SetNext(IInstallationHandler handler)
-    {
-        Next = handler;
-        return handler;
-    }
-
-    public async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
     {
         AnsiConsole.MarkupLine($"[yellow]{StepName}[/]");
         try

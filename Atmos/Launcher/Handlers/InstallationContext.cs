@@ -21,4 +21,9 @@ public class InstallationContext
     /// Set by FetchReleaseInfoHandler.
     /// </summary>
     public string ReleaseAssetUrl { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Temporary path where the Atmos release zip file will be downloaded.
+    /// </summary>
+    public string TemporaryZipPath { get; set; } = string.Empty;
 }

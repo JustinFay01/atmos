@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 
+using Launcher.Handlers.Abstract;
 using Launcher.Services;
 
 namespace Launcher.Handlers;
@@ -12,18 +13,11 @@ namespace Launcher.Handlers;
 /// If so, it saves the previous user-selected installation path to the context and
 /// sets the PreviouslyInstalled flag to true.
 /// </summary>
-public class CheckForExistingInstallation : IInstallationHandler
+public class CheckForExistingInstallationHandler : DefaultSetNextHandler
 {
-    public string StepName => "Checking for existing installation";
-    public IInstallationHandler? Next { get; private set; }
+    public override string StepName => "Checking for existing installation";
 
-    public IInstallationHandler SetNext(IInstallationHandler handler)
-    {
-        Next = handler;
-        return handler;
-    }
-
-    public async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
     {
         var configService = new AtmosConfigService();
         var existingConfig = await configService.LoadConfigAsync();
