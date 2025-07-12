@@ -13,39 +13,49 @@ public class ChainExecutor
             return HandlerResult.Failure("Installation chain is empty.");
         }
 
-        // A nice, centered title for the process
         AnsiConsole.Write(new Rule("[bold yellow]Atmos Installer[/]").Centered());
-
         var context = new InstallationContext();
         var currentHandler = chain;
         var stepNumber = 1;
 
-        // I've slightly modified your loop to correctly handle the entire chain
         while (currentHandler != null)
         {
-            HandlerResult result = HandlerResult.Failure("Handler did not run.");
+            HandlerResult result;
 
-            // Use Spectre.Console's Status API to show a spinner while the task runs
-            await AnsiConsole.Status()
-                .Spinner(Spinner.Known.Dots)
-                .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
-                {
-                    // Execute the handler's logic. All console output is managed here.
-                    result = await currentHandler.HandleAsync(context);
+            // Check if the handler is interactive
+            if (currentHandler is IInteractiveInstallationHandler)
+            {
+                // --- INTERACTIVE HANDLER LOGIC ---
+                // No spinner! Just print a title and let the handler do its work.
+                AnsiConsole.MarkupLine($"\n[cyan]Step {stepNumber}: {currentHandler.StepName}[/]");
+                AnsiConsole.Write(new Rule().RuleStyle("blue").DoubleBorder());
+                
+                result = await currentHandler.HandleAsync(context);
+                
+                AnsiConsole.Write(new Rule().RuleStyle("blue").DoubleBorder());
+            }
+            else
+            {
+                // --- BACKGROUND HANDLER LOGIC (with spinner) ---
+                result = HandlerResult.Failure("Handler did not run."); // Default result
 
-                    // Optional: You can update the spinner text upon completion
-                    if (!result.IsSuccess)
+                await AnsiConsole.Status()
+                    .Spinner(Spinner.Known.Dots)
+                    .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
                     {
-                        // Visually indicate failure before we break
-                        ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");
-                        ctx.Spinner(Spinner.Known.Arc);
-                    }
-                });
+                        // Quietly execute the handler's logic
+                        result = await currentHandler.HandleAsync(context);
+                        if (!result.IsSuccess)
+                        {
+                            ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");
+                            ctx.Spinner(Spinner.Known.Arc);
+                        }
+                    });
+            }
 
-            // Now, handle the result outside the Status context
+            // --- COMMON RESULT HANDLING ---
             if (result.IsSuccess)
             {
-                // Use Markup for colored text. [green]✓[/] is a green checkmark.
                 AnsiConsole.MarkupLine($"[green]✓[/] [dim]Step {stepNumber}: {currentHandler.StepName} finished.[/]");
                 if (!string.IsNullOrWhiteSpace(result.Message))
                 {
@@ -54,27 +64,18 @@ public class ChainExecutor
             }
             else
             {
-                // Use Markup for the error. [red]✗[/] is a red cross.
                 AnsiConsole.MarkupLine($"[red]✗ Step {stepNumber}: {currentHandler.StepName} failed.[/]");
-
-                // Use a Panel for a visually distinct error message
                 var errorPanel = new Panel($"[white]{result.Message}[/]")
-                    .Header("[bold red]ERROR[/]")
-                    .BorderColor(Color.Red)
-                    .Expand();
+                    .Header("[bold red]ERROR[/]").BorderColor(Color.Red).Expand();
                 AnsiConsole.Write(errorPanel);
-
-                // Stop the entire process on the first failure
-                return result;
+                return result; // Stop on failure
             }
             
-            // Move to the next handler in the chain
             currentHandler = currentHandler.Next;
             stepNumber++;
         }
 
         AnsiConsole.Write(new Rule("[bold green]Installation Complete[/]").Centered());
-        AnsiConsole.MarkupLine("\n[green]Atmos was successfully installed![/]\n");
         return HandlerResult.Success("Installation completed successfully.");
     }
 }

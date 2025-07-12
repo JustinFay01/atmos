@@ -7,7 +7,7 @@ using Spectre.Console;
 
 namespace Launcher.Handlers;
 
-public class PathPromptHandler : IInstallationHandler
+public class PathPromptHandler : IInstallationHandler, IInteractiveInstallationHandler
 {
     public string StepName => "Choose Installation Path";
     public IInstallationHandler? Next { get; private set; }

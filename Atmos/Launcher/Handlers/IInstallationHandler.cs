@@ -32,5 +32,9 @@ public interface IInstallationHandler
     /// Executes the logic for this handler.
     /// </summary>
     Task<HandlerResult> HandleAsync(InstallationContext context);
+}
 
+public interface IInteractiveInstallationHandler
+{
+ 
 }
