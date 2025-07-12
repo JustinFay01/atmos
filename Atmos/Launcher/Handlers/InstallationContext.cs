@@ -1,12 +1,14 @@
+using Launcher.Models;
+
 namespace Launcher.Handlers;
 
 public class InstallationContext
 {
+    
     /// <summary>
-    /// The absolute path where the application will be installed.
-    /// This is set by the PathPromptHandler and used by subsequent handlers.
+    /// If previously installed, this will contain the AtmosConfig.
     /// </summary>
-    public string InstallationPath { get; set; } = string.Empty;
+    public AtmosConfig? Config { get; set; }
     
     /// <summary>
     /// The version tag fetched from the GitHub release (e.g., "v1.0.0").

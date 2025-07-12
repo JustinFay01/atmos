@@ -10,21 +10,21 @@ public class FetchReleaseInfoHandler : IInstallationHandler
     private const string GitHubOwner = "JustinFay01";
     private const string GitHubRepo = "atmos";
 
-    private IInstallationHandler? _nextHandler;
     public string StepName => "Fetching latest release information";
+
+    public IInstallationHandler? Next { get; private set; }
 
     public IInstallationHandler SetNext(IInstallationHandler handler)
     {
-        _nextHandler = handler;
+        Next = handler;
         return handler;
     }
 
     public async Task<HandlerResult> HandleAsync(InstallationContext context)
     {
+        AnsiConsole.MarkupLine($"[yellow]{StepName}[/]");
         try
         {
-            AnsiConsole.MarkupLine($"[bold]Step: {StepName}[/]");
-            
             // Octokit requires a product name for the user-agent header.
             var client = new GitHubClient(new ProductHeaderValue("JustinFay01"));
 
@@ -72,11 +72,6 @@ public class FetchReleaseInfoHandler : IInstallationHandler
         {
             AnsiConsole.WriteException(ex);
             return new HandlerResult(false, $"An unexpected error occurred while fetching from GitHub: {ex.Message}");
-        }
-        
-        if (_nextHandler != null)
-        {
-            return await _nextHandler.HandleAsync(context);
         }
 
         return new HandlerResult(true, "Successfully fetched release information.");

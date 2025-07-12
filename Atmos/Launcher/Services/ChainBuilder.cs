@@ -6,11 +6,12 @@ public class ChainBuilder
 {
     public IInstallationHandler BuildDefaultChain()
     {
-        var pathPrompt = new PathPromptHandler();
+        var rootHandler = new CheckForExistingInstallation();
 
-        pathPrompt
+        rootHandler
+            .SetNext(new PathPromptHandler())
             .SetNext(new FetchReleaseInfoHandler());
 
-        return pathPrompt;
+        return rootHandler;
     }
 }

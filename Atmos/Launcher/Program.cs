@@ -1,30 +1,40 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿
 
-using Launcher.Commands;
+using System.CommandLine;
 
-using Spectre.Console.Cli;
+using Launcher.Services;
 
 namespace Launcher;
 
 internal abstract class Program
 {
-    [RequiresDynamicCode("Calls Spectre.Console.Cli.CommandApp.CommandApp(ITypeRegistrar)")]
     public static async Task<int> Main(string[] args)
     {
-        var app = new CommandApp();
-        app.Configure(config =>
+        var builder = new ChainBuilder();
+        var executor = new ChainExecutor();
+
+        var installOption = new Option<bool>("--install")
         {
-            config.AddCommand<InstallCommand>("install")
-                .WithDescription("Installs the Atmos CLI and its dependencies.")
-                .WithExample("install");
-            
-#if DEBUG
-    config.PropagateExceptions();
-    config.ValidateExamples();
-#endif
+            Description = "Install the Atmos Client. If not specified, the tool will not be installed.",
+        };
+        
+        var rootCommand = new RootCommand("Atmos CLI Launcher")
+        {
+            Description = "A launcher for the Atmos CLI tool, handling installation, updates, and setup."
+        };
+        rootCommand.Options.Add(installOption);
+        rootCommand.SetAction(async result =>
+        {
+            var install = result.GetValue(installOption);
+            if (install)
+            {
+                var handlerResult = await executor.Execute(builder.BuildDefaultChain());
+                Environment.Exit(handlerResult.ExitCode);   
+            }
         });
         
-        return await app.RunAsync(args);
+        var parseResult = rootCommand.Parse(args);
+        return await parseResult.InvokeAsync();
     }
 }
 
