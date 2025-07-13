@@ -1,34 +1,40 @@
 using Launcher.Handlers;
+using Launcher.Models;
 
 namespace Launcher.Services;
 
 public class ChainBuilder
 {
-    public IInstallationHandler BuildInstallChain()
+    private readonly LauncherContext _context;
+    public ChainBuilder(LauncherContext context)
     {
-        var rootHandler = new CheckForExistingInstallationHandler();
+        _context = context;
+    }
+    public IHandler BuildInstallChain()
+    {
+        var rootHandler = new CheckForExistingInstallationHandler(_context);
 
         rootHandler
-            .SetNext(new PathPromptHandler())
-            .SetNext(new FetchReleaseInfoHandler())
-            .SetNext(new DownloadReleaseHandler())
-            .SetNext(new UnzipHandler())
-            .SetNext(new DockerComposeHandler())
-            .SetNext(new RunMigrationsHandler());
+            .SetNext(new PathPromptHandler(_context));
+            // .SetNext(new FetchReleaseInfoHandler())
+            // .SetNext(new DownloadReleaseHandler())
+            // .SetNext(new UnzipHandler())
+            // .SetNext(new DockerComposeHandler())
+            // .SetNext(new RunMigrationsHandler());
 
         return rootHandler;
     }
     
-    public IInstallationHandler BuildUpdateChain()
+    public IHandler BuildUpdateChain()
     {
-        var rootHandler = new CheckForExistingInstallationHandler();
+        var rootHandler = new CheckForExistingInstallationHandler(_context);
 
-        rootHandler
-            .SetNext(new FetchReleaseInfoHandler())
-            .SetNext(new DownloadReleaseHandler())
-            .SetNext(new UnzipHandler())
-            .SetNext(new DockerComposeHandler())
-            .SetNext(new RunMigrationsHandler());
+        // rootHandler
+        //     .SetNext(new FetchReleaseInfoHandler())
+        //     .SetNext(new DownloadReleaseHandler())
+        //     .SetNext(new UnzipHandler())
+        //     .SetNext(new DockerComposeHandler())
+        //     .SetNext(new RunMigrationsHandler());
 
         return rootHandler;
     }

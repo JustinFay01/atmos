@@ -1,5 +1,11 @@
 ﻿using System.CommandLine;
-using Launcher.Services;
+
+using Launcher.Menu;
+using Launcher.Models;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Launcher;
 
@@ -7,39 +13,23 @@ internal abstract class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        var builder = new ChainBuilder();
-        var executor = new ChainExecutor();
-
+        var rootCommand = new RootCommand("Atmos CLI Launcher");
         var debugOption = new Option<bool>("--debug");
-        var installCommand = new Command("install", "Install or update the Atmos Client.");
-        var updateCommand = new Command("update", "Update the Atmos Client to the latest version.")
+        rootCommand.Options.Add(debugOption);
+        rootCommand.SetAction(async result =>
         {
-            debugOption
-        };
-
-        var rootCommand = new RootCommand("Atmos CLI Launcher")
-        {
-            installCommand,
-            updateCommand,
-        };
-        
-        installCommand.Options.Add(debugOption);
-        installCommand.SetAction(async result =>
-        {
-            var handler = builder.BuildInstallChain();
-            var debugMode = result.GetValue(debugOption);
-            var executorOptions = new ExecutorOptions { DebugMode = debugMode };
-            var handlerResult = await executor.Execute(handler, executorOptions);
-            Environment.Exit(handlerResult.ExitCode);
-        });
-        
-        updateCommand.SetAction(async result =>
-        {
-            var handler = builder.BuildUpdateChain();
-            var debugMode = result.GetValue(debugOption);
-            var executorOptions = new ExecutorOptions { DebugMode = debugMode };
-            var handlerResult = await executor.Execute(handler, executorOptions);
-            Environment.Exit(handlerResult.ExitCode);
+            var builder = Host.CreateApplicationBuilder(args);
+            builder.Logging.ClearProviders();
+            var debug = result.GetValue(debugOption);
+            builder.Services.AddSingleton<LauncherContext>(
+                new LauncherContext
+                {
+                    DebugMode = debug
+                });
+            
+            builder.Services.AddHostedService<MenuManager>(); 
+            using var host = builder.Build();
+            await host.RunAsync();
         });
 
         return await rootCommand.Parse(args).InvokeAsync();

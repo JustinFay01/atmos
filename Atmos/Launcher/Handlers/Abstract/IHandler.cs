@@ -1,6 +1,6 @@
+using Launcher.Models;
 using Launcher.Services;
 
-namespace Launcher.Handlers;
 
 public record HandlerResult(bool IsSuccess, string Message, int ExitCode = 0)
 {
@@ -16,7 +16,7 @@ public record HandlerResult(bool IsSuccess, string Message, int ExitCode = 0)
     }
 }
 
-public interface IInstallationHandler
+public interface IHandler
 {
     /// <summary>
     /// A descriptive name for the step, used for UI feedback.
@@ -26,17 +26,17 @@ public interface IInstallationHandler
     /// <summary>
     /// Sets the next handler in the chain.
     /// </summary>
-    IInstallationHandler SetNext(IInstallationHandler handler);
+    IHandler SetNext(IHandler handler);
     
-    IInstallationHandler? Next { get; }
+    IHandler? Next { get; }
 
     /// <summary>
     /// Executes the logic for this handler.
     /// </summary>
-    Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null);
+    Task<HandlerResult> HandleAsync();
 }
 
-public interface IInteractiveInstallationHandler
+public interface IInteractiveHandler
 {
  
 }

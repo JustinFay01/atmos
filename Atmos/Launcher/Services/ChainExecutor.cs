@@ -1,17 +1,14 @@
 using Launcher.Handlers;
+using Launcher.Models;
 
 using Spectre.Console;
 
 namespace Launcher.Services;
 
-public class ExecutorOptions
-{
-    public bool DebugMode { get; set; } = false;
-}
 
 public class ChainExecutor
 {
-     public async Task<HandlerResult> Execute(IInstallationHandler? chain, ExecutorOptions? options = null)
+     public async Task<HandlerResult> Execute(IHandler? chain)
     {
         if (chain == null)
         {
@@ -19,7 +16,7 @@ public class ChainExecutor
         }
 
         AnsiConsole.Write(new Rule("[bold yellow]Atmos Installer[/]").Centered());
-        var context = new InstallationContext();
+        var context = new LauncherContext();
         var currentHandler = chain;
         var stepNumber = 1;
 
@@ -28,9 +25,9 @@ public class ChainExecutor
             HandlerResult result;
 
             // Check if the handler is interactive
-            if (currentHandler is IInteractiveInstallationHandler)
+            if (currentHandler is IInteractiveHandler)
             {
-                result = await currentHandler.HandleAsync(context, options);
+                result = await currentHandler.HandleAsync();
             }
             else
             {
@@ -42,7 +39,7 @@ public class ChainExecutor
                     .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
                     {
                         // Quietly execute the handler's logic
-                        result = await currentHandler.HandleAsync(context, options);
+                        result = await currentHandler.HandleAsync();
                         if (!result.IsSuccess)
                         {
                             ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");

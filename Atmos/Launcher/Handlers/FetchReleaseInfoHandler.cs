@@ -1,4 +1,5 @@
 using Launcher.Handlers.Abstract;
+using Launcher.Models;
 using Launcher.Services;
 
 using Octokit;
@@ -8,14 +9,18 @@ using Spectre.Console.Extensions;
 
 namespace Launcher.Handlers;
 
-public class FetchReleaseInfoHandler : DefaultSetNextHandler, IInstallationHandler
+public class FetchReleaseInfoHandler : DefaultSetNextHandler, IHandler
 {
     private const string GitHubOwner = "JustinFay01";
     private const string GitHubRepo = "atmos";
 
+    public FetchReleaseInfoHandler(LauncherContext context) : base(context)
+    {
+    }
+
     public override string StepName => "Fetching latest release information";
 
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
+    public override async Task<HandlerResult> HandleAsync()
     {
         try
         {
@@ -49,14 +54,14 @@ public class FetchReleaseInfoHandler : DefaultSetNextHandler, IInstallationHandl
                 return new HandlerResult(false, $"Release '{latestRelease.TagName}' found, but it contains no .zip asset.");
             }
 
-            context.FetchedVersionTag = latestRelease.TagName;
-            context.ReleaseAssetUrl = releaseAsset.BrowserDownloadUrl;
+            Context.FetchedVersionTag = latestRelease.TagName;
+            Context.ReleaseAssetUrl = releaseAsset.BrowserDownloadUrl;
 
 
-            if (options?.DebugMode == true)
+            if (Context.DebugMode)
             {
-                var panelMessage = new Markup($"[yellow]Version:[/] {context.FetchedVersionTag}\n" +
-                    $"[yellow]Download URL:[/] {context.ReleaseAssetUrl}");
+                var panelMessage = new Markup($"[yellow]Version:[/] {Context.FetchedVersionTag}\n" +
+                    $"[yellow]Download URL:[/] {Context.ReleaseAssetUrl}");
                 var panel = new Panel(panelMessage)
                 {
                     Border = BoxBorder.Rounded,
@@ -69,7 +74,7 @@ public class FetchReleaseInfoHandler : DefaultSetNextHandler, IInstallationHandl
         }
         catch (NotFoundException ex)
         {
-            if (options?.DebugMode == true)
+            if (Context.DebugMode)
             {
                 AnsiConsole.WriteException(ex);
             }
@@ -77,7 +82,7 @@ public class FetchReleaseInfoHandler : DefaultSetNextHandler, IInstallationHandl
         }
         catch (Exception ex)
         {
-            if (options?.DebugMode == true)
+            if (Context.DebugMode)
             {
                 AnsiConsole.WriteException(ex);
             }            

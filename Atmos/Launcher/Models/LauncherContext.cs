@@ -1,9 +1,11 @@
-using Launcher.Models;
+namespace Launcher.Models;
 
-namespace Launcher.Handlers;
-
-public class InstallationContext
+public class LauncherContext
 {
+    /// <summary>
+    /// Whether the launcher is running in debug mode.
+    /// </summary>
+    public bool DebugMode { get; set; } = false;
     
     /// <summary>
     /// If previously installed, this will contain the AtmosConfig.

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Models;
 using Launcher.Services;
 
 using Spectre.Console;
@@ -9,10 +10,14 @@ namespace Launcher.Handlers;
 
 public class DockerComposeHandler : DefaultSetNextHandler
 {
-    public override string StepName => "Setting up database with Docker Compose";
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
+    public DockerComposeHandler(LauncherContext context) : base(context)
     {
-        var fullMigrationPath = Path.Combine(context.Config.InstallPath, "docker-compose.yml");
+    }
+
+    public override string StepName => "Setting up database with Docker Compose";
+    public override async Task<HandlerResult> HandleAsync()
+    {
+        var fullMigrationPath = Path.Combine(Context.Config.InstallPath, "docker-compose.yml");
         if (!File.Exists(fullMigrationPath))
         {
             return HandlerResult.Failure("Docker Compose file not found. Please ensure the Atmos installation is complete.");
@@ -24,7 +29,7 @@ public class DockerComposeHandler : DefaultSetNextHandler
             {
                 FileName = "docker",
                 Arguments = "compose up -d",
-                WorkingDirectory = context.Config.InstallPath,
+                WorkingDirectory = Context.Config.InstallPath,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -41,11 +46,11 @@ public class DockerComposeHandler : DefaultSetNextHandler
             var errorOutput = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();
 
-            if ((!string.IsNullOrWhiteSpace(output) && options?.DebugMode == true) || process.ExitCode != 0)
+            if ((!string.IsNullOrWhiteSpace(output) && Context.DebugMode) || process.ExitCode != 0)
             {
                 AnsiConsole.MarkupInterpolated($"[white]Docker Compose Output:{output}[/]");
             }
-            if ((!string.IsNullOrWhiteSpace(output) && options?.DebugMode == true) || process.ExitCode != 0)
+            if ((!string.IsNullOrWhiteSpace(output) && Context.DebugMode) || process.ExitCode != 0)
             {
                 AnsiConsole.MarkupInterpolated($"[red]Docker Compose Error Output:{errorOutput}[/]");
             }
