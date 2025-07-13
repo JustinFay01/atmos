@@ -25,12 +25,11 @@ public class ChainBuilder
             .Select(t => new
             {
                 HandlerType = t,
-                Attribute = t.GetCustomAttribute<HandlerOrderAttribute>(inherit: false)
-                            ?? t.GetCustomAttributes<HandlerOrderAttribute>(inherit: false)
-                                .FirstOrDefault(attr => attr.Chain == chainType)
+                Attribute = t.GetCustomAttributes<HandlerOrderAttribute>(inherit: false)
+                    .FirstOrDefault(attr => attr.Chain == chainType)
             })
-            .Where(x => x.Attribute != null && x.Attribute.Chain == chainType)
-            .OrderBy(x => x.Attribute?.Order)
+            .Where(x => x.Attribute != null)
+            .OrderBy(x => x.Attribute!.Order)
             .Select(x => (IHandler)_serviceProvider.GetRequiredService(x.HandlerType))
             .ToList();
 

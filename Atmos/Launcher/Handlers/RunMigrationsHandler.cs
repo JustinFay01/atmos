@@ -47,16 +47,13 @@ public class RunMigrationsHandler : DefaultSetNextHandler
             var output = await process.StandardOutput.ReadToEndAsync();
             await process.WaitForExitAsync();
 
-            if ((string.IsNullOrWhiteSpace(output) || Context.DebugMode) && process.ExitCode == 0)
+            if ((string.IsNullOrWhiteSpace(output) && Context.DebugMode)|| process.ExitCode != 0)
             {
-                return process.ExitCode != 0
-                    ? HandlerResult.Failure($"Migration failed. Are you sure the database is running?")
-                    : HandlerResult.Success("Database migration completed successfully.");
+                AnsiConsole.MarkupInterpolated($"[white]Migration Output:{output}[/]");
             }
-
-            AnsiConsole.MarkupInterpolated($"[white]Migration Output:{output}[/]");
-            return process.ExitCode != 0 
-                ? HandlerResult.Failure("Migration failed. Are you sure the database is running?") 
+            
+            return process.ExitCode != 0
+                ? HandlerResult.Failure($"Migration failed. Are you sure the database is running?")
                 : HandlerResult.Success("Database migration completed successfully.");
         }
         catch (Exception ex)
