@@ -16,7 +16,7 @@ public class AtmosConfigService
         _configFilePath = GetConfigFilePath();
     }
     
-    public async Task SaveConfigAsync(AtmosConfig config)
+    public async Task SaveConfigAsync(AtmosConfig? config)
     {
         var jsonContent = JsonSerializer.Serialize(config);
         await File.WriteAllTextAsync(_configFilePath, jsonContent);
@@ -26,32 +26,32 @@ public class AtmosConfigService
     /// Asynchronously loads the AtomsConfig from the standard location.
     /// </summary>
     /// <returns>The loaded AtomsConfig object, or null if it doesn't exist or is invalid.</returns>
-    public async Task<AtmosConfig?> LoadConfigAsync()
+    public async Task<AtmosConfig> LoadConfigAsync()
     {
         if (!File.Exists(_configFilePath))
         {
-            return null; 
+            return new AtmosConfig();
         }
 
         try
         {
             var jsonContent = await File.ReadAllTextAsync(_configFilePath);
 
-            // Handle case where the file might be empty
-            return string.IsNullOrWhiteSpace(jsonContent) ? null :
-                JsonSerializer.Deserialize<AtmosConfig>(jsonContent);
+            return (string.IsNullOrWhiteSpace(jsonContent) 
+                ? new AtmosConfig() :
+                JsonSerializer.Deserialize<AtmosConfig>(jsonContent)) ?? new AtmosConfig();
         }
         catch (JsonException ex)
         {
             AnsiConsole.Write(
                 $"Error: Configuration file at '{_configFilePath}' is malformed. Details: {ex.Message}");
-            return null;
+            return new AtmosConfig();
         }
         catch (Exception ex)
         {
             AnsiConsole.Write(
                 $"Error: Could not read configuration file at '{_configFilePath}'. Details: {ex.Message}");
-            return null;
+            return new AtmosConfig();
         }
     }
 

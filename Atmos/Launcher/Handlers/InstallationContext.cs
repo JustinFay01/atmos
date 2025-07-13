@@ -8,7 +8,7 @@ public class InstallationContext
     /// <summary>
     /// If previously installed, this will contain the AtmosConfig.
     /// </summary>
-    public AtmosConfig? Config { get; set; }
+    public AtmosConfig Config { get; set; } = new();
     
     /// <summary>
     /// The version tag fetched from the GitHub release (e.g., "v1.0.0").

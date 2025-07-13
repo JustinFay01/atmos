@@ -21,4 +21,11 @@ public class AtmosConfig
     /// </summary>
     [JsonPropertyName("atmos_version")]
     public string AtmosVersion { get; set; } = string.Empty;
+    
+    public bool IsEmpty => string.IsNullOrEmpty(InstallPath) && string.IsNullOrEmpty(CliVersion) && string.IsNullOrEmpty(AtmosVersion);
+
+    public override string ToString()
+    {
+        return $"AtmosConfig(InstallPath: {InstallPath}, CliVersion: {CliVersion}, AtmosVersion: {AtmosVersion})";
+    }
 }

@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Models;
 using Launcher.Services;
 
 namespace Launcher.Handlers;

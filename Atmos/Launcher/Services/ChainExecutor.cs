@@ -25,8 +25,6 @@ public class ChainExecutor
             // Check if the handler is interactive
             if (currentHandler is IInteractiveInstallationHandler)
             {
-                // --- INTERACTIVE HANDLER LOGIC ---
-                // No spinner! Just print a title and let the handler do its work.
                 AnsiConsole.MarkupLine($"\n[cyan]Step {stepNumber}: {currentHandler.StepName}[/]");
                 AnsiConsole.Write(new Rule().RuleStyle("blue").DoubleBorder());
                 

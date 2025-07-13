@@ -3,10 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <AssemblyName>atmos-client</AssemblyName>
+        <AssemblyName>atmos</AssemblyName>
         <ImplicitUsings>enable</ImplicitUsings>
-        <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
         <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
     </PropertyGroup>
 

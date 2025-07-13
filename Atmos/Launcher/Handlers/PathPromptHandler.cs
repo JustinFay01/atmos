@@ -20,7 +20,7 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveInstallation
         var configService = new AtmosConfigService();
 
         // Determine a sensible default path based on the operating system.
-        if (context.Config == null || !Directory.Exists(context.Config.InstallPath))
+        if (!Directory.Exists(context.Config.InstallPath))
         {
             context.Config ??= new AtmosConfig { InstallPath = fallbackPath };
             var selectedPath = await SelectPathAsync(fallbackPath);
