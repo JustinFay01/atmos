@@ -163,27 +163,27 @@ This phase covers setting up the C# console project for the launcher itself.
 
 This is the workflow when the launcher detects it is being run in a new location.
 
-*   **[ ] 1. Prerequisite Checks:**
+~~*   **[x] 1. Prerequisite Checks:**~~
     *   **[ ] Docker:** Execute `docker version`. If it fails, halt the installation and instruct the user to install and start Docker Desktop.
     *   **[ ] .NET Runtime:** Check for the required ASP.NET Core Runtime version needed by the main Atmos service. If not found, halt and provide a download link.
 
-*   **[ ] 2. User Interaction & Setup:**
-    *   **[ ] Prompt for Path:** Ask the user for the desired installation directory (e.g., `C:\Atmos`). Default to a sensible location.
-    *   **[ ] Create Directory Structure:** Create the target directory.
-    *   **[ ] Copy Application Files:** Copy the bundled `app/` folder and `docker-compose.yml` into the new directory.
+*   **[x] 2. User Interaction & Setup:**
+    *   **[x] Prompt for Path:** Ask the user for the desired installation directory (e.g., `C:\Atmos`). Default to a sensible location.
+    *   **[x] Create Directory Structure:** Create the target directory.
+    *   **[x] Copy Application Files:** Copy the bundled `app/` folder and `docker-compose.yml` into the new directory.
 
 *   **[ ] 3. Configuration:**
     *   **[ ] Generate DB Password:** Create a cryptographically secure random string for the Postgres password.
-    *   **[ ] Create `.env` file:** Write `POSTGRES_PASSWORD=<generated_password>` to a new `.env` file in the installation root (`C:\Atmos\.env`).
-    *   **[ ] Create `appsettings.json`:** Generate the `appsettings.production.json` file inside the `app` folder, injecting the correct connection string using `localhost`, the default port, and the generated password.
+    ~~*   **[ ] Create `.env` file:** Write `POSTGRES_PASSWORD=<generated_password>` to a new `.env` file in the installation root (`C:\Atmos\.env`).~~
+    ~~*   **[ ] Create `appsettings.json`:** Generate the `appsettings.production.json` file inside the `app` folder, injecting the correct connection string using `localhost`, the default port, and the generated password.~~
 
-*   **[ ] 4. System Deployment:**
-    *   **[ ] Start Database:** Run `docker-compose up -d` using the `docker-compose.yml` in the target directory. Wait for it to complete and check for errors.
-    *   **[ ] Run Migrations:** Execute the `Atmos.Migration.exe` tool, passing the connection string as an argument. Check for a successful exit code.
+*   **[x] 4. System Deployment:**
+    *   **[x] Start Database:** Run `docker-compose up -d` using the `docker-compose.yml` in the target directory. Wait for it to complete and check for errors.
+    *   **[x] Run Migrations:** Execute the `Atmos.Migration.exe` tool, passing the connection string as an argument. Check for a successful exit code.
 
-*   **[ ] 5. Finalizing Installation:**
-    *   **[ ] Create State File:** Create a `launcher.json` or `atmos.json` file in the installation root. Store the current version in it (e.g., `{ "InstalledVersion": "1.0.0" }`).
-    *   **[ ] Register as a Service:** (Windows Focus) Execute `sc.exe create AtmosService binPath="C:\Atmos\app\Atmos.Service.exe" start=auto` to register the main application as a Windows Service that starts on boot.
+*   **[x] 5. Finalizing Installation:**
+    ~~*   **[ ] Create State File:** Create a `launcher.json` or `atmos.json` file in the installation root. Store the current version in it (e.g., `{ "InstalledVersion": "1.0.0" }`).~~
+    ~~*   **[ ] Register as a Service:** (Windows Focus) Execute `sc.exe create AtmosService binPath="C:\Atmos\app\Atmos.Service.exe" start=auto` to register the main application as a Windows Service that starts on boot.~~
     *   **[ ] Start Service:** Execute `sc.exe start AtmosService`.
     *   **[ ] Create Shortcut:** Create a desktop shortcut pointing to the `atmos-launcher.exe` in the installation directory.
     *   **[ ] Display Success Message:** Inform the user the installation is complete and the dashboard is ready.
