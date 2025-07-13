@@ -1,5 +1,6 @@
 # Ignore generated react files in wwwroot
 /API/wwwroot/
+/publish
 
 *.swp
 *.*~

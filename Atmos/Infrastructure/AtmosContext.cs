@@ -29,8 +29,13 @@ public class AtmosContext : DbContext
     {
         public AtmosContext CreateDbContext(string[] args)
         {
+            const string connectionStringEnvVar = "ATMOS_DB_CONNECTION";
+
+            var connectionString = Environment.GetEnvironmentVariable(connectionStringEnvVar) ??
+                                   "Host=localhost;Database=postgres;Username=postgres;Password=postgres";
+            
             var optionsBuilder = new DbContextOptionsBuilder<AtmosContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=postgres");
+            optionsBuilder.UseNpgsql(connectionString);
 
             return new AtmosContext(optionsBuilder.Options);
         }

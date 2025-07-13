@@ -31,7 +31,6 @@ export const startDashboardConnection = () => {
     setConnectionStatus("connected");
     setHourUpdate(data);
     setHasReceivedUpdate(true);
-    console.log("Received hourly update:", data);
   });
 
   connection.onreconnecting(() => setConnectionStatus("reconnecting"));
