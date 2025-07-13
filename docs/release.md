@@ -1,6 +1,6 @@
 # Release
 
-Release will be done via github actions. Soon their will be a script to automate this process. Then, a CI/CD pipeline will be created to automate the release process.
+Release will be done via github actions. Soon there will be a script to automate this process. Then, a CI/CD pipeline will be created to automate the release process.
 
 ## Release Zip Structure (For Installer Compatibility)
 
