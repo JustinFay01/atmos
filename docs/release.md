@@ -24,9 +24,12 @@ export TARGET_OS=osx-arm64
 Set the build version
 
 ```bash
-export BUILD_VERSION=1.0.0
+export BUILD_VERSION=1.0.0 && echo $BUILD_VERSION
 ```
 
+```bash
+mkdir release-zips && mkdir release-zips/$BUILD_VERSION
+```
 
 ## Step 1: Build the Atmos Launcher
 
@@ -44,7 +47,7 @@ cd ./Atmos/API/atmos-client && npm install && npm run build && cd ../../..
 ## Step 3: Build the Atmos Migration Tool
 
 ```bash
-cd ./Atmos/Migration && dotnet publish -c Release -r $TARGET_OS --self-contained true -o ../../release-zips/$BUILD_VERSION && cd ../..
+cd ./Atmos/Migrations && dotnet publish -c Release -r $TARGET_OS --self-contained true -o ../../release-zips/$BUILD_VERSION/app && cd ../..
 ```
 
 ## Step 4: Build the Atmos API
@@ -62,12 +65,12 @@ cp ./Atmos/compose.yaml ./release-zips/$BUILD_VERSION
 ## Step 6: Zip the Release Directory
 
 ```bash
-cd ./release-zips && zip -r $BUILD_VERSION.zip $BUILD_VERSION && cd ..
+cd ./release-zips && zip -r $BUILD_VERSION.zip $BUILD_VERSION/$BUILD_VERSION && cd ..
 ```
 
 
 ### One liner to do all steps
 
 ```bash
-cd ./Atmos/Launcher && dotnet publish -c Release -r $TARGET_OS --self-contained true -o ../../release-zips/$BUILD_VERSION && cd ../.. && cd ./Atmos/API/atmos-client && npm install && npm run build && cd ../../.. && cd ./Atmos/Migration && dotnet publish -c Release -r $TARGET_OS --self-contained true -o ../../release-zips/$BUILD_VERSION && cd ../.. && cd ./Atmos/API && dotnet publish -c Release -r $TARGET_OS -o ../../release-zips/$BUILD_VERSION/app && cd ../.. && cp ./Atmos/compose.yaml ./release-zips/$BUILD_VERSION && cd ./release-zips && zip -r $BUILD_VERSION.zip $BUILD_VERSION && cd ..
+cd ./Atmos/Launcher && dotnet publish -c Release -r $TARGET_OS --self-contained true -o ../../release-zips/$BUILD_VERSION && cd ../.. && cd ./Atmos/API/atmos-client && npm install && npm run build && cd ../../.. && cd ./Atmos/Migrations && dotnet publish -c Release -r $TARGET_OS --self-contained true -o ../../release-zips/$BUILD_VERSION/app && cd ../.. && cd ./Atmos/API && dotnet publish -c Release -r $TARGET_OS -o ../../release-zips/$BUILD_VERSION/app && cd ../.. && cp ./Atmos/compose.yaml ./release-zips/$BUILD_VERSION && cd ./release-zips && zip -r $BUILD_VERSION.zip $BUILD_VERSION && cd ..
 ```

@@ -13,9 +13,12 @@ namespace Infrastructure.Extensions;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection UseAtmosInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection UseAtmosInfrastructure(this IServiceCollection services, IConfiguration configuration, string? cliConnectionString = null)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var connectionString = 
+            cliConnectionString ??
+            configuration.GetConnectionString("DefaultConnection");
+        
         services.AddDbContext<AtmosContext>(options =>
         {
             options.UseNpgsql(connectionString);
