@@ -42,13 +42,13 @@ public class RunMigrationsHandler : DefaultSetNextHandler
             if ((string.IsNullOrWhiteSpace(output) || options?.DebugMode != true) && process.ExitCode == 0)
             {
                 return process.ExitCode != 0
-                    ? HandlerResult.Failure($"Migration are you sure the database is running?")
+                    ? HandlerResult.Failure($"Migration failed. Are you sure the database is running?")
                     : HandlerResult.Success("Database migration completed successfully.");
             }
 
             AnsiConsole.MarkupInterpolated($"[white]Migration Output:{output}[/]");
             return process.ExitCode != 0 
-                ? HandlerResult.Failure("Migration are you sure the database is running?") 
+                ? HandlerResult.Failure("Migration failed. Are you sure the database is running?") 
                 : HandlerResult.Success("Database migration completed successfully.");
         }
         catch (Exception ex)
