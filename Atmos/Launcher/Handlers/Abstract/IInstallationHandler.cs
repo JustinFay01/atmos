@@ -1,3 +1,5 @@
+using Launcher.Services;
+
 namespace Launcher.Handlers;
 
 public record HandlerResult(bool IsSuccess, string Message, int ExitCode = 0)
@@ -31,7 +33,7 @@ public interface IInstallationHandler
     /// <summary>
     /// Executes the logic for this handler.
     /// </summary>
-    Task<HandlerResult> HandleAsync(InstallationContext context);
+    Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null);
 }
 
 public interface IInteractiveInstallationHandler

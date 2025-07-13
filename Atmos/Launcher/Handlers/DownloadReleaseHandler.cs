@@ -1,4 +1,5 @@
 using Launcher.Handlers.Abstract;
+using Launcher.Services;
 
 using Spectre.Console;
 
@@ -7,9 +8,8 @@ namespace Launcher.Handlers;
 public class DownloadReleaseHandler : DefaultSetNextHandler
 {
     public override string StepName => "Downloading Atmos release zip file";
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
     {
-        AnsiConsole.MarkupLine($"[yellow]{StepName}[/]");
         
         if (string.IsNullOrEmpty(context.ReleaseAssetUrl))
         {
@@ -20,7 +20,10 @@ public class DownloadReleaseHandler : DefaultSetNextHandler
         {
             var zipPath = await DownloadZipAsync(context);
             context.TemporaryZipPath = zipPath;
-            AnsiConsole.MarkupLine("[green]Successfully downloaded Atmos release zip file[/]");
+            if (options?.DebugMode == true)
+            {
+                AnsiConsole.MarkupLine("[green]Successfully downloaded Atmos release zip file[/]");
+            }
             
             return HandlerResult.Success("Atmos release zip file downloaded successfully.");
         }
@@ -28,8 +31,6 @@ public class DownloadReleaseHandler : DefaultSetNextHandler
         {
             return HandlerResult.Failure($"Failed to download Atmos release zip file: {ex.Message}");
         }
-        
-        
     }
 
     /// <summary>

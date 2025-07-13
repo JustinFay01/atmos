@@ -1,3 +1,5 @@
+using Launcher.Services;
+
 namespace Launcher.Handlers.Abstract;
 
 public abstract class DefaultSetNextHandler : IInstallationHandler
@@ -11,5 +13,5 @@ public abstract class DefaultSetNextHandler : IInstallationHandler
     
     
     public abstract string StepName { get; }
-    public abstract Task<HandlerResult> HandleAsync(InstallationContext context);
+    public abstract Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null);
 }

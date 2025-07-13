@@ -1,4 +1,5 @@
 using Launcher.Handlers.Abstract;
+using Launcher.Services;
 
 using Octokit;
 
@@ -14,9 +15,8 @@ public class FetchReleaseInfoHandler : DefaultSetNextHandler, IInstallationHandl
 
     public override string StepName => "Fetching latest release information";
 
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
     {
-        AnsiConsole.MarkupLine($"[yellow]{StepName}[/]");
         try
         {
             // Octokit requires a product name for the user-agent header.
@@ -51,20 +51,36 @@ public class FetchReleaseInfoHandler : DefaultSetNextHandler, IInstallationHandl
 
             context.FetchedVersionTag = latestRelease.TagName;
             context.ReleaseAssetUrl = releaseAsset.BrowserDownloadUrl;
-            
-            AnsiConsole.MarkupLine($"[green]Successfully fetched release information:[/]");
-            AnsiConsole.MarkupLine($"[yellow]Version:[/] {context.FetchedVersionTag}");
-            AnsiConsole.MarkupLine($"[yellow]Download URL:[/] {context.ReleaseAssetUrl}");
+
+
+            if (options?.DebugMode == true)
+            {
+                var panelMessage = new Markup($"[yellow]Version:[/] {context.FetchedVersionTag}\n" +
+                    $"[yellow]Download URL:[/] {context.ReleaseAssetUrl}");
+                var panel = new Panel(panelMessage)
+                {
+                    Border = BoxBorder.Rounded,
+                    Header = new PanelHeader("Release Information"),
+                    Expand = true
+                };
+                AnsiConsole.Write(panel);
+            }
 
         }
         catch (NotFoundException ex)
         {
-            AnsiConsole.WriteException(ex);
+            if (options?.DebugMode == true)
+            {
+                AnsiConsole.WriteException(ex);
+            }
             return new HandlerResult(false, $"Could not find repository '{GitHubOwner}/{GitHubRepo}'. Is it public?");
         }
         catch (Exception ex)
         {
-            AnsiConsole.WriteException(ex);
+            if (options?.DebugMode == true)
+            {
+                AnsiConsole.WriteException(ex);
+            }            
             return new HandlerResult(false, $"An unexpected error occurred while fetching from GitHub: {ex.Message}");
         }
 

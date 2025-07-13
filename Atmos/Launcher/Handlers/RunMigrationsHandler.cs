@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Services;
 
 using Spectre.Console;
 
@@ -10,7 +11,7 @@ public class RunMigrationsHandler : DefaultSetNextHandler
 {
     public override string StepName => "Updating database";
     private const string MigrationExe = "app/atmos-migrate";
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
     {
         var fullMigrationPath = Path.Combine(context.Config.InstallPath, MigrationExe);
         if (!File.Exists(fullMigrationPath))
@@ -38,11 +39,17 @@ public class RunMigrationsHandler : DefaultSetNextHandler
             var output = await process.StandardOutput.ReadToEndAsync();
             await process.WaitForExitAsync();
 
-            if (!string.IsNullOrWhiteSpace(output))
+            if ((string.IsNullOrWhiteSpace(output) || options?.DebugMode != true) && process.ExitCode == 0)
             {
-                AnsiConsole.MarkupInterpolated($"[white]Migration Output:{output}[/]");
+                return process.ExitCode != 0
+                    ? HandlerResult.Failure($"Migration are you sure the database is running?")
+                    : HandlerResult.Success("Database migration completed successfully.");
             }
-            return process.ExitCode != 0 ? HandlerResult.Failure($"Migration are you sure the database is running?") : HandlerResult.Success("Database migration completed successfully.");
+
+            AnsiConsole.MarkupInterpolated($"[white]Migration Output:{output}[/]");
+            return process.ExitCode != 0 
+                ? HandlerResult.Failure("Migration are you sure the database is running?") 
+                : HandlerResult.Success("Database migration completed successfully.");
         }
         catch (Exception ex)
         {

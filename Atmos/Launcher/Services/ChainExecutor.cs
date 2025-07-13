@@ -4,9 +4,14 @@ using Spectre.Console;
 
 namespace Launcher.Services;
 
+public class ExecutorOptions
+{
+    public bool DebugMode { get; set; } = false;
+}
+
 public class ChainExecutor
 {
-     public async Task<HandlerResult> Execute(IInstallationHandler? chain)
+     public async Task<HandlerResult> Execute(IInstallationHandler? chain, ExecutorOptions? options = null)
     {
         if (chain == null)
         {
@@ -28,7 +33,7 @@ public class ChainExecutor
                 AnsiConsole.MarkupLine($"\n[cyan]Step {stepNumber}: {currentHandler.StepName}[/]");
                 AnsiConsole.Write(new Rule().RuleStyle("blue").DoubleBorder());
                 
-                result = await currentHandler.HandleAsync(context);
+                result = await currentHandler.HandleAsync(context, options);
                 
                 AnsiConsole.Write(new Rule().RuleStyle("blue").DoubleBorder());
             }
@@ -42,7 +47,7 @@ public class ChainExecutor
                     .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
                     {
                         // Quietly execute the handler's logic
-                        result = await currentHandler.HandleAsync(context);
+                        result = await currentHandler.HandleAsync(context, options);
                         if (!result.IsSuccess)
                         {
                             ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");

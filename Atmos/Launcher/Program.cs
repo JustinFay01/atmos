@@ -1,7 +1,4 @@
-﻿
-
-using System.CommandLine;
-
+﻿using System.CommandLine;
 using Launcher.Services;
 
 namespace Launcher;
@@ -13,28 +10,25 @@ internal abstract class Program
         var builder = new ChainBuilder();
         var executor = new ChainExecutor();
 
-        var installOption = new Option<bool>("--install")
-        {
-            Description = "Install the Atmos Client. If not specified, the tool will not be installed.",
-        };
-        
+        var debugOption = new Option<bool>("--debug");
+        var installCommand = new Command("install", "Install or update the Atmos Client.");
+
         var rootCommand = new RootCommand("Atmos CLI Launcher")
         {
-            Description = "A launcher for the Atmos CLI tool, handling installation, updates, and setup."
+            installCommand,
+            debugOption
         };
-        rootCommand.Options.Add(installOption);
-        rootCommand.SetAction(async result =>
-        {
-            var install = result.GetValue(installOption);
-            if (install)
-            {
-                var handlerResult = await executor.Execute(builder.BuildDefaultChain());
-                Environment.Exit(handlerResult.ExitCode);   
-            }
-        });
         
-        var parseResult = rootCommand.Parse(args);
-        return await parseResult.InvokeAsync();
+        installCommand.Options.Add(debugOption);
+        installCommand.SetAction(async result =>
+        {
+            var handler = builder.BuildDefaultChain();
+            var debugMode = result.GetValue(debugOption);
+            var executorOptions = new ExecutorOptions { DebugMode = debugMode };
+            var handlerResult = await executor.Execute(handler, executorOptions);
+            Environment.Exit(handlerResult.ExitCode);
+        });
+
+        return await rootCommand.Parse(args).InvokeAsync();
     }
 }
-

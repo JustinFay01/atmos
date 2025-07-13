@@ -11,7 +11,7 @@ namespace Launcher.Handlers;
 public class PathPromptHandler : DefaultSetNextHandler, IInteractiveInstallationHandler
 {
     public override string StepName => "Choose Installation Path";
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
     {
         var fallbackPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Atmos")
@@ -22,8 +22,7 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveInstallation
         // Determine a sensible default path based on the operating system.
         if (!Directory.Exists(context.Config.InstallPath))
         {
-            context.Config ??= new AtmosConfig { InstallPath = fallbackPath };
-            var selectedPath = await SelectPathAsync(fallbackPath);
+            var selectedPath = await SelectPathAsync(fallbackPath, options);
             context.Config.InstallPath = selectedPath;
             await configService.SaveConfigAsync(context.Config);
             return new HandlerResult(true, "Installation path selected.");
@@ -47,7 +46,7 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveInstallation
         return new HandlerResult(true, "Installation path selected.");
     }
     
-    private async Task<string> SelectPathAsync(string defaultPath)
+    private async Task<string> SelectPathAsync(string defaultPath, ExecutorOptions? options = null)
     {
         // Use Spectre.Console's TextPrompt for a rich user experience.
         var chosenPath = await AnsiConsole.PromptAsync(
@@ -60,18 +59,26 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveInstallation
                     ValidationResult.Success()));
         
         // Ensure the directory exists, creating it if necessary.
-        if (!Directory.Exists(chosenPath))
+        if (Directory.Exists(chosenPath))
         {
-            try
+            return chosenPath;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(chosenPath);
+            if (options?.DebugMode == true)
             {
-                Directory.CreateDirectory(chosenPath);
                 AnsiConsole.MarkupLine($"[green]✓[/] Created directory: [blue]{chosenPath}[/]");
             }
-            catch (Exception ex)
+        }
+        catch (Exception ex)
+        {
+            if (options?.DebugMode == true)
             {
-                AnsiConsole.MarkupLine($"[red]Error creating directory: {ex.Message}[/]");
-                throw;
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
             }
+            throw;
         }
         return chosenPath;
     }

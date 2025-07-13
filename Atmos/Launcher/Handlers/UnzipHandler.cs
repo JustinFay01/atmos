@@ -8,9 +8,8 @@ namespace Launcher.Handlers;
 public class UnzipHandler : DefaultSetNextHandler, IInteractiveInstallationHandler
 {
     public override string StepName => "Unzipping Atmos release zip file";
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context)
+    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
     {
-        AnsiConsole.MarkupLine($"[yellow]{StepName}[/]");
         if (string.IsNullOrEmpty(context.TemporaryZipPath) || !File.Exists(context.TemporaryZipPath))
         {
             return HandlerResult.Failure("No temporary zip path found. Please download the Atmos release zip file first.");
@@ -37,16 +36,23 @@ public class UnzipHandler : DefaultSetNextHandler, IInteractiveInstallationHandl
             Directory.CreateDirectory(extractPath);
             
             System.IO.Compression.ZipFile.ExtractToDirectory(context.TemporaryZipPath, extractPath);
-            AnsiConsole.MarkupLine($"[green]Successfully unzipped Atmos release zip file to {extractPath}[/]");
+            if (options?.DebugMode == true)
+            {
+                AnsiConsole.MarkupLine($"[green]Successfully unzipped Atmos release zip file to {extractPath}[/]");
+            }
             
             var configService = new AtmosConfigService();
-            context.Config!.AtmosVersion = context.FetchedVersionTag;
+            context.Config.AtmosVersion = context.FetchedVersionTag;
             await configService.SaveConfigAsync(context.Config);
             
             return HandlerResult.Success("Atmos release zip file unzipped successfully.");
         }
         catch (Exception ex)
         {
+            if (options?.DebugMode == true)
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+            }
             return HandlerResult.Failure($"Failed to unzip Atmos release zip file: {ex.Message}");
         }
     }
