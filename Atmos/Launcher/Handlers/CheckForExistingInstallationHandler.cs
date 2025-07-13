@@ -19,6 +19,7 @@ namespace Launcher.Handlers;
 /// </summary>
 [HandlerOrder(ChainType.Install, 10)]
 [HandlerOrder(ChainType.Update, 10)]
+[HandlerOrder(ChainType.Initialization, 10)]
 public class CheckForExistingInstallationHandler : DefaultSetNextHandler
 {
     public override string StepName => "Checking for existing installation";

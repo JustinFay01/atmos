@@ -1,3 +1,6 @@
+using Launcher.Handlers.Attributes;
+using Launcher.Services;
+
 using Microsoft.Extensions.Hosting;
 
 using Spectre.Console;
@@ -18,11 +21,13 @@ public class MenuManager : BackgroundService
 {
     private readonly MenuItemFactory _menuItemFactory;
     private readonly IHostApplicationLifetime _appLifetime;
+    private readonly ChainBuilder _builder;
     
-    public MenuManager(MenuItemFactory menuItemFactory, IHostApplicationLifetime appLifetime)
+    public MenuManager(MenuItemFactory menuItemFactory, IHostApplicationLifetime appLifetime, ChainBuilder builder)
     {
         _menuItemFactory = menuItemFactory;
         _appLifetime = appLifetime;
+        _builder = builder;
     }
     
     /// <summary>
@@ -31,9 +36,23 @@ public class MenuManager : BackgroundService
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override Task StartAsync(CancellationToken cancellationToken)
+    public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        return base.StartAsync(cancellationToken);
+       var startupChain = _builder.BuildChain(ChainType.Initialization);
+       await AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .StartAsync("[cyan]Starting Atmos...[/]", async ctx =>
+            { 
+               var startupResult = await new ChainExecutor().ExecuteSilentChainAsync(startupChain, cancellationToken);
+                if (!startupResult.IsSuccess)
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: {startupResult.Message}[/]");
+                    AnsiConsole.MarkupLine("[bold red]Atmos could not start. Please check the logs for more details.[/]");
+                    _appLifetime.StopApplication();
+                }
+            });
+       
+        await base.StartAsync(cancellationToken);
     }
     
     /// <summary>

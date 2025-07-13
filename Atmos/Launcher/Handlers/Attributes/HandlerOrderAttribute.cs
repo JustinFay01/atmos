@@ -3,7 +3,8 @@ namespace Launcher.Handlers.Attributes;
 public enum ChainType
 {
     Install,
-    Update
+    Update,
+    Initialization,
 }
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]

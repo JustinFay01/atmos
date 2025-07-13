@@ -12,6 +12,7 @@ namespace Launcher.Handlers;
 
 [HandlerOrder(ChainType.Install, 30)]
 [HandlerOrder(ChainType.Update, 20)]
+[HandlerOrder(ChainType.Initialization, 20)]
 public class FetchReleaseInfoHandler : DefaultSetNextHandler, IHandler
 {
     private const string GitHubOwner = "JustinFay01";

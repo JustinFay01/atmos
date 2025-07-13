@@ -8,7 +8,29 @@ namespace Launcher.Services;
 
 public class ChainExecutor
 {
-     public async Task<HandlerResult> Execute(IHandler? chain)
+    public async Task<HandlerResult> ExecuteSilentChainAsync(IHandler? chain, CancellationToken cancellationToken = default)
+    {
+        if (chain == null)
+        {
+            return HandlerResult.Failure("Installation chain is empty.");
+        }
+
+        var currentHandler = chain;
+
+        while (currentHandler != null && !cancellationToken.IsCancellationRequested)
+        {
+            var result = await currentHandler.HandleAsync();
+            if (!result.IsSuccess)
+            {
+                return result; 
+            }
+            
+            currentHandler = currentHandler.Next;
+        }
+
+        return HandlerResult.Success("Installation completed successfully.");
+    }
+     public async Task<HandlerResult> ExecuteInstallation(IHandler? chain)
     {
         if (chain == null)
         {
@@ -16,7 +38,6 @@ public class ChainExecutor
         }
 
         AnsiConsole.Write(new Rule("[bold yellow]Atmos Installer[/]").Centered());
-        var context = new LauncherContext();
         var currentHandler = chain;
         var stepNumber = 1;
 

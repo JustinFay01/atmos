@@ -28,4 +28,6 @@ public class LauncherContext
     /// Temporary path where the Atmos release zip file will be downloaded.
     /// </summary>
     public string TemporaryZipPath { get; set; } = string.Empty;
+    
+    public bool NewUpdateAvailable { get; set; }
 }
