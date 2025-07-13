@@ -1,4 +1,5 @@
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -9,6 +10,8 @@ using Spectre.Console.Extensions;
 
 namespace Launcher.Handlers;
 
+[HandlerOrder(ChainType.Install, 30)]
+[HandlerOrder(ChainType.Update, 20)]
 public class FetchReleaseInfoHandler : DefaultSetNextHandler, IHandler
 {
     private const string GitHubOwner = "JustinFay01";

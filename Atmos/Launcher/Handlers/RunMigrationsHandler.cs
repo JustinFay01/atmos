@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -8,6 +9,8 @@ using Spectre.Console;
 
 namespace Launcher.Handlers;
 
+[HandlerOrder(ChainType.Install, 70)]
+[HandlerOrder(ChainType.Update, 60)]
 public class RunMigrationsHandler : DefaultSetNextHandler
 {
     public RunMigrationsHandler(LauncherContext context) : base(context)

@@ -1,4 +1,5 @@
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -6,6 +7,8 @@ using Spectre.Console;
 
 namespace Launcher.Handlers;
 
+[HandlerOrder(ChainType.Install, 50)]
+[HandlerOrder(ChainType.Update, 40)]
 public class UnzipHandler : DefaultSetNextHandler, IInteractiveHandler
 {
     public UnzipHandler(LauncherContext context) : base(context)

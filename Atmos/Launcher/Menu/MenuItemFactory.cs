@@ -1,11 +1,16 @@
+using Launcher.Models;
+using Launcher.Services;
+
 namespace Launcher.Menu;
 
 public class MenuItemFactory
 {
-
-    public MenuItemFactory()
+    private readonly LauncherContext _context;
+    private readonly ChainBuilder _builder;
+    public MenuItemFactory(ChainBuilder builder, LauncherContext context)
     {
-        
+        _builder = builder;
+        _context = context;
     }
     
     public List<MenuItem> GetMenuItems()
@@ -14,7 +19,7 @@ public class MenuItemFactory
             new OpenDashboardMenuItem(),
             new ToggleServiceMenuItem(true), // Example value, this should be dynamically set based on service status
             new RestartServiceMenuItem(),
-            new UpdateMenuItem("1.0.0"), // Example version, this should be dynamically set
+            new UpdateMenuItem(_context, _builder),
             new LogsMenuItem(),
             new ExitMenuItem()
         ];

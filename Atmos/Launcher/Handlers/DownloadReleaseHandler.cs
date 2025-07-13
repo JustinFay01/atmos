@@ -1,4 +1,5 @@
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -6,6 +7,8 @@ using Spectre.Console;
 
 namespace Launcher.Handlers;
 
+[HandlerOrder(ChainType.Install, 40)]
+[HandlerOrder(ChainType.Update, 30)]
 public class DownloadReleaseHandler : DefaultSetNextHandler
 {
     public DownloadReleaseHandler(LauncherContext context) : base(context)

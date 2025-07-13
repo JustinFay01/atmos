@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -8,6 +9,7 @@ using Spectre.Console;
 
 namespace Launcher.Handlers;
 
+[HandlerOrder(ChainType.Install, 20)]
 public class PathPromptHandler : DefaultSetNextHandler, IInteractiveHandler
 {
     public override string StepName => "Choose Installation Path";

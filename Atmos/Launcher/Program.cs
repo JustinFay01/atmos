@@ -1,7 +1,9 @@
 ﻿using System.CommandLine;
 
+using Launcher.Extensions;
 using Launcher.Menu;
 using Launcher.Models;
+using Launcher.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,14 +22,19 @@ internal abstract class Program
         {
             var builder = Host.CreateApplicationBuilder(args);
             builder.Logging.ClearProviders();
+            builder.Services.RegisterHandlers();
+            
             var debug = result.GetValue(debugOption);
+            builder.Services.AddSingleton<ChainBuilder>();
             builder.Services.AddSingleton<LauncherContext>(
                 new LauncherContext
                 {
                     DebugMode = debug
                 });
             
+            builder.Services.AddSingleton<MenuItemFactory>();
             builder.Services.AddHostedService<MenuManager>(); 
+            
             using var host = builder.Build();
             await host.RunAsync();
         });

@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -16,6 +17,8 @@ namespace Launcher.Handlers;
 /// If so, it saves the previous user-selected installation path to the context and
 /// sets the PreviouslyInstalled flag to true.
 /// </summary>
+[HandlerOrder(ChainType.Install, 10)]
+[HandlerOrder(ChainType.Update, 10)]
 public class CheckForExistingInstallationHandler : DefaultSetNextHandler
 {
     public override string StepName => "Checking for existing installation";
