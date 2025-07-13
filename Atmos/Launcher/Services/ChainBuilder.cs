@@ -12,7 +12,9 @@ public class ChainBuilder
             .SetNext(new PathPromptHandler())
             .SetNext(new FetchReleaseInfoHandler())
             .SetNext(new DownloadReleaseHandler())
-            .SetNext(new UnzipHandler());
+            .SetNext(new UnzipHandler())
+            .SetNext(new DockerComposeHandler())
+            .SetNext(new RunMigrationsHandler());
 
         return rootHandler;
     }

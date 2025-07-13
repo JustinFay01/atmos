@@ -22,6 +22,7 @@ public class AtmosConfig
     [JsonPropertyName("atmos_version")]
     public string AtmosVersion { get; set; } = string.Empty;
     
+    [JsonIgnore]
     public bool IsEmpty => string.IsNullOrEmpty(InstallPath) && string.IsNullOrEmpty(CliVersion) && string.IsNullOrEmpty(AtmosVersion);
 
     public override string ToString()
