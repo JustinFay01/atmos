@@ -14,6 +14,7 @@ public static class AtmosIssueTracker
         var sentryConfig = builder.Configuration.GetSection("Sentry");
         var dsn = sentryConfig.GetValue<string>("Dsn");
         var enabled = sentryConfig.GetValue<bool>("Enabled");
+        var debug = sentryConfig.GetValue<bool>("Debug");
 
         if (!enabled)
         {
@@ -29,7 +30,7 @@ public static class AtmosIssueTracker
         SentrySdk.Init(options =>
         {
             options.Dsn = dsn;
-            options.Debug = true;
+            options.Debug = debug;
             options.SendDefaultPii = true;
         });
 
