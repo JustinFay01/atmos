@@ -23,9 +23,9 @@ public class AtmosConfigService
     }
 
     /// <summary>
-    /// Asynchronously loads the AtomsConfig from the standard location.
+    /// Asynchronously loads the AtmosConfig from the standard location.
     /// </summary>
-    /// <returns>The loaded AtomsConfig object, or null if it doesn't exist or is invalid.</returns>
+    /// <returns>The loaded AtmosConfig object, or null if it doesn't exist or is invalid.</returns>
     public async Task<AtmosConfig> LoadConfigAsync()
     {
         if (!File.Exists(_configFilePath))
