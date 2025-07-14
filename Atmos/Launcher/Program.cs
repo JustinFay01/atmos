@@ -25,6 +25,7 @@ internal abstract class Program
             builder.Services.RegisterHandlers();
             
             var debug = result.GetValue(debugOption);
+            builder.Services.AddSingleton<IAtmosLogService, AtmosLogService>();
             builder.Services.AddSingleton<ChainBuilder>();
             builder.Services.AddSingleton<LauncherContext>(
                 new LauncherContext

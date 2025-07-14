@@ -1,3 +1,5 @@
+using System.Text;
+
 using Launcher.Handlers.Attributes;
 using Launcher.Services;
 
@@ -22,12 +24,14 @@ public class MenuManager : BackgroundService
     private readonly MenuItemFactory _menuItemFactory;
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ChainBuilder _builder;
+    private readonly IAtmosLogService _logService;
     
-    public MenuManager(MenuItemFactory menuItemFactory, IHostApplicationLifetime appLifetime, ChainBuilder builder)
+    public MenuManager(MenuItemFactory menuItemFactory, IHostApplicationLifetime appLifetime, ChainBuilder builder, IAtmosLogService logService)
     {
         _menuItemFactory = menuItemFactory;
         _appLifetime = appLifetime;
         _builder = builder;
+        _logService = logService;
     }
     
     /// <summary>
@@ -67,22 +71,7 @@ public class MenuManager : BackgroundService
             AnsiConsole.Clear();
             var menuItem = await ShowMenuAsync(stoppingToken);
             await menuItem.OnSelectedAsync();
-            var continueSelection = await AskToContinueAsync(stoppingToken);
-            if (continueSelection)
-            {
-                continue;
-            }
-
-            AnsiConsole.MarkupLine("[bold green]Thank you for using Atmos![/]");
-            _appLifetime.StopApplication();
-            break;
         }
-    }
-    
-    private async Task<bool> AskToContinueAsync(CancellationToken cancellationToken = default)
-    {
-        var prompt = new ConfirmationPrompt("[bold yellow]Do you want to continue?[/]");
-        return await AnsiConsole.PromptAsync(prompt, cancellationToken);
     }
     
     private async Task<MenuItem> ShowMenuAsync(CancellationToken cancellationToken = default)
@@ -96,6 +85,4 @@ public class MenuManager : BackgroundService
         
         return await AnsiConsole.PromptAsync(prompt, cancellationToken);
     }
-
-    
 }

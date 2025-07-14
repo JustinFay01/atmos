@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Launcher.Models;
 
 public class LauncherContext
@@ -30,4 +32,6 @@ public class LauncherContext
     public string TemporaryZipPath { get; set; } = string.Empty;
     
     public bool NewUpdateAvailable { get; set; }
+
+    public Dictionary<string, Process> RunningProcesses { get; set; } = new();
 }

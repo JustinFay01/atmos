@@ -1,5 +1,9 @@
 using Launcher.Handlers;
 
+using Microsoft.Extensions.Hosting;
+
+using Spectre.Console;
+
 namespace Launcher.Menu;
 
 public interface IHiddenMenuItem
@@ -55,22 +59,18 @@ public class RestartServiceMenuItem : MenuItem
     public RestartServiceMenuItem() : base("[yellow][[R]][/]estart Service", MenuAction.RestartService) { }
 }
 
-public class LogsMenuItem : MenuItem
-{
-    public override Task<HandlerResult> OnSelectedAsync()
-    {
-        return Task.FromResult(HandlerResult.Success("Exiting..."));
-    }
-    
-    public LogsMenuItem() : base("[grey][[L]][/]ogs", MenuAction.Logs) { }
-}
-
 public class ExitMenuItem : MenuItem
 {
-    public override Task<HandlerResult> OnSelectedAsync()
+
+    private readonly IHostApplicationLifetime _lifetime;
+    public ExitMenuItem(IHostApplicationLifetime lifetime) : base("[red][[E]][/]xit", MenuAction.Exit)
     {
-        return Task.FromResult(HandlerResult.Success("Exiting..."));
+        _lifetime = lifetime;
     }
     
-    public ExitMenuItem() : base("[red][[E]][/]xit", MenuAction.Exit) { }
+    public override Task<HandlerResult> OnSelectedAsync()
+    {
+        _lifetime.StopApplication();
+        return Task.FromResult(HandlerResult.Success("Exiting Atmos..."));
+    }
 }
