@@ -21,6 +21,10 @@ public static class ServiceExtensions
         
         services.AddDbContext<AtmosContext>(options =>
         {
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentException("Connection string cannot be null or empty.", nameof(connectionString));
+            }
             options.UseNpgsql(connectionString);
         });
 

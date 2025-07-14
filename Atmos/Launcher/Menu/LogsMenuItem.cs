@@ -9,7 +9,8 @@ namespace Launcher.Menu;
 public class LogsMenuItem : MenuItem
 {
     private readonly IAtmosLogService _logService;
-    private readonly StringBuilder _logContent = new();
+    private readonly List<string> errors = [];
+    private readonly List<string> restOfLogs = [];
     public override async Task<HandlerResult> OnSelectedAsync()
     {
         var cts = new CancellationTokenSource();
@@ -24,22 +25,16 @@ public class LogsMenuItem : MenuItem
 
     private void ProcessLogs()
     {
-        // 1. Generate the content for the panel
         var allLogs = _logService.GetAllLogs();
-        foreach (var log in allLogs.TakeLast(20)) // Show last 20 lines
+        foreach (var log in allLogs.TakeLast(100))
         {
             // Basic color coding example
             if (log.Contains("ERROR", StringComparison.OrdinalIgnoreCase))
             {
-                _logContent.AppendLine(Markup.Escape($"[red]{log}[/]"));
+                errors.Add(Markup.Escape(log));
             }
-            else if (log.Contains("SUCCESS", StringComparison.OrdinalIgnoreCase))
-            {
-                _logContent.AppendLine(Markup.Escape($"[green]{log}[/]"));
-            }
-            else
-            {
-                _logContent.AppendLine(Markup.Escape(log));
+            else {
+                restOfLogs.Add(Markup.Escape(log));
             }
         }
     }
@@ -50,23 +45,43 @@ public class LogsMenuItem : MenuItem
         var refreshLogsEvent = new ManualResetEventSlim(false);
 
         _logService.OnLogReceived += OnLogReceived;
+        var optionsPanel = new Panel(new Markup("Actions: [blue](B)[/]ack | [yellow](C)[/]lear")
+            )
+            .Header("[bold]Logs[/]")
+            .Expand();
+        AnsiConsole.Write(optionsPanel);
+        var table = new Table().Centered()
+            .ShowHeaders()
+            .Expand();
+        var errorsColumn = new TableColumn("Errors").LeftAligned();
+        var logsColumn = new TableColumn("Logs")
+            .LeftAligned();
+                    
+        table.AddColumn(logsColumn);
+        table.AddColumn(errorsColumn);
 
-        AnsiConsole.Live(new Panel(string.Empty))
+        AnsiConsole.Live(table)
+            .AutoClear(false)
+            .Overflow(VerticalOverflow.Ellipsis)
             .Start(ctx =>
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     ProcessLogs();
-
-                    var panelContent = new Rows(
-                        new Panel(new Markup(_logContent.ToString()))
-                            .Header("Streaming Logs")
-                            .Expand(),
-                        new Markup("[grey]Actions: [blue](B)[/]ack | [yellow](C)[/]lear[/]")
-                    );
+                    table.Rows.Clear();
+                    
+                    // 1. Populate the table with the latest logs
+                    foreach (var error in errors)
+                    {
+                        table.AddRow(new Markup(""),new Markup($"[red]{error}[/]"));
+                    }
+                    foreach (var log in restOfLogs)
+                    {
+                        table.AddRow(new Markup(log),new Markup(""));
+                    }
 
                     // 2. Update the live display
-                    ctx.UpdateTarget(panelContent);
+                    ctx.UpdateTarget(table);
                     ctx.Refresh(); // Force an initial refresh
 
                     // 3. Wait for new logs OR user input (non-blocking)
@@ -88,6 +103,8 @@ public class LogsMenuItem : MenuItem
                     if (key == ConsoleKey.C)
                     {
                         _logService.Clear();
+                        errors.Clear();
+                        restOfLogs.Clear();
                     }
                 }
             });

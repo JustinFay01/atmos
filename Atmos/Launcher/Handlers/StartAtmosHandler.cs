@@ -38,7 +38,6 @@ public class StartAtmosHandler : DefaultSetNextHandler
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
             };
 
              var process = Process.Start(processStartInfo);
@@ -57,6 +56,14 @@ public class StartAtmosHandler : DefaultSetNextHandler
              };
              
              Context.RunningProcesses["atmos"] = process;
+             process.BeginOutputReadLine();
+             process.BeginErrorReadLine();
+             process.EnableRaisingEvents = true;
+             process.Exited += (sender, args) =>
+             {
+                 _logService.AddLog("Atmos process exited.");
+                 Context.RunningProcesses.Remove("atmos");
+             };
             
             return Task.FromResult(HandlerResult.Success("Atmos started successfully."));
         }

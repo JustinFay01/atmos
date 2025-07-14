@@ -19,14 +19,24 @@ public class ChainExecutor
 
         while (currentHandler != null && !cancellationToken.IsCancellationRequested)
         {
-            var result = await currentHandler.HandleAsync();
-            if (!result.IsSuccess)
+            try
             {
-                return result; 
+
+                var result = await currentHandler.HandleAsync();
+                if (!result.IsSuccess)
+                {
+                    return result;
+                }
+
+                currentHandler = currentHandler.Next;
             }
-            
-            currentHandler = currentHandler.Next;
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                return HandlerResult.Failure($"An error occurred while executing {currentHandler?.StepName}: {ex.Message}");
+            }
         }
+
 
         return HandlerResult.Success("Installation completed successfully.");
     }

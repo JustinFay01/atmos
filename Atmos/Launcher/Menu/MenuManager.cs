@@ -1,6 +1,7 @@
 using System.Text;
 
 using Launcher.Handlers.Attributes;
+using Launcher.Models;
 using Launcher.Services;
 
 using Microsoft.Extensions.Hosting;
@@ -25,13 +26,15 @@ public class MenuManager : BackgroundService
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ChainBuilder _builder;
     private readonly IAtmosLogService _logService;
+    private readonly LauncherContext Context;
     
-    public MenuManager(MenuItemFactory menuItemFactory, IHostApplicationLifetime appLifetime, ChainBuilder builder, IAtmosLogService logService)
+    public MenuManager(MenuItemFactory menuItemFactory, IHostApplicationLifetime appLifetime, ChainBuilder builder, IAtmosLogService logService, LauncherContext context)
     {
         _menuItemFactory = menuItemFactory;
         _appLifetime = appLifetime;
         _builder = builder;
         _logService = logService;
+        Context = context;
     }
     
     /// <summary>
@@ -66,12 +69,46 @@ public class MenuManager : BackgroundService
     /// <returns></returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            AnsiConsole.Clear();
-            var menuItem = await ShowMenuAsync(stoppingToken);
-            await menuItem.OnSelectedAsync();
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                AnsiConsole.Clear();
+                WriteStatusPanel();
+                var menuItem = await ShowMenuAsync(stoppingToken);
+                await menuItem.OnSelectedAsync();
+            }
+        } catch (OperationCanceledException)
+        {
+            AnsiConsole.MarkupLine("[bold red]Menu operation was cancelled.[/]");
         }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+            AnsiConsole.MarkupLine("[bold red]An unexpected error occurred in the menu manager.[/]");
+        }
+        finally
+        {
+            _appLifetime.StopApplication();
+        }
+     
+    }
+
+    private void WriteStatusPanel()
+    {
+        var isRunning = Context.RunningProcesses.ContainsKey("atmos") && !Context.RunningProcesses["atmos"].HasExited;
+        var statusMessage = isRunning 
+            ? "[green]Atmos is running.[/]" 
+            : "[red]Atmos is not running.[/]";
+        var panelMessage = new Markup($"[yellow]Version:[/] {Context.FetchedVersionTag}\n" +
+                                      $"[yellow]Atmos Status:[/] {statusMessage}");
+        var panel = new Panel(panelMessage)
+        {
+            Border = BoxBorder.Rounded,
+            Header = new PanelHeader("Atmos Status"),
+            Expand = true
+        };
+        AnsiConsole.Write(panel);
     }
     
     private async Task<MenuItem> ShowMenuAsync(CancellationToken cancellationToken = default)
