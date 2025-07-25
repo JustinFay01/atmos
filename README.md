@@ -42,17 +42,10 @@ The user interface is a modern single-page application (SPA) built with **React*
 
 ### Data Storage (PostgreSQL)
 
-Instead of fragile text files, all historical readings are stored in a robust **PostgreSQL** database.~~
+Instead of fragile text files, all historical readings are stored in a robust **PostgreSQL** database.
 
 *   **Why PostgreSQL?** It is a powerful, open-source, and reliable relational database perfect for storing structured time-series data. It provides the ability to easily query, index, and manage vast amounts of historical information. The database will run in its own dedicated container for isolation and easy management.
     * Native support for date/time types and advanced querying capabilities.
-    
-
-~~Switching to SQLite.~~
-
-~~Since this will be a desktop application, the database will be stored locally on the user's machine. This simplifies deployment and ensures that all data is accessible without needing a separate database server.~~
-
-~~Following [Getting Started with EF Core](https://learn.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli)~~
 
 ### Logging & Error Monitoring (Sentry)
 
@@ -63,7 +56,8 @@ To ensure the system is running smoothly and to capture any potential problems, 
 
 ## Docs
 
-- [Setup Guide](docs/setup.md)
+- [🧰 Setup Guide]() → Not done yet
 - [🏗️ Architecture Overview](docs/architecture.md)
-- [API Documentation](docs/api.md)
-- [Tools](docs/tools.md)
+- [🧱 Infrastructure](docs/infrastructure.md)
+- [📦 Release](docs/release.md)
+- [🛣️ Roadmap](docs/roadmap.md)

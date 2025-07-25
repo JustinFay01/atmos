@@ -1,10 +1,8 @@
 repos:
-  -   repo: local
-      hooks:
-        -   id: dotnet-format-backend
-            name: Format .NET Backend Code (C#)
-            entry: ./scripts/dotnet_format.sh
-            verbose: true
-            pass_filenames: false
-            language: system
-            types: ["c#"] 
+    -   repo: local
+        hooks:
+            -   id: dotnet-format
+                name: dotnet-format
+                language: system
+                entry: dotnet format --include
+                types: ["c#"] 
