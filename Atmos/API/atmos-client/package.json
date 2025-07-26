@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && rm -rf ../wwwroot/* && mv dist/* ../wwwroot",
+    "build:osx-arm64": "tsc -b && vite build && rm -rf ../wwwroot/* && mv dist/* ../wwwroot",
+    "build:win-x64": "tsc -b && vite build && (if exist ..\\wwwroot rmdir /s /q ..\\wwwroot) && mkdir ..\\wwwroot && move dist\\* ..\\wwwroot",
     "lint": "eslint .",
     "preview": "vite preview"
   },

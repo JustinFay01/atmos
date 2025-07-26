@@ -50,58 +50,74 @@ public class ChainExecutor
         AnsiConsole.Write(new Rule("[bold yellow]Atmos Installer[/]").Centered());
         var currentHandler = chain;
         var stepNumber = 1;
+        var timeoutCancellationToken = new CancellationTokenSource(TimeSpan.FromMinutes(2)).Token;
+        var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationToken).Token;
 
-        while (currentHandler != null && !cancellationToken.IsCancellationRequested)
+        try
         {
-            HandlerResult result;
-
-            // Check if the handler is interactive
-            if (currentHandler is IInteractiveHandler)
+            while (currentHandler != null && !timeoutToken.IsCancellationRequested)
             {
-                result = await currentHandler.HandleAsync(cancellationToken);
-            }
-            else
-            {
-                // --- BACKGROUND HANDLER LOGIC (with spinner) ---
-                result = HandlerResult.Failure("Handler did not run."); // Default result
+                HandlerResult result;
 
-                await AnsiConsole.Status()
-                    .Spinner(Spinner.Known.Dots)
-                    .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
-                    {
-                        // Quietly execute the handler's logic
-                        result = await currentHandler.HandleAsync(cancellationToken);
-                        if (!result.IsSuccess)
-                        {
-                            ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");
-                            ctx.Spinner(Spinner.Known.Arc);
-                        }
-                    });
-            }
-
-            // --- COMMON RESULT HANDLING ---
-            if (result.IsSuccess)
-            {
-                AnsiConsole.MarkupLine($"[green]✓[/] [dim]Step {stepNumber}: {currentHandler.StepName} finished.[/]");
-                if (!string.IsNullOrWhiteSpace(result.Message))
+                // Check if the handler is interactive
+                if (currentHandler is IInteractiveHandler)
                 {
-                    AnsiConsole.MarkupLine($"  [grey]=> {result.Message}[/]");
+                    result = await currentHandler.HandleAsync(timeoutToken);
                 }
-            }
-            else
-            {
-                AnsiConsole.MarkupLine($"[red]✗ Step {stepNumber}: {currentHandler.StepName} failed.[/]");
-                var errorPanel = new Panel($"[white]{result.Message}[/]")
-                    .Header("[bold red]ERROR[/]").BorderColor(Color.Red).Expand();
-                AnsiConsole.Write(errorPanel);
-                return result; // Stop on failure
-            }
-            
-            currentHandler = currentHandler.Next;
-            stepNumber++;
-        }
+                else
+                {
+                    // --- BACKGROUND HANDLER LOGIC (with spinner) ---
+                    result = HandlerResult.Failure("Handler did not run."); // Default result
 
-        AnsiConsole.Write(new Rule("[bold green]Installation Complete[/]").Centered());
-        return HandlerResult.Success("Installation completed successfully.");
+                    await AnsiConsole.Status()
+                        .Spinner(Spinner.Known.Dots)
+                        .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
+                        {
+                            // Quietly execute the handler's logic
+                            result = await currentHandler.HandleAsync(cancellationToken);
+                            if (!result.IsSuccess)
+                            {
+                                ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");
+                                ctx.Spinner(Spinner.Known.Arc);
+                            }
+                        });
+                }
+
+                // --- COMMON RESULT HANDLING ---
+                if (result.IsSuccess)
+                {
+                    AnsiConsole.MarkupLine(
+                        $"[green]✓[/] [dim]Step {stepNumber}: {currentHandler.StepName} finished.[/]");
+                    if (!string.IsNullOrWhiteSpace(result.Message))
+                    {
+                        AnsiConsole.MarkupLine($"  [grey]=> {result.Message}[/]");
+                    }
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine($"[red]✗ Step {stepNumber}: {currentHandler.StepName} failed.[/]");
+                    var errorPanel = new Panel($"[white]{result.Message}[/]")
+                        .Header("[bold red]ERROR[/]").BorderColor(Color.Red).Expand();
+                    AnsiConsole.Write(errorPanel);
+                    return result; // Stop on failure
+                }
+
+                currentHandler = currentHandler.Next;
+                stepNumber++;
+            }
+
+            AnsiConsole.Write(new Rule("[bold green]Installation Complete[/]").Centered());
+            return HandlerResult.Success("Installation completed successfully.");
+        }
+        catch (OperationCanceledException)
+        {
+            AnsiConsole.MarkupLine("[red]Installation was cancelled.[/]");
+            return HandlerResult.Failure("Installation was cancelled by the user.");
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+            return HandlerResult.Failure($"An error occurred during installation: {ex.Message}");
+        }
     }
 }

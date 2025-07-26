@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 import shutil
+import platform
 
 # --- Configuration ---
 OS_TARGETS = {
@@ -14,12 +15,13 @@ OS_TARGETS = {
 def run_command(command, cwd=None):
     """Runs a command in the shell, checks for errors, and prints the command."""
     command_list = command.split()
+    use_shell = platform.system() == "Windows"
     print(f"\n▶️  Running command: '{command}'")
     if cwd:
         print(f"   in directory: '{cwd}'")
 
     try:
-        subprocess.run(command_list, check=True, cwd=cwd, text=True, capture_output=False)
+        subprocess.run(command_list, check=True, cwd=cwd, text=True, capture_output=False, shell=use_shell)
         print(f"✅  Successfully executed: '{command_list[0]}'")
     except FileNotFoundError:
         print(f"❌ ERROR: Command '{command_list[0]}' not found. Is it installed and in your PATH?")
@@ -80,7 +82,7 @@ def main():
     # --- Step 2: Build the React App ---
     react_app_dir = root_dir / "Atmos" / "API" / "atmos-client"
     run_command("npm install", cwd=react_app_dir)
-    run_command("npm run build", cwd=react_app_dir)
+    run_command(f"npm run build:{target_os}", cwd=react_app_dir)
 
     # --- Step 3: Build the Atmos Migration Tool ---
     run_command(
