@@ -12,7 +12,7 @@ public class NewUpdateAvailableHandler : DefaultSetNextHandler
     }
 
     public override string StepName => "Checking for new update";
-    public override Task<HandlerResult> HandleAsync()
+    public override Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         // Check if the fetched version is different from the current version
         if (Context.FetchedVersionTag != Context.Config.AtmosVersion)

@@ -16,7 +16,7 @@ public class UnzipHandler : DefaultSetNextHandler, IInteractiveHandler
     }
 
     public override string StepName => "Unzipping Atmos release zip file";
-    public override async Task<HandlerResult> HandleAsync()
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(Context.TemporaryZipPath) || !File.Exists(Context.TemporaryZipPath))
         {
@@ -30,7 +30,8 @@ public class UnzipHandler : DefaultSetNextHandler, IInteractiveHandler
                 var emptyDir = await AnsiConsole.PromptAsync(
                     new SelectionPrompt<string>()
                         .Title("[yellow]There are files in the directory, would you like to overwrite them?[/]")
-                        .AddChoices("Yes", "No"));
+                        .AddChoices("Yes", "No"),
+                    cancellationToken);
                         
                 if (emptyDir == "No")
                 {
@@ -51,7 +52,7 @@ public class UnzipHandler : DefaultSetNextHandler, IInteractiveHandler
             
             var configService = new AtmosConfigService();
             Context.Config.AtmosVersion = Context.FetchedVersionTag;
-            await configService.SaveConfigAsync(Context.Config);
+            await configService.SaveConfigAsync(Context.Config, cancellationToken);
             
             return HandlerResult.Success("Atmos release zip file unzipped successfully.");
         }

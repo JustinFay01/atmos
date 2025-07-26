@@ -22,7 +22,7 @@ public class ChainExecutor
             try
             {
 
-                var result = await currentHandler.HandleAsync();
+                var result = await currentHandler.HandleAsync(cancellationToken);
                 if (!result.IsSuccess)
                 {
                     return result;
@@ -40,7 +40,7 @@ public class ChainExecutor
 
         return HandlerResult.Success("Installation completed successfully.");
     }
-     public async Task<HandlerResult> ExecuteInstallation(IHandler? chain)
+     public async Task<HandlerResult> ExecuteInstallation(IHandler? chain, CancellationToken cancellationToken = default)
     {
         if (chain == null)
         {
@@ -51,14 +51,14 @@ public class ChainExecutor
         var currentHandler = chain;
         var stepNumber = 1;
 
-        while (currentHandler != null)
+        while (currentHandler != null && !cancellationToken.IsCancellationRequested)
         {
             HandlerResult result;
 
             // Check if the handler is interactive
             if (currentHandler is IInteractiveHandler)
             {
-                result = await currentHandler.HandleAsync();
+                result = await currentHandler.HandleAsync(cancellationToken);
             }
             else
             {
@@ -70,7 +70,7 @@ public class ChainExecutor
                     .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
                     {
                         // Quietly execute the handler's logic
-                        result = await currentHandler.HandleAsync();
+                        result = await currentHandler.HandleAsync(cancellationToken);
                         if (!result.IsSuccess)
                         {
                             ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");

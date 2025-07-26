@@ -16,7 +16,7 @@ public class DownloadReleaseHandler : DefaultSetNextHandler
     }
 
     public override string StepName => "Downloading Atmos release zip file";
-    public override async Task<HandlerResult> HandleAsync()
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         
         if (string.IsNullOrEmpty(Context.ReleaseAssetUrl))
@@ -26,7 +26,7 @@ public class DownloadReleaseHandler : DefaultSetNextHandler
         
         try
         {
-            var zipPath = await DownloadZipAsync();
+            var zipPath = await DownloadZipAsync(cancellationToken);
             Context.TemporaryZipPath = zipPath;
             if (Context.DebugMode)
             {
@@ -46,13 +46,13 @@ public class DownloadReleaseHandler : DefaultSetNextHandler
     /// Stores in a temporary location.
     /// </summary>
     /// <returns>The temporary location path</returns>
-    private async Task<string> DownloadZipAsync()
+    private async Task<string> DownloadZipAsync(CancellationToken cancellationToken)
     {
         using var client = new HttpClient();
         await using var fs = new FileStream(Path.Combine(Path.GetTempPath(), "atmos-release.zip"), FileMode.Create, FileAccess.Write, FileShare.None);
-        var response = await client.GetAsync(Context.ReleaseAssetUrl);
-        await response.Content.CopyToAsync(fs);
-        await fs.FlushAsync();
+        var response = await client.GetAsync(Context.ReleaseAssetUrl, cancellationToken);
+        await response.Content.CopyToAsync(fs, cancellationToken);
+        await fs.FlushAsync(cancellationToken);
         return fs.Name;
     }
 }

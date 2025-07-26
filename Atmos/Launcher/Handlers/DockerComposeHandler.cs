@@ -18,7 +18,7 @@ public class DockerComposeHandler : DefaultSetNextHandler
     }
 
     public override string StepName => "Setting up database with Docker Compose";
-    public override async Task<HandlerResult> HandleAsync()
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         var fullMigrationPath = Path.Combine(Context.Config.InstallPath, "docker-compose.yml");
         if (!File.Exists(fullMigrationPath))
@@ -45,9 +45,9 @@ public class DockerComposeHandler : DefaultSetNextHandler
                 return HandlerResult.Failure("Failed to start Docker Compose process.");
             }
 
-            var output = await process.StandardOutput.ReadToEndAsync();
-            var errorOutput = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
+            var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+            var errorOutput = await process.StandardError.ReadToEndAsync(cancellationToken);
+            await process.WaitForExitAsync(cancellationToken);
 
             if ((!string.IsNullOrWhiteSpace(output) && Context.DebugMode) || process.ExitCode != 0)
             {

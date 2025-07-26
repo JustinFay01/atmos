@@ -12,7 +12,7 @@ public abstract class DefaultSetNextHandler : IHandler
     {
         Context = context;
     }
-    public abstract Task<HandlerResult> HandleAsync();
+    public abstract Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default);
     
     public virtual IHandler SetNext(IHandler handler)
     {

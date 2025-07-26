@@ -1,8 +1,11 @@
-using Launcher.Handlers;
+using System.Collections.Frozen;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+using Launcher.Models;
+using Launcher.Util;
 
 using Microsoft.Extensions.Hosting;
-
-using Spectre.Console;
 
 namespace Launcher.Menu;
 
@@ -15,9 +18,9 @@ public abstract class MenuItem
 {
     public string DisplayText { get; }
     public MenuAction Action { get; }
+    public abstract FrozenSet<ConsoleKey> Keys { get; }
 
-    //TODO: Add CancellationToken to OnSelectedAsync
-    public abstract Task<HandlerResult> OnSelectedAsync();
+    public abstract Task<HandlerResult> OnSelectedAsync(CancellationToken cancellationToken = default);
 
     protected MenuItem(string displayText, MenuAction action)
     {
@@ -28,31 +31,52 @@ public abstract class MenuItem
 
 public class OpenDashboardMenuItem : MenuItem
 {
-    public override Task<HandlerResult> OnSelectedAsync()
+    private readonly LauncherContext _context;
+    public override FrozenSet<ConsoleKey> Keys => [ConsoleKey.O];
+    public override Task<HandlerResult> OnSelectedAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(HandlerResult.Success("Exiting..."));
-    }
-    public OpenDashboardMenuItem() : base("[aqua][[O]][/]pen Dashboard", MenuAction.OpenDashboard) { }
-}
+        if (_context.RunningProcesses.TryGetValue(ProcessKey.AtmosDashboard, out var value) && !value.HasExited)
+        {
+            return Task.FromResult(HandlerResult.Success("Atmos Dashboard is already running."));
+        }
 
-public class ToggleServiceMenuItem : MenuItem
-{
-    public override Task<HandlerResult> OnSelectedAsync()
-    {
-        return Task.FromResult(HandlerResult.Success("Exiting..."));
+        try
+        {
+            _context.RunningProcesses[ProcessKey.AtmosDashboard] = Process.Start(_context.DashboardUrl);
+        }
+        catch
+        {
+            // hack because of this: https://github.com/dotnet/corefx/issues/10361
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var tempUrl = _context.DashboardUrl.Replace("&", "^&");
+                Process.Start(new ProcessStartInfo("cmd", $"/c start {tempUrl}") { CreateNoWindow = true });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", _context.DashboardUrl);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", _context.DashboardUrl);
+            }
+            else
+            {
+                throw;
+            }
+        }
+        return Task.FromResult(HandlerResult.Success("Atmos Dashboard is running."));
     }
-    public bool IsServiceRunning { get; set; }
-
-    public ToggleServiceMenuItem(bool isServiceRunning) 
-        : base(isServiceRunning ? "[orange1][[T]][/]oggle Service (Stop)" : "[green][[T]][/]oggle Service (Start)", MenuAction.ToggleService)
+    public OpenDashboardMenuItem(LauncherContext context) : base("[aqua][[O]][/]pen Dashboard", MenuAction.OpenDashboard)
     {
-        IsServiceRunning = isServiceRunning;
+        _context = context;
     }
 }
 
 public class RestartServiceMenuItem : MenuItem
 {
-    public override Task<HandlerResult> OnSelectedAsync()
+    public override FrozenSet<ConsoleKey> Keys => [ConsoleKey.R];
+    public override Task<HandlerResult> OnSelectedAsync(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(HandlerResult.Success("Exiting..."));
     }
@@ -61,14 +85,15 @@ public class RestartServiceMenuItem : MenuItem
 
 public class ExitMenuItem : MenuItem
 {
-
+    public override FrozenSet<ConsoleKey> Keys => [ConsoleKey.E, ConsoleKey.Escape];
+    
     private readonly IHostApplicationLifetime _lifetime;
     public ExitMenuItem(IHostApplicationLifetime lifetime) : base("[red][[E]][/]xit", MenuAction.Exit)
     {
         _lifetime = lifetime;
     }
     
-    public override Task<HandlerResult> OnSelectedAsync()
+    public override Task<HandlerResult> OnSelectedAsync(CancellationToken cancellationToken = default)
     {
         _lifetime.StopApplication();
         return Task.FromResult(HandlerResult.Success("Exiting Atmos..."));

@@ -16,7 +16,7 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveHandler
     public PathPromptHandler(LauncherContext context) : base(context)
     {
     }
-    public override async Task<HandlerResult> HandleAsync()
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         var fallbackPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Atmos")
@@ -29,7 +29,7 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveHandler
         {
             var selectedPath = await SelectPathAsync(fallbackPath);
             Context.Config.InstallPath = selectedPath;
-            await configService.SaveConfigAsync(Context.Config);
+            await configService.SaveConfigAsync(Context.Config, cancellationToken);
             return new HandlerResult(true, "Installation path selected.");
         }
         
@@ -37,7 +37,8 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveHandler
         var usePreviousPath = await AnsiConsole.PromptAsync(
             new SelectionPrompt<string>()
                 .Title("[yellow]Would you like to use this path?[/]")
-                .AddChoices("Yes", "No")
+                .AddChoices("Yes", "No"),
+            cancellationToken
         );
         
         if (usePreviousPath == "Yes")
@@ -47,7 +48,7 @@ public class PathPromptHandler : DefaultSetNextHandler, IInteractiveHandler
         
         var newPath = await SelectPathAsync(fallbackPath);
         Context.Config.InstallPath = newPath;
-        await configService.SaveConfigAsync(Context.Config);
+        await configService.SaveConfigAsync(Context.Config, cancellationToken);
         return new HandlerResult(true, "Installation path selected.");
     }
     

@@ -4,6 +4,7 @@ using Launcher.Handlers.Abstract;
 using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
+using Launcher.Util;
 
 using Spectre.Console;
 
@@ -22,8 +23,9 @@ public class StartAtmosHandler : DefaultSetNextHandler
         _logService = logService;
     }
     
-    public override Task<HandlerResult> HandleAsync()
+    public override Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
+        // TODO: Revert to production and figure out a better way to run this locally.
         // var fullAtmosPath = Path.Combine(Context.Config.InstallPath, AtmosExe);
         // if (!File.Exists(fullAtmosPath))
         // {
@@ -55,14 +57,14 @@ public class StartAtmosHandler : DefaultSetNextHandler
                  }
              };
              
-             Context.RunningProcesses["atmos"] = process;
+             Context.RunningProcesses[ProcessKey.AtmosApi] = process;
              process.BeginOutputReadLine();
              process.BeginErrorReadLine();
              process.EnableRaisingEvents = true;
              process.Exited += (sender, args) =>
              {
                  _logService.AddLog("Atmos process exited.");
-                 Context.RunningProcesses.Remove("atmos");
+                 Context.RunningProcesses.Remove(ProcessKey.AtmosApi);
              };
             
             return Task.FromResult(HandlerResult.Success("Atmos started successfully."));

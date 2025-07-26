@@ -11,6 +11,9 @@ public class MenuItemFactory
     private readonly ChainBuilder _builder;
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly IAtmosLogService _logService;
+    private readonly List<MenuItem> _menuItems = [];
+    public List<MenuItem> MenuItems => _menuItems.Count > 0 ? _menuItems : GetMenuItems();
+
     public MenuItemFactory(ChainBuilder builder, LauncherContext context, IHostApplicationLifetime appLifetime, IAtmosLogService logService)
     {
         _builder = builder;
@@ -19,11 +22,10 @@ public class MenuItemFactory
         _logService = logService;
     }
     
-    public List<MenuItem> GetMenuItems()
+    private List<MenuItem> GetMenuItems()
     {
         return [
-            new OpenDashboardMenuItem(),
-            new ToggleServiceMenuItem(true), // Example value, this should be dynamically set based on service status
+            new OpenDashboardMenuItem(_context),
             new RestartServiceMenuItem(),
             new UpdateMenuItem(_context, _builder),
             new LogsMenuItem(_logService),

@@ -28,7 +28,7 @@ public class CheckForExistingInstallationHandler : DefaultSetNextHandler
     {
     }
 
-    public override async Task<HandlerResult> HandleAsync()
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         var configService = new AtmosConfigService();
         var existingConfig = await configService.LoadConfigAsync();

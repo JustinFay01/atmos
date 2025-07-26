@@ -16,17 +16,17 @@ public class AtmosConfigService
         _configFilePath = GetConfigFilePath();
     }
     
-    public async Task SaveConfigAsync(AtmosConfig? config)
+    public async Task SaveConfigAsync(AtmosConfig? config, CancellationToken cancellationToken = default)
     {
         var jsonContent = JsonSerializer.Serialize(config);
-        await File.WriteAllTextAsync(_configFilePath, jsonContent);
+        await File.WriteAllTextAsync(_configFilePath, jsonContent, cancellationToken);
     }
 
     /// <summary>
     /// Asynchronously loads the AtmosConfig from the standard location.
     /// </summary>
     /// <returns>The loaded AtmosConfig object, or null if it doesn't exist or is invalid.</returns>
-    public async Task<AtmosConfig> LoadConfigAsync()
+    public async Task<AtmosConfig> LoadConfigAsync(CancellationToken cancellationToken = default)
     {
         if (!File.Exists(_configFilePath))
         {
@@ -35,7 +35,7 @@ public class AtmosConfigService
 
         try
         {
-            var jsonContent = await File.ReadAllTextAsync(_configFilePath);
+            var jsonContent = await File.ReadAllTextAsync(_configFilePath, cancellationToken);
 
             return (string.IsNullOrWhiteSpace(jsonContent) 
                 ? new AtmosConfig() :

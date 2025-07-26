@@ -19,7 +19,7 @@ public class RunMigrationsHandler : DefaultSetNextHandler
 
     public override string StepName => "Updating database";
     private const string MigrationExe = "app/atmos-migrate";
-    public override async Task<HandlerResult> HandleAsync()
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         var fullMigrationPath = Path.Combine(Context.Config.InstallPath, MigrationExe);
         if (!File.Exists(fullMigrationPath))
@@ -44,8 +44,8 @@ public class RunMigrationsHandler : DefaultSetNextHandler
                 return HandlerResult.Failure("Failed to start migration process.");
             }
 
-            var output = await process.StandardOutput.ReadToEndAsync();
-            await process.WaitForExitAsync();
+            var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+            await process.WaitForExitAsync(cancellationToken);
 
             if ((string.IsNullOrWhiteSpace(output) && Context.DebugMode)|| process.ExitCode != 0)
             {

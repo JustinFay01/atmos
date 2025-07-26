@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Text;
 
 using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
+using Launcher.Util;
 
 using Microsoft.Extensions.Hosting;
 
@@ -26,7 +28,7 @@ public class MenuManager : BackgroundService
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ChainBuilder _builder;
     private readonly IAtmosLogService _logService;
-    private readonly LauncherContext Context;
+    private readonly LauncherContext _context;
     
     public MenuManager(MenuItemFactory menuItemFactory, IHostApplicationLifetime appLifetime, ChainBuilder builder, IAtmosLogService logService, LauncherContext context)
     {
@@ -34,7 +36,7 @@ public class MenuManager : BackgroundService
         _appLifetime = appLifetime;
         _builder = builder;
         _logService = logService;
-        Context = context;
+        _context = context;
     }
     
     /// <summary>
@@ -73,10 +75,19 @@ public class MenuManager : BackgroundService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                var timeoutTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                timeoutTokenSource.CancelAfter(TimeSpan.FromSeconds(5));
                 AnsiConsole.Clear();
                 WriteStatusPanel();
-                var menuItem = await ShowMenuAsync(stoppingToken);
-                await menuItem.OnSelectedAsync();
+                try
+                {
+                    var menuItem = await ShowMenuAsync(timeoutTokenSource.Token);
+                    await menuItem.OnSelectedAsync(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    continue;
+                }
             }
         } catch (OperationCanceledException)
         {
@@ -96,11 +107,11 @@ public class MenuManager : BackgroundService
 
     private void WriteStatusPanel()
     {
-        var isRunning = Context.RunningProcesses.ContainsKey("atmos") && !Context.RunningProcesses["atmos"].HasExited;
+        var isRunning = _context.RunningProcesses.ContainsKey(ProcessKey.AtmosApi) && !_context.RunningProcesses[ProcessKey.AtmosApi].HasExited;
         var statusMessage = isRunning 
             ? "[green]Atmos is running.[/]" 
             : "[red]Atmos is not running.[/]";
-        var panelMessage = new Markup($"[yellow]Version:[/] {Context.FetchedVersionTag}\n" +
+        var panelMessage = new Markup($"[yellow]Version:[/] {_context.FetchedVersionTag}\n" +
                                       $"[yellow]Atmos Status:[/] {statusMessage}");
         var panel = new Panel(panelMessage)
         {
@@ -118,7 +129,7 @@ public class MenuManager : BackgroundService
             .PageSize(10)
             .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
             .UseConverter(item => item.DisplayText) // Show our formatted text in the list
-            .AddChoices(_menuItemFactory.GetMenuItems().Where(item => item is not IHiddenMenuItem { IsHidden: true }));
+            .AddChoices(_menuItemFactory.MenuItems.Where(item => item is not IHiddenMenuItem { IsHidden: true }));
         
         return await AnsiConsole.PromptAsync(prompt, cancellationToken);
     }

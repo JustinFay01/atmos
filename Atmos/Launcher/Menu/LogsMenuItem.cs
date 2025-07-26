@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text;
 
 using Launcher.Services;
@@ -11,10 +12,10 @@ public class LogsMenuItem : MenuItem
     private readonly IAtmosLogService _logService;
     private readonly List<string> errors = [];
     private readonly List<string> restOfLogs = [];
-    public override async Task<HandlerResult> OnSelectedAsync()
+    public override FrozenSet<ConsoleKey> Keys => [ConsoleKey.L];
+    public override async Task<HandlerResult> OnSelectedAsync(CancellationToken cancellationToken = default)
     {
-        var cts = new CancellationTokenSource();
-        await ShowLogsViewAsync(cts.Token);
+        await ShowLogsViewAsync(cancellationToken);
         return HandlerResult.Success("Logs view closed.");
     }
     

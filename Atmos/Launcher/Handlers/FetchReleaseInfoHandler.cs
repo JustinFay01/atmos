@@ -24,7 +24,7 @@ public class FetchReleaseInfoHandler : DefaultSetNextHandler, IHandler
 
     public override string StepName => "Fetching latest release information";
 
-    public override async Task<HandlerResult> HandleAsync()
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         try
         {

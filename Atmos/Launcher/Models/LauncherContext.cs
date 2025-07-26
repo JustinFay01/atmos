@@ -32,6 +32,11 @@ public class LauncherContext
     public string TemporaryZipPath { get; set; } = string.Empty;
     
     public bool NewUpdateAvailable { get; set; }
+    
+    /// <summary>
+    /// For now, this is hardcoded, however in the future it may be configurable.
+    /// </summary>
+    public string DashboardUrl { get; set; } = "http://localhost:5000";
 
     public Dictionary<string, Process> RunningProcesses { get; set; } = new();
 }

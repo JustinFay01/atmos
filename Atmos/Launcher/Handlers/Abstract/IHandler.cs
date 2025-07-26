@@ -33,7 +33,7 @@ public interface IHandler
     /// <summary>
     /// Executes the logic for this handler.
     /// </summary>
-    Task<HandlerResult> HandleAsync();
+    Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default);
 }
 
 public interface IInteractiveHandler
