@@ -1,9 +1,13 @@
-using Launcher.Models;
+using System.Diagnostics;
 
-namespace Launcher.Handlers;
+namespace Launcher.Models;
 
-public class InstallationContext
+public class LauncherContext
 {
+    /// <summary>
+    /// Whether the launcher is running in debug mode.
+    /// </summary>
+    public bool DebugMode { get; set; } = false;
     
     /// <summary>
     /// If previously installed, this will contain the AtmosConfig.
@@ -26,4 +30,13 @@ public class InstallationContext
     /// Temporary path where the Atmos release zip file will be downloaded.
     /// </summary>
     public string TemporaryZipPath { get; set; } = string.Empty;
+    
+    public bool NewUpdateAvailable { get; set; }
+    
+    /// <summary>
+    /// For now, this is hardcoded, however in the future it may be configurable.
+    /// </summary>
+    public string DashboardUrl { get; set; } = "http://localhost:5000";
+
+    public Dictionary<string, Process> RunningProcesses { get; set; } = new();
 }

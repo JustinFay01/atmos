@@ -1,5 +1,13 @@
 ﻿using System.CommandLine;
+
+using Launcher.Extensions;
+using Launcher.Menu;
+using Launcher.Models;
 using Launcher.Services;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Launcher;
 
@@ -7,26 +15,29 @@ internal abstract class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        var builder = new ChainBuilder();
-        var executor = new ChainExecutor();
-
+        var rootCommand = new RootCommand("Atmos CLI Launcher");
         var debugOption = new Option<bool>("--debug");
-        var installCommand = new Command("install", "Install or update the Atmos Client.");
-
-        var rootCommand = new RootCommand("Atmos CLI Launcher")
+        rootCommand.Options.Add(debugOption);
+        rootCommand.SetAction(async result =>
         {
-            installCommand,
-            debugOption
-        };
-        
-        installCommand.Options.Add(debugOption);
-        installCommand.SetAction(async result =>
-        {
-            var handler = builder.BuildDefaultChain();
-            var debugMode = result.GetValue(debugOption);
-            var executorOptions = new ExecutorOptions { DebugMode = debugMode };
-            var handlerResult = await executor.Execute(handler, executorOptions);
-            Environment.Exit(handlerResult.ExitCode);
+            var builder = Host.CreateApplicationBuilder(args);
+            builder.Logging.ClearProviders();
+            builder.Services.RegisterHandlers();
+            
+            var debug = result.GetValue(debugOption);
+            builder.Services.AddSingleton<IAtmosLogService, AtmosLogService>();
+            builder.Services.AddSingleton<ChainBuilder>();
+            builder.Services.AddSingleton<LauncherContext>(
+                new LauncherContext
+                {
+                    DebugMode = debug
+                });
+            
+            builder.Services.AddSingleton<MenuItemFactory>();
+            builder.Services.AddHostedService<MenuManager>(); 
+            
+            using var host = builder.Build();
+            await host.RunAsync();
         });
 
         return await rootCommand.Parse(args).InvokeAsync();

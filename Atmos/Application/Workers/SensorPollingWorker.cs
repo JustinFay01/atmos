@@ -21,6 +21,7 @@ public class SensorPollingWorker(
     ISensorClient sensorClient,
     IMapper mapper,
     IServiceScopeFactory scopeFactory,
+    IHostApplicationLifetime applicationLifetime,
     IHourlyReadingService hourlyReadingService,
     IRealtimeUpdateNotifier notifier)
     : BackgroundService
@@ -86,6 +87,7 @@ public class SensorPollingWorker(
         {
             logger.LogCritical(ex, "An error occurred in SensorPollingWorker. The application is shutting down.");
             await StopAsync(stoppingToken);
+            applicationLifetime.StopApplication();
         }
         finally
         {

@@ -52,11 +52,6 @@ def main():
     target_os = OS_TARGETS[args.os]
 
     # --- Path Definitions ---
-    # **KEY CHANGE**: Determine the root directory relative to this script's location.
-    # This makes the script runnable from anywhere.
-    # Path(__file__) is the path to this script ('.../scripts/release.py')
-    # .parent is the 'scripts' directory
-    # .parent.parent is the project root directory ('atmos/')
     root_dir = Path(__file__).resolve().parent.parent
 
     release_dir = root_dir / "release-zips"
@@ -68,7 +63,7 @@ def main():
     print(f"   Target OS: {target_os}")
     print(f"   Project Root: {root_dir}")
     print(f"   Release Directory: {version_dir}")
-    print("-" * 40)
+    print("-" * 40)    
 
     # --- Step 0: Create release directories ---
     print("▶️  Step 0: Creating release directories...")

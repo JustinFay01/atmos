@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
 using Launcher.Models;
 using Launcher.Services;
 
@@ -16,17 +17,24 @@ namespace Launcher.Handlers;
 /// If so, it saves the previous user-selected installation path to the context and
 /// sets the PreviouslyInstalled flag to true.
 /// </summary>
+[HandlerOrder(ChainType.Install, 10)]
+[HandlerOrder(ChainType.Update, 10)]
+[HandlerOrder(ChainType.Initialization, 10)]
 public class CheckForExistingInstallationHandler : DefaultSetNextHandler
 {
     public override string StepName => "Checking for existing installation";
 
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
+    public CheckForExistingInstallationHandler(LauncherContext context) : base(context)
+    {
+    }
+
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
         var configService = new AtmosConfigService();
         var existingConfig = await configService.LoadConfigAsync();
-        context.Config = existingConfig;
+        Context.Config = existingConfig;
 
-        if (options?.DebugMode == true )
+        if (Context.DebugMode)
         {
             var message = existingConfig.IsEmpty ? "No existing config found." : $"Existing config found. {existingConfig}";
             AnsiConsole.MarkupInterpolated($"[yellow]Debug Mode: {message}[/]");

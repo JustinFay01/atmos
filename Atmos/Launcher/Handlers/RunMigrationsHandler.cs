@@ -1,19 +1,27 @@
 using System.Diagnostics;
 
 using Launcher.Handlers.Abstract;
+using Launcher.Handlers.Attributes;
+using Launcher.Models;
 using Launcher.Services;
 
 using Spectre.Console;
 
 namespace Launcher.Handlers;
 
+[HandlerOrder(ChainType.Install, 70)]
+[HandlerOrder(ChainType.Update, 60)]
 public class RunMigrationsHandler : DefaultSetNextHandler
 {
+    public RunMigrationsHandler(LauncherContext context) : base(context)
+    {
+    }
+
     public override string StepName => "Updating database";
     private const string MigrationExe = "app/atmos-migrate";
-    public override async Task<HandlerResult> HandleAsync(InstallationContext context, ExecutorOptions? options = null)
+    public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
-        var fullMigrationPath = Path.Combine(context.Config.InstallPath, MigrationExe);
+        var fullMigrationPath = Path.Combine(Context.Config.InstallPath, MigrationExe);
         if (!File.Exists(fullMigrationPath))
         {
             return HandlerResult.Failure("Migration executable not found. Please ensure the Atmos installation is complete.");
@@ -36,19 +44,16 @@ public class RunMigrationsHandler : DefaultSetNextHandler
                 return HandlerResult.Failure("Failed to start migration process.");
             }
 
-            var output = await process.StandardOutput.ReadToEndAsync();
-            await process.WaitForExitAsync();
+            var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+            await process.WaitForExitAsync(cancellationToken);
 
-            if ((string.IsNullOrWhiteSpace(output) || options?.DebugMode != true) && process.ExitCode == 0)
+            if ((string.IsNullOrWhiteSpace(output) && Context.DebugMode)|| process.ExitCode != 0)
             {
-                return process.ExitCode != 0
-                    ? HandlerResult.Failure($"Migration failed. Are you sure the database is running?")
-                    : HandlerResult.Success("Database migration completed successfully.");
+                AnsiConsole.MarkupInterpolated($"[white]Migration Output:{output}[/]");
             }
-
-            AnsiConsole.MarkupInterpolated($"[white]Migration Output:{output}[/]");
-            return process.ExitCode != 0 
-                ? HandlerResult.Failure("Migration failed. Are you sure the database is running?") 
+            
+            return process.ExitCode != 0
+                ? HandlerResult.Failure($"Migration failed. Are you sure the database is running?")
                 : HandlerResult.Success("Database migration completed successfully.");
         }
         catch (Exception ex)

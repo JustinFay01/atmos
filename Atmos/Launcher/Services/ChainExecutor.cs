@@ -1,17 +1,46 @@
 using Launcher.Handlers;
+using Launcher.Models;
 
 using Spectre.Console;
 
 namespace Launcher.Services;
 
-public class ExecutorOptions
-{
-    public bool DebugMode { get; set; } = false;
-}
 
 public class ChainExecutor
 {
-     public async Task<HandlerResult> Execute(IInstallationHandler? chain, ExecutorOptions? options = null)
+    public async Task<HandlerResult> ExecuteSilentChainAsync(IHandler? chain, CancellationToken cancellationToken = default)
+    {
+        if (chain == null)
+        {
+            return HandlerResult.Failure("Installation chain is empty.");
+        }
+
+        var currentHandler = chain;
+
+        while (currentHandler != null && !cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+
+                var result = await currentHandler.HandleAsync(cancellationToken);
+                if (!result.IsSuccess)
+                {
+                    return result;
+                }
+
+                currentHandler = currentHandler.Next;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                return HandlerResult.Failure($"An error occurred while executing {currentHandler?.StepName}: {ex.Message}");
+            }
+        }
+
+
+        return HandlerResult.Success("Installation completed successfully.");
+    }
+     public async Task<HandlerResult> ExecuteInstallation(IHandler? chain, CancellationToken cancellationToken = default)
     {
         if (chain == null)
         {
@@ -19,23 +48,17 @@ public class ChainExecutor
         }
 
         AnsiConsole.Write(new Rule("[bold yellow]Atmos Installer[/]").Centered());
-        var context = new InstallationContext();
         var currentHandler = chain;
         var stepNumber = 1;
 
-        while (currentHandler != null)
+        while (currentHandler != null && !cancellationToken.IsCancellationRequested)
         {
             HandlerResult result;
 
             // Check if the handler is interactive
-            if (currentHandler is IInteractiveInstallationHandler)
+            if (currentHandler is IInteractiveHandler)
             {
-                AnsiConsole.MarkupLine($"\n[cyan]Step {stepNumber}: {currentHandler.StepName}[/]");
-                AnsiConsole.Write(new Rule().RuleStyle("blue").DoubleBorder());
-                
-                result = await currentHandler.HandleAsync(context, options);
-                
-                AnsiConsole.Write(new Rule().RuleStyle("blue").DoubleBorder());
+                result = await currentHandler.HandleAsync(cancellationToken);
             }
             else
             {
@@ -47,7 +70,7 @@ public class ChainExecutor
                     .StartAsync($"[cyan]Step {stepNumber}: {currentHandler.StepName}...[/]", async ctx =>
                     {
                         // Quietly execute the handler's logic
-                        result = await currentHandler.HandleAsync(context, options);
+                        result = await currentHandler.HandleAsync(cancellationToken);
                         if (!result.IsSuccess)
                         {
                             ctx.Status($"[red]Failed: {currentHandler.StepName}[/]");
