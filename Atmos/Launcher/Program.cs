@@ -40,7 +40,8 @@ internal abstract class Program
             var executor = new ChainExecutor();
             var chainBuilder = host.Services.GetRequiredService<ChainBuilder>();
             var chain = chainBuilder.BuildChain(ChainType.Install);
-            await executor.ExecuteInstallation(chain);
+            using var cancellationTokenSource = new CancellationTokenSource();
+            await executor.ExecuteInstallation(chain, cancellationTokenSource.Token);
         });
 
         return await rootCommand.Parse(args).InvokeAsync();

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 
 using Launcher.Extensions;
 using Launcher.Handlers.Abstract;
