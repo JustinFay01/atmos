@@ -26,7 +26,7 @@ public class Program
             options.AddPolicy(myAllowSpecificOrigins,
                 corsPolicyBuilder =>
                 {
-                    corsPolicyBuilder.WithOrigins("http://localhost:5173")
+                    corsPolicyBuilder.WithOrigins("http://localhost:5276")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
@@ -50,10 +50,7 @@ public class Program
 
         var app = builder.Build();
         app.UseCors(myAllowSpecificOrigins);
-
         app.UseStaticFiles();
-
-
         app.MapHub<DashboardHub>("/v1/dashboard");
         app.MapControllers();
         app.MapFallbackToFile("index.html");
