@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 
 using Launcher.Extensions;
+using Launcher.Handlers.Attributes;
 using Launcher.Menu;
 using Launcher.Models;
 using Launcher.Services;
@@ -17,6 +18,7 @@ internal abstract class Program
     {
         var rootCommand = new RootCommand("Atmos CLI Launcher");
         var debugOption = new Option<bool>("--debug");
+        
         rootCommand.Options.Add(debugOption);
         rootCommand.SetAction(async result =>
         {
@@ -27,17 +29,19 @@ internal abstract class Program
             var debug = result.GetValue(debugOption);
             builder.Services.AddSingleton<IAtmosLogService, AtmosLogService>();
             builder.Services.AddSingleton<ChainBuilder>();
-            builder.Services.AddSingleton<LauncherContext>(
+            builder.Services.AddSingleton(
                 new LauncherContext
                 {
                     DebugMode = debug
                 });
             
-            builder.Services.AddSingleton<MenuItemFactory>();
-            builder.Services.AddHostedService<MenuManager>(); 
-            
             using var host = builder.Build();
-            await host.RunAsync();
+            
+            var executor = new ChainExecutor();
+            var chainBuilder = host.Services.GetRequiredService<ChainBuilder>();
+            var chain = chainBuilder.BuildChain(ChainType.Install);
+            using var cancellationTokenSource = new CancellationTokenSource();
+            await executor.ExecuteInstallation(chain, cancellationTokenSource.Token);
         });
 
         return await rootCommand.Parse(args).InvokeAsync();

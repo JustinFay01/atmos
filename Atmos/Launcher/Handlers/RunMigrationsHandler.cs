@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using Launcher.Extensions;
 using Launcher.Handlers.Abstract;
 using Launcher.Handlers.Attributes;
 using Launcher.Models;
@@ -18,10 +19,10 @@ public class RunMigrationsHandler : DefaultSetNextHandler
     }
 
     public override string StepName => "Updating database";
-    private const string MigrationExe = "app/atmos-migrate";
+    private readonly string _migrationExe = PathExtensions.CombinePlatformExe("app", "atmos-migrate");
     public override async Task<HandlerResult> HandleAsync(CancellationToken cancellationToken = default)
     {
-        var fullMigrationPath = Path.Combine(Context.Config.InstallPath, MigrationExe);
+        var fullMigrationPath = Path.Combine(Context.Config.InstallPath, _migrationExe);
         if (!File.Exists(fullMigrationPath))
         {
             return HandlerResult.Failure("Migration executable not found. Please ensure the Atmos installation is complete.");

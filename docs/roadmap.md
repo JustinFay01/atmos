@@ -232,8 +232,8 @@ This defines the final structure of the asset you will upload to GitHub Releases
         /atmos-launcher.exe         <-- Your compiled, self-contained launcher
         /docker-compose.yml         <-- The docker-compose file for Postgres
         /app/                       <-- A folder containing the main application
-            /Atmos.Service.exe
-            /Atmos.Migration.exe
+            /atmos.exe
+            /atmos-migrate.exe
             /wwwroot/
             /... (all other required DLLs and files)
         ```
