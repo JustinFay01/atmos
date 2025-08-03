@@ -37,7 +37,7 @@ public static class ServiceExtensions
     
     private static ISensorClient CreateSensorClient(IConfiguration configuration)
     {
-        var sensorSettings = configuration.GetSection("SensorSettings");
+        var sensorSettings = configuration.GetSection("Sensor");
         
         var sensorType = sensorSettings["Type"] ?? "Real";
         var portName = sensorSettings["PortName"] ?? "COM3";
