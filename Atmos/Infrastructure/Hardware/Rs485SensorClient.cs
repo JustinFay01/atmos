@@ -28,7 +28,7 @@ public class Rs485SensorClient : ISensorClient
         
         if (dataBits is < 4 or > 8)
         {
-            throw new ArgumentOutOfRangeException(nameof(dataBits), "Data bits must be between 5 and 8.");
+            throw new ArgumentOutOfRangeException(nameof(dataBits), "Data bits must be between 4 and 8.");
         }
         
         if (!Enum.TryParse<Parity>(parity, true, out var parsedParity))
