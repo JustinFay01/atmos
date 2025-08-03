@@ -134,8 +134,12 @@ export const Dashboard = () => {
               />
             </Grid>
 
-            <Grid size={{ sm: 12, md: 6 }} padding={2}>
-              <FlexColumn gap={1}>
+            <Grid
+              size={{ sm: 12, md: 6 }}
+              padding={2}
+              sx={{ width: "100%", height: "100%" }}
+            >
+              <FlexColumn gap={1} sx={{ height: "100%" }}>
                 <MinMaxCard
                   loading={!dashboardStore.latestUpdate}
                   label="Temperature"
@@ -197,7 +201,11 @@ export const Dashboard = () => {
                 />
               </FlexColumn>
             </Grid>
-            <Grid size={{ sm: 12 }} padding={2} sx={{ overflowY: "auto" }}>
+            <Grid
+              size={{ sm: 12 }}
+              padding={2}
+              sx={{ width: "100%", height: "100%", overflowY: "auto" }}
+            >
               <TwelveHourTable
                 loading={
                   !dashboardStore.latestUpdate || !dashboardStore.hourUpdates
@@ -252,13 +260,13 @@ export const Dashboard = () => {
         )}
         {selectedIndex === LIVE_READINGS_INDEX && (
           <>
-            <Grid size={{ sm: 12, md: 4 }} padding={2}>
+            <Grid size={{ md: 12, lg: 4 }} padding={2} sx={{ width: "100%" }}>
               <TenSecondReadingTable readings={dashboardStore.recentUpdates} />
             </Grid>
-            <Grid size={{ sm: 12, md: 4 }} padding={2}>
+            <Grid size={{ md: 12, lg: 4 }} padding={2} sx={{ width: "100%" }}>
               <OneMinuteAverageTable readings={dashboardStore.recentUpdates} />
             </Grid>
-            <Grid size={{ sm: 12, md: 4 }} padding={2}>
+            <Grid size={{ md: 12, lg: 4 }} padding={2} sx={{ width: "100%" }}>
               <FiveMinuteAverageTable readings={dashboardStore.recentUpdates} />
             </Grid>
           </>
