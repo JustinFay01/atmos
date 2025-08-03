@@ -54,7 +54,7 @@ public static class ServiceExtensions
                 portName, baudRate, parity, dataBits, stopBits, readTimeout, writeTimeout
                 ),
             "Mock" => new MockSensorClient(),
-            _ => throw new ArgumentException($"Unsupported sensor type: {sensorType}")
+            _ => throw new ArgumentException($"Unsupported sensor type: {sensorType}. Supported types: Real, Mock.", "SensorSettings:Type")
         };
     }
 }
