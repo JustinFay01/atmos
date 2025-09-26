@@ -23,7 +23,9 @@ public class SensorPollingWorker(
     IServiceScopeFactory scopeFactory,
     IHostApplicationLifetime applicationLifetime,
     IHourlyReadingService hourlyReadingService,
-    IRealtimeUpdateNotifier notifier)
+    IReadingLogWriter logWriter,
+    LogSettings logSettings
+    )
     : BackgroundService
 {
     private Task? _orchestrationTask;
@@ -120,14 +122,10 @@ public class SensorPollingWorker(
             var aggregate = mapper.Map<ReadingAggregate>(aggregatedReadingDto);
 
             // Store Aggregated Data
-
             await Task.WhenAll([
-                readingRepository.CreateAsync(aggregate, workCts.Token),
+                logWriter.AppendAsync(aggregate, logSettings.LogDir, cancellationToken: workCts.Token),
                 hourlyReadingService.ProcessReadingAsync(sensorData, workCts.Token),
             ]);
-            
-            // Notify Clients of Update
-            await notifier.SendDashboardUpdateAsync(aggregatedReadingDto, workCts.Token);
 
             logger.LogInformation("Sensor data processed successfully.");
         }

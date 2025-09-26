@@ -1,6 +1,6 @@
 namespace Domain.Entities;
 
-public class ReadingAggregate : BaseEntity
+public class ReadingAggregate
 {
     /// <summary>
     /// The time that this aggregate represents.
