@@ -1,12 +1,13 @@
 using System.Collections.Concurrent;
 
-using Application.Dtos;
-using Application.Models;
-using Application.Services;
+using Atmos.Application.Services;
+
+using Atmos.Application.Dtos;
+using Atmos.Application.Models;
 
 using Microsoft.Extensions.Logging;
 
-namespace Application.Rules;
+namespace Atmos.Application.Rules;
 
 /// <summary>
 /// Once a minute, at the top of the minute (:00), this rule updates the one-minute rolling average.

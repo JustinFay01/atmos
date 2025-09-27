@@ -1,6 +1,6 @@
-using Application.Models;
+using Atmos.Application.Models;
 
-namespace Application.Dtos;
+namespace Atmos.Application.Dtos;
 
 public class ReadingAggregateDto
 {

@@ -1,7 +1,7 @@
-using Application.Helper;
-using Application.Interfaces;
-using Application.Models;
-using Application.Services;
+using Atmos.Application.Helper;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Models;
+using Atmos.Application.Services;
 
 using AutoMapper;
 
@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Workers;
+namespace Atmos.Application.Workers;
 
 public class SensorPollingWorker(
     ILogger<SensorPollingWorker> logger,

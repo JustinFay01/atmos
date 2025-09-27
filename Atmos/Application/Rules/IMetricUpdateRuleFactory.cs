@@ -1,8 +1,10 @@
-using Application.Models;
+using Atmos.Application.Rules;
+
+using Atmos.Application.Models;
 
 using Microsoft.Extensions.Logging;
 
-namespace Application.Rules;
+namespace Atmos.Application.Rules;
 
 public interface IMetricUpdateRuleFactory
 {

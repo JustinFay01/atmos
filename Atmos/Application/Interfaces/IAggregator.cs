@@ -1,7 +1,7 @@
-using Application.Dtos;
-using Application.Models;
+using Atmos.Application.Dtos;
+using Atmos.Application.Models;
 
-namespace Application.Interfaces;
+namespace Atmos.Application.Interfaces;
 
 public interface IAggregator
 {

@@ -1,10 +1,10 @@
-using Application.Dtos;
+using Atmos.Application.Dtos;
 
 using AutoMapper;
 
 using Domain.Entities;
 
-namespace Application.Profiles;
+namespace Atmos.Application.Profiles;
 
 public class ReadingAggregateDtoProfile : Profile
 {
@@ -12,7 +12,6 @@ public class ReadingAggregateDtoProfile : Profile
     {
         // Flatten the ReadingAggregateDto to a single object for ease of storage in the database.
         CreateMap<ReadingAggregateDto, ReadingAggregate>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
             // Raw Reading Values
             .ForMember(dest => dest.Timestamp,
                 opt => opt.MapFrom(src => src.LatestReading.Timestamp.ToUniversalTime()))

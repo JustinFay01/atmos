@@ -1,9 +1,10 @@
 using System.Collections.Concurrent;
 
-using Application.Dtos;
-using Application.Helper;
 using Application.Models;
-using Application.Rules;
+
+using Atmos.Application.Dtos;
+using Atmos.Application.Helper;
+using Atmos.Application.Rules;
 
 using Moq;
 

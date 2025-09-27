@@ -1,6 +1,6 @@
-using Application.Helper;
+using Atmos.Application.Helper;
 
-namespace Application.Models;
+namespace Atmos.Application.Models;
 
 public class RawSensorReading
 {

@@ -1,11 +1,11 @@
-using Application.Dtos;
-using Application.Helper;
-using Application.Interfaces;
-using Application.Models;
+using Atmos.Application.Dtos;
+using Atmos.Application.Helper;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Models;
 
 using Microsoft.Extensions.Logging;
 
-namespace Application.Services;
+namespace Atmos.Application.Services;
 
 /// <summary>
 /// Responsible for storing a cache of, and sending updates for, the last 12 hours of readings.

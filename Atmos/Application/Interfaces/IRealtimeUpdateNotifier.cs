@@ -1,6 +1,6 @@
-using Application.Dtos;
+using Atmos.Application.Dtos;
 
-namespace Application.Interfaces;
+namespace Atmos.Application.Interfaces;
 
 public interface IRealtimeUpdateNotifier
 {

@@ -1,6 +1,6 @@
-using Application.Models;
+using Atmos.Application.Models;
 
-namespace Application.Interfaces;
+namespace Atmos.Application.Interfaces;
 
 public interface ISensorClient
 {

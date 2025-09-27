@@ -1,9 +1,8 @@
 using System.Collections.Concurrent;
 
-using Application.Dtos;
-using Application.Models;
+using Atmos.Application.Dtos;
 
-namespace Application.Rules;
+namespace Atmos.Application.Rules;
 
 /// <summary>
 /// Updates the recent readings queue with the latest value. Making sure it only keeps the last six readings.

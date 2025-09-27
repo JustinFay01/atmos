@@ -1,4 +1,4 @@
-namespace Application.Dtos;
+namespace Atmos.Application.Dtos;
 
 public class MetricDto
 {

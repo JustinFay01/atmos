@@ -1,4 +1,4 @@
-namespace Application.Models;
+namespace Atmos.Application.Models;
 
 public class LogSettings
 {

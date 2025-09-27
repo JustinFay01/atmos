@@ -1,11 +1,11 @@
-using Application.Interfaces;
-using Application.Profiles;
-using Application.Rules;
-using Application.Services;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Profiles;
+using Atmos.Application.Rules;
+using Atmos.Application.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Application.Extensions;
+namespace Atmos.Application.Extensions;
 
 public static class ServiceExtensions
 {

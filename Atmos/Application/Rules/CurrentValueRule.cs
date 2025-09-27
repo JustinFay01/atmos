@@ -1,7 +1,8 @@
-using Application.Dtos;
-using Application.Models;
+using Atmos.Application.Models;
 
-namespace Application.Rules;
+using Atmos.Application.Dtos;
+
+namespace Atmos.Application.Rules;
 
 public class CurrentValueRule : IMetricUpdateRule
 {

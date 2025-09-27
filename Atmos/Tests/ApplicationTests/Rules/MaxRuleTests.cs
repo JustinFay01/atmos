@@ -1,6 +1,7 @@
-using Application.Dtos;
 using Application.Models;
-using Application.Rules;
+
+using Atmos.Application.Dtos;
+using Atmos.Application.Rules;
 
 using AutoFixture;
 

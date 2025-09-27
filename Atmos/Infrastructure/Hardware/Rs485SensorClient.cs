@@ -1,7 +1,7 @@
 using System.IO.Ports;
 
-using Application.Interfaces;
-using Application.Models;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Models;
 
 namespace Infrastructure.Hardware;
 

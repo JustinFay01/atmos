@@ -1,7 +1,9 @@
 using Application.Interfaces;
-using Application.Models;
 using Application.Rules;
-using Application.Services;
+
+using Atmos.Application.Models;
+using Atmos.Application.Rules;
+using Atmos.Application.Services;
 
 using AutoFixture;
 

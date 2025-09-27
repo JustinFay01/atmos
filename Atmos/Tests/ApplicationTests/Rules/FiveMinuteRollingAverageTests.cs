@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-using Application.Dtos;
+using Atmos.Application.Dtos;
 
 namespace Tests.ApplicationTests.Rules;
 

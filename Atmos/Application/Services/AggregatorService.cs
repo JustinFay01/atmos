@@ -1,11 +1,11 @@
-using Application.Dtos;
-using Application.Interfaces;
-using Application.Models;
-using Application.Rules;
+using Atmos.Application.Dtos;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Models;
+using Atmos.Application.Rules;
 
 using Microsoft.Extensions.Logging;
 
-namespace Application.Services;
+namespace Atmos.Application.Services;
 
 public class AggregatorService(
     ILogger<AggregatorService> logger,

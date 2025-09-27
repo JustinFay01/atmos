@@ -2,10 +2,11 @@ using API.Extensions;
 using API.Hubs;
 
 using Application;
-using Application.Extensions;
-using Application.Interfaces;
-using Application.Models;
-using Application.Workers;
+
+using Atmos.Application.Extensions;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Models;
+using Atmos.Application.Workers;
 
 using Infrastructure.Extensions;
 

@@ -1,23 +1,25 @@
-using Application.Interfaces;
-using Application.Models;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Models;
 
 namespace Infrastructure.Hardware;
 
 public class MockSensorClient : ISensorClient
 {
-    public bool IsConnected { get; } = true;
+    public bool IsConnected { get; private set; } = true;
 
     private int _iterationCount = 0;
     private readonly Random _random = new Random();
     public async Task<bool> ConnectAsync(CancellationToken cancellationToken)
     {
         await Task.Delay(100, cancellationToken);
+        IsConnected = true;
         return true;
     }
 
     public Task DisconnectAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        IsConnected = false;
+        return Task.CompletedTask;
     }
 
     public Task<RawSensorReading> GetReadingAsync(CancellationToken cancellationToken)

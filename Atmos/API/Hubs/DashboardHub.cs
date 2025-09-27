@@ -1,5 +1,5 @@
-using Application.Interfaces;
-using Application.Services;
+using Atmos.Application.Interfaces;
+using Atmos.Application.Services;
 
 using Microsoft.AspNetCore.SignalR;
 

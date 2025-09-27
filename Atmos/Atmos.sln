@@ -1,10 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{EDE307CE-C015-464B-B248-BC0227F4EB78}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{4EA1DBA1-1EEC-43C5-8ADF-E1E4B026DA8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{7E590EB7-C8DE-48EB-B49A-986960BC2E67}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atmos.Application", "Application\Atmos.Application.csproj", "{7E590EB7-C8DE-48EB-B49A-986960BC2E67}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{DCE7E4FD-8D79-4516-8481-C13120EA457A}"
 EndProject
@@ -14,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atmos.Presentation", "Atmos.Presentation\Atmos.Presentation.csproj", "{E77505B9-057E-4A1E-A2A7-52C560D5D55E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,5 +46,15 @@ Global
 		{174199B3-D66D-4A46-A435-AB92D4F86217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{174199B3-D66D-4A46-A435-AB92D4F86217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{174199B3-D66D-4A46-A435-AB92D4F86217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E77505B9-057E-4A1E-A2A7-52C560D5D55E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E77505B9-057E-4A1E-A2A7-52C560D5D55E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E77505B9-057E-4A1E-A2A7-52C560D5D55E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E77505B9-057E-4A1E-A2A7-52C560D5D55E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F5D8D750-7BBB-4F9E-BEB7-3EA5607EF36F}
 	EndGlobalSection
 EndGlobal

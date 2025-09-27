@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace Application.Dtos;
+namespace Atmos.Application.Dtos;
 
 public class SingleReadingAggregateDto
 {

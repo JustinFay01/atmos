@@ -1,4 +1,4 @@
-using Application.Interfaces;
+using Atmos.Application.Interfaces;
 
 using Domain.Interfaces;
 
