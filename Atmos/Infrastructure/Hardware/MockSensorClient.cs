@@ -11,7 +11,7 @@ public class MockSensorClient : ISensorClient
     private readonly Random _random = new Random();
     public async Task<bool> ConnectAsync(CancellationToken cancellationToken)
     {
-        await Task.Delay(100, cancellationToken);
+        await Task.Delay(10_000, cancellationToken);
         IsConnected = true;
         return true;
     }

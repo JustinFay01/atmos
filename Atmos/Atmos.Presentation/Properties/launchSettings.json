@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Atmos.Presentation (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Atmos.Presentation (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
